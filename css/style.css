@@ -2450,3 +2450,140 @@
     #shop-modal .ach-card { min-height:185px; padding:13px 9px; }
     #shop-modal .shop-tab { padding:7px 9px; font-size:11px; }
 }
+
+
+/* === MAIN MENU — FINAL COSMIC POLISH === */
+#start-screen {
+    background:
+        radial-gradient(circle at 50% 38%, rgba(66,88,180,.055), transparent 34%),
+        linear-gradient(180deg, rgba(3,7,20,.10), rgba(1,3,12,.22));
+}
+#start-screen h1 {
+    letter-spacing: .8px;
+    text-shadow: 0 0 30px rgba(79,195,247,.08);
+}
+#start-screen h1 small {
+    opacity: .82;
+}
+#start-screen .profile-badge {
+    padding: 7px 13px;
+    border: 1px solid rgba(138,180,255,.22);
+    background: rgba(7,12,28,.56);
+    box-shadow: 0 8px 24px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.045);
+    backdrop-filter: blur(12px);
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+#start-screen .profile-badge:hover {
+    transform: translateX(-50%) translateY(-1px);
+    border-color: rgba(138,180,255,.4);
+    background: rgba(10,17,38,.72);
+}
+#start-screen .stats-line {
+    border: 1px solid rgba(138,180,255,.16);
+    background: rgba(6,11,27,.55);
+    box-shadow: inset 0 1px rgba(255,255,255,.045), 0 8px 26px rgba(0,0,0,.16);
+    backdrop-filter: blur(12px);
+}
+#start-screen .stats-line .sl-item {
+    transition: transform .18s ease, filter .18s ease;
+}
+#start-screen .stats-line .sl-item:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.12);
+}
+#start-screen .simple-play-card {
+    border-color: rgba(79,195,247,.34);
+    background:
+        radial-gradient(circle at 83% 48%, rgba(156,107,255,.17), transparent 29%),
+        radial-gradient(circle at 16% 84%, rgba(79,195,247,.08), transparent 32%),
+        linear-gradient(135deg, rgba(12,28,52,.78), rgba(8,14,31,.72) 55%, rgba(25,15,49,.68));
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.065),
+        inset 0 0 48px rgba(79,195,247,.035),
+        0 20px 48px rgba(0,0,0,.30),
+        0 0 30px rgba(79,195,247,.035);
+}
+#start-screen .simple-play-card::before {
+    content: '';
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    right: -95px;
+    top: -80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(79,195,247,.12), transparent 68%);
+    pointer-events: none;
+}
+#start-screen .simple-kicker {
+    opacity: .92;
+}
+#start-screen .simple-play-card h2 {
+    font-size: clamp(40px, 5vw, 50px);
+    letter-spacing: 1.5px;
+}
+#start-screen .simple-play-btn {
+    border-color: rgba(255,255,255,.14);
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4fc3f7, #397bd8 58%, #7560d8);
+    box-shadow: 0 10px 28px rgba(33,150,243,.2), inset 0 1px rgba(255,255,255,.25);
+    transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+}
+#start-screen .simple-play-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+    box-shadow: 0 14px 32px rgba(33,150,243,.27), 0 0 22px rgba(79,195,247,.08), inset 0 1px rgba(255,255,255,.28);
+}
+#start-screen .menu-grid .menu-tile {
+    border-width: 1px;
+    border-color: rgba(255,255,255,.09);
+    background:
+        linear-gradient(145deg, rgba(17,22,43,.78), rgba(7,11,26,.82)),
+        radial-gradient(circle at 88% 8%, currentColor, transparent 48%);
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.045),
+        0 10px 28px rgba(0,0,0,.22);
+    backdrop-filter: blur(10px);
+}
+#start-screen .menu-grid .menu-tile.core {
+    border-color: rgba(156,107,255,.22);
+}
+#start-screen .menu-grid .menu-tile.shop {
+    border-color: rgba(255,217,61,.18);
+}
+#start-screen .menu-grid .menu-tile.ach {
+    border-color: rgba(255,217,61,.16);
+}
+#start-screen .menu-grid .menu-tile.daily {
+    border-color: rgba(255,92,122,.18);
+}
+#start-screen .menu-grid .menu-tile.rogue {
+    border-color: rgba(124,255,178,.25);
+    background:
+        linear-gradient(145deg, rgba(12,34,31,.78), rgba(7,14,25,.86)),
+        radial-gradient(circle at 90% 10%, rgba(124,255,178,.14), transparent 50%);
+}
+#start-screen .menu-grid .menu-tile:hover {
+    border-color: rgba(255,255,255,.19);
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.065),
+        0 14px 32px rgba(0,0,0,.28),
+        0 0 22px color-mix(in srgb, currentColor 7%, transparent);
+}
+#start-screen .menu-grid .menu-tile.rogue:hover {
+    border-color: rgba(124,255,178,.42);
+}
+#start-screen .menu-tile .mt-icon {
+    filter: drop-shadow(0 0 10px color-mix(in srgb, currentColor 20%, transparent));
+}
+#start-screen .tile-progress {
+    background: rgba(255,255,255,.055);
+}
+#start-screen .bottom-row .icon-btn {
+    border-color: rgba(255,255,255,.07);
+    background: rgba(7,11,26,.58);
+    box-shadow: inset 0 1px rgba(255,255,255,.04), 0 7px 18px rgba(0,0,0,.16);
+    backdrop-filter: blur(9px);
+}
+#start-screen .simple-hint {
+    opacity: .8;
+}

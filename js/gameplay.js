@@ -368,6 +368,19 @@ function spawnEnemy(forcedType) {
 function spawnBoss(bossId) {
     var b = BOSS_TYPES[bossId];
     if (!b) return;
+
+    // Босс всегда выходит один на один: очищаем обычных врагов и их снаряды.
+    enemies = [];
+    enemyBullets = [];
+    webs = [];
+    drops = [];
+    meteors = [];
+    bossState = 'intro';
+    bossStateTimer = 120;
+    bossAnnouncement = '⚠ BOSS INCOMING ⚠';
+    bossAnnouncementTimer = 120;
+    bossDuelId = bossId;
+
     var boss = {
         id: bossId, type: b,
         x: canvas.width / 2 - b.size / 2,
@@ -379,9 +392,10 @@ function spawnBoss(bossId) {
         reward: b.reward
     };
     bosses.push(boss);
-    showToast('⚠️ ' + b.icon + ' ' + b.name + ' появился!', 'legendary');
+    showToast('⚠️ ' + b.icon + ' ' + b.name + ' выходит на дуэль!', 'legendary');
     playSFX('boss');
     screenShake = 20;
+    updateBossDuelHUD();
 }
 
 function spawnEnemyBullet(x, y, vx, vy, opts) {
@@ -904,6 +918,11 @@ function reset() {
     orbitals = [];
     currentWaveModifier = null;
     currentWaveLevel = 0;
+    bossState = 'none';
+    bossStateTimer = 0;
+    bossAnnouncement = '';
+    bossAnnouncementTimer = 0;
+    bossDuelId = null;
     noHitWaveActive = false;
     noHitWaveDamage = 0;
     extraUpgradeChoice = false;
@@ -1347,8 +1366,48 @@ function playerTakeDamage() {
             return;
         }
         gameOver = true;
+        if (bossState === 'duel' || bossState === 'intro') {
+            bossState = 'lost';
+            bossStateTimer = 45;
+            bossAnnouncement = '☠ DUEL LOST';
+            bossAnnouncementTimer = 45;
+            updateBossDuelHUD();
+            running = false;
+            setTimeout(function() { finishRun(); }, 650);
+            return;
+        }
         finishRun();
     }
+}
+
+function updateBossDuelHUD() {
+    var overlay = document.getElementById('boss-duel-overlay');
+    var banner = document.getElementById('boss-duel-banner');
+    var name = document.getElementById('boss-duel-name');
+    var hp = document.getElementById('boss-duel-hp-fill');
+    var hpText = document.getElementById('boss-duel-hp-text');
+    if (!overlay || !banner || !name || !hp || !hpText) return;
+
+    var boss = bosses.length ? bosses[0] : null;
+    var active = bossState !== 'none';
+    overlay.classList.toggle('active', active);
+    overlay.classList.toggle('duel', bossState === 'duel');
+    overlay.classList.toggle('victory', bossState === 'victory');
+    overlay.classList.toggle('lost', bossState === 'lost');
+
+    if (boss) {
+        name.textContent = (boss.type.icon || '☠') + ' ' + (boss.type.name || 'БОСС');
+        var pct = Math.max(0, Math.min(1, boss.hp / boss.maxHp));
+        hp.style.width = (pct * 100) + '%';
+        hpText.textContent = Math.ceil(Math.max(0, boss.hp)) + ' / ' + boss.maxHp;
+    } else {
+        name.textContent = bossDuelId && BOSS_TYPES[bossDuelId] ? (BOSS_TYPES[bossDuelId].icon + ' ' + BOSS_TYPES[bossDuelId].name) : 'БОСС';
+        hp.style.width = bossState === 'victory' ? '0%' : '100%';
+        hpText.textContent = bossState === 'victory' ? '0 / 0' : '';
+    }
+
+    banner.textContent = bossAnnouncement || (bossState === 'duel' ? '⚔ ДУЭЛЬ 1 × 1' : '');
+    banner.classList.toggle('show', bossAnnouncementTimer > 0 && !!bossAnnouncement);
 }
 
 // ==========================================================
@@ -1550,8 +1609,36 @@ function update() {
         });
     }
 
+    // Босс-дуэль: отдельный режим — никаких обычных врагов/опасностей.
+    if (bossState === 'intro') {
+        bossStateTimer--;
+        bossAnnouncementTimer = Math.max(0, bossAnnouncementTimer - 1);
+        updateBossDuelHUD();
+        if (bossStateTimer <= 0) {
+            bossState = 'duel';
+            bossStateTimer = 0;
+            bossAnnouncement = '⚔ ДУЭЛЬ 1 × 1';
+            bossAnnouncementTimer = 70;
+            updateBossDuelHUD();
+        }
+    } else if (bossState === 'victory' || bossState === 'lost') {
+        bossStateTimer--;
+        bossAnnouncementTimer = Math.max(0, bossAnnouncementTimer - 1);
+        updateBossDuelHUD();
+        if (bossState === 'victory' && bossStateTimer <= 0) {
+            bossState = 'none';
+            bossDuelId = null;
+            bossAnnouncement = '';
+            updateBossDuelHUD();
+            levelTimer = LEVEL_DURATION;
+            levelUp();
+            if (isChoosingUpgrade || !running) return;
+        }
+        if (bossState === 'lost') return;
+    }
+
     // Спавн монет
-    if (frame % 40 === 0) spawnCoin();
+    if (bossState === 'none' && frame % 40 === 0) spawnCoin();
 
     // Спавн врагов
     var baseInterval;
@@ -1563,12 +1650,14 @@ function update() {
         if (currentWaveModifier.enemyMult) enemyMult *= currentWaveModifier.enemyMult;
     }
 
-    if (frame % Math.max(8, Math.floor(baseInterval / enemyMult)) === 0) spawnEnemy();
-    if (level >= 3 && frame % Math.max(15, Math.floor(baseInterval * 2 / enemyMult)) === 0) spawnEnemy();
-    if (level >= 6 && frame % Math.max(30, Math.floor(baseInterval * 4 / enemyMult)) === 0) spawnEnemy();
+    if (bossState === 'none') {
+        if (frame % Math.max(8, Math.floor(baseInterval / enemyMult)) === 0) spawnEnemy();
+        if (level >= 3 && frame % Math.max(15, Math.floor(baseInterval * 2 / enemyMult)) === 0) spawnEnemy();
+        if (level >= 6 && frame % Math.max(30, Math.floor(baseInterval * 4 / enemyMult)) === 0) spawnEnemy();
+    }
 
     // Боссы
-    if (currentMode === 'classic' || currentMode === 'hardcore' || currentMode === 'rogue') {
+    if (bossState === 'none' && currentMode === 'classic' || currentMode === 'hardcore' || currentMode === 'rogue') {
        // Флаг для отслеживания, что босс этого уровня уже был заспавнен
 if (level === BOSS_TYPES.dragon.level && !bosses.some(function(b){ return b.id === 'dragon'; }) && !window._bossSpawned5) {
     window._bossSpawned5 = true;
@@ -1595,8 +1684,8 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         }
     }
 
-    // Метеоры
-    if (frame % 90 === 0 && Math.random() < 0.7) {
+    // Метеоры — во время босса арена чистая.
+    if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7) {
         meteors.push({
             x: Math.random() * canvas.width, y: -20,
             vx: -2 - Math.random() * 2, vy: 4 + Math.random() * 3,
@@ -2044,6 +2133,17 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
             var saveB = getSave();
             var reward = boss.reward || {};
             bosses.splice(bossI, 1);
+
+            bossState = 'victory';
+            bossStateTimer = 75;
+            bossAnnouncement = '✦ BOSS DEFEATED ✦';
+            bossAnnouncementTimer = 75;
+            bossDuelId = boss.id;
+            enemies = [];
+            enemyBullets = [];
+            webs = [];
+            meteors = [];
+            updateBossDuelHUD();
 
             addParticles(bx1 + bs/2, by1 + bs/2, b.glow || '#fff', 60, 25);
             addParticles(bx1 + bs/2, by1 + bs/2, '#fff', 30, 18);

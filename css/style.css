@@ -3565,7 +3565,7 @@ canvas {
     font-weight:800;
     box-shadow:inset 0 1px rgba(255,255,255,.04);
 }
-#shop-modal .shop-case-inventory.has-cases {
+#shop-modal .shop-case-inventory.visible {
     display:block;
     color:#ffe98a;
     border-color:rgba(255,217,61,.34);

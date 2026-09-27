@@ -1588,6 +1588,114 @@
         }
     }
 
+
+    /* Quiet space ambience behind the menu: decorative only, never blocks clicks. */
+    .menu-space-decor {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+        opacity: .9;
+    }
+
+    .menu-planet {
+        position: absolute;
+        left: 8vw;
+        bottom: 7vh;
+        width: clamp(150px, 15vw, 240px);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 31% 28%, rgba(255,255,255,.34) 0 2%, transparent 8%),
+            radial-gradient(circle at 66% 61%, rgba(28,16,76,.58) 0 10%, transparent 11%),
+            radial-gradient(circle at 42% 68%, rgba(24,16,63,.48) 0 7%, transparent 8%),
+            radial-gradient(circle at 34% 31%, #7566c9 0, #44367e 35%, #21193f 68%, #0d0b1e 100%);
+        box-shadow:
+            0 0 45px rgba(112,91,220,.18),
+            inset -28px -24px 45px rgba(0,0,0,.48),
+            inset 12px 10px 24px rgba(255,255,255,.08);
+        opacity: .62;
+        transform: rotate(-12deg);
+    }
+
+    .menu-planet::before {
+        content: '';
+        position: absolute;
+        inset: 7% -12%;
+        border: 1px solid rgba(159,184,255,.12);
+        border-radius: 50%;
+        transform: rotate(-18deg) scaleY(.27);
+        box-shadow: 0 0 18px rgba(126,144,255,.08);
+    }
+
+    .menu-planet::after {
+        content: '';
+        position: absolute;
+        inset: 12%;
+        border-radius: 50%;
+        background:
+            radial-gradient(circle at 22% 42%, rgba(255,255,255,.08) 0 2%, transparent 3%),
+            radial-gradient(circle at 72% 25%, rgba(255,255,255,.06) 0 3%, transparent 4%),
+            radial-gradient(circle at 55% 76%, rgba(0,0,0,.18) 0 7%, transparent 8%);
+        mix-blend-mode: screen;
+    }
+
+    .menu-comet {
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #dff8ff;
+        box-shadow: 0 0 7px 2px rgba(111,220,255,.8);
+        opacity: 0;
+        transform: rotate(-34deg);
+        animation: menuCometFly 9s linear infinite;
+    }
+
+    .menu-comet::before {
+        content: '';
+        position: absolute;
+        right: 2px;
+        top: 1px;
+        width: 95px;
+        height: 3px;
+        border-radius: 999px;
+        transform-origin: right center;
+        background: linear-gradient(90deg, rgba(111,220,255,0), rgba(111,220,255,.18), rgba(220,249,255,.72));
+        filter: blur(1px);
+    }
+
+    .comet-a { left: -8vw; top: 20vh; animation-delay: -1.5s; animation-duration: 10s; }
+    .comet-b { left: 42vw; top: -8vh; animation-delay: -5.8s; animation-duration: 12s; transform: rotate(42deg); }
+    .comet-c { left: 104vw; top: 36vh; animation-delay: -8.2s; animation-duration: 11s; transform: rotate(-145deg); }
+    .comet-d { left: 18vw; top: 108vh; animation-delay: -3.7s; animation-duration: 13s; transform: rotate(-25deg); }
+
+    @keyframes menuCometFly {
+        0% { opacity: 0; transform: translate(-8vw,-5vh) rotate(-34deg) scale(.7); }
+        8% { opacity: .65; }
+        22% { opacity: .5; }
+        35% { opacity: 0; transform: translate(112vw,82vh) rotate(-34deg) scale(1); }
+        100% { opacity: 0; transform: translate(112vw,82vh) rotate(-34deg) scale(1); }
+    }
+
+    #start-screen > .menu-space-decor { z-index: 0; }
+    #start-screen > *:not(.menu-space-decor) { position: relative; z-index: 1; }
+
+    @media (max-width: 700px) {
+        .menu-planet {
+            left: -35px;
+            bottom: 7vh;
+            width: 145px;
+            opacity: .42;
+        }
+        .menu-comet::before { width: 65px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .menu-comet { animation: none; opacity: .12; }
+    }
+
 </style>
 </head>
 <body>
@@ -1745,6 +1853,13 @@
     </div>
 
     <div id="start-screen" class="hidden">
+        <div class="menu-space-decor" aria-hidden="true">
+            <div class="menu-planet"></div>
+            <div class="menu-comet comet-a"></div>
+            <div class="menu-comet comet-b"></div>
+            <div class="menu-comet comet-c"></div>
+            <div class="menu-comet comet-d"></div>
+        </div>
         <div class="profile-badge" id="profile-badge">
             <span class="pb-avatar">🎮</span>
             <span class="pb-nick" id="pb-nick">Игрок</span>

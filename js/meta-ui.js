@@ -624,6 +624,7 @@ function renderShopNavigation() {
         btn.textContent = item.label;
         subWrap.appendChild(btn);
     });
+    updateShopBadges();
 }
 
 document.querySelectorAll('.shop-category').forEach(function(btn) {

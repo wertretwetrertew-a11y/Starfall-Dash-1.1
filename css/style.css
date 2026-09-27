@@ -1893,7 +1893,8 @@
 
 /* === HERO SELECT — VISUAL POLISH === */
 #class-screen {
-    position: relative;
+    position: absolute;
+    inset: 0;
     overflow-y: auto;
     overflow-x: hidden;
     background:

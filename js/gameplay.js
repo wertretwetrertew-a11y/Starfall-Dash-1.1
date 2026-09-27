@@ -372,6 +372,7 @@ function spawnBoss(bossId) {
     // Босс всегда выходит один на один: очищаем обычных врагов и их снаряды.
     enemies = [];
     enemyBullets = [];
+    coins = [];
     webs = [];
     drops = [];
     meteors = [];

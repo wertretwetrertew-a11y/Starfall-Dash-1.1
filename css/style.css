@@ -3604,3 +3604,182 @@ canvas {
         margin-bottom:9px;
     }
 }
+
+
+
+/* === CASES 2.0 — COSMIC CRATES, NOT MEDALS === */
+#shop-modal .shop-card:has(.shop-price.free) .shop-icon,
+#shop-modal .shop-card .shop-icon {
+    width:92px;
+    height:76px;
+    margin:4px auto 9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:56px !important;
+    line-height:1;
+    border-radius:24px;
+    background:radial-gradient(circle,rgba(255,255,255,.08),transparent 68%);
+    filter:drop-shadow(0 0 14px currentColor);
+}
+#shop-modal .shop-card.common .shop-icon { color:#b8c3d5; }
+#shop-modal .shop-card.rare .shop-icon { color:#4fc3f7; }
+#shop-modal .shop-card.epic .shop-icon { color:#b388ff; }
+#shop-modal .shop-card.legendary .shop-icon { color:#ffd93d; }
+#shop-modal .shop-card.mythic .shop-icon { color:#ff5c7a; }
+#shop-modal .shop-card:has(.shop-price.free) {
+    background:linear-gradient(145deg,rgba(79,195,247,.055),rgba(5,10,24,.72));
+}
+#shop-modal .shop-card:has(.shop-price.free) .free-cases-badge {
+    background:rgba(79,195,247,.10);
+    border-color:rgba(79,195,247,.30);
+    color:#9ddfff;
+}
+#case-modal {
+    background:
+        radial-gradient(circle at 50% 38%,rgba(79,195,247,.09),transparent 28%),
+        radial-gradient(circle at 20% 80%,rgba(156,107,255,.06),transparent 25%),
+        linear-gradient(180deg,rgba(2,6,18,.90),rgba(2,4,12,.98));
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+}
+#case-modal .case-window {
+    box-sizing:border-box;
+    width:min(560px,94vw);
+    max-width:560px;
+    padding:22px 20px 18px;
+    border:1px solid rgba(138,180,255,.13);
+    border-radius:28px;
+    background:
+        radial-gradient(circle at 50% 0,rgba(79,195,247,.075),transparent 34%),
+        linear-gradient(180deg,rgba(10,17,36,.96),rgba(4,8,21,.98));
+    box-shadow:inset 0 1px rgba(255,255,255,.06),0 28px 80px rgba(0,0,0,.54),0 0 45px rgba(79,195,247,.06);
+}
+#case-modal .case-hero {
+    text-align:center;
+    margin-bottom:10px;
+}
+#case-modal .case-box-visual {
+    width:108px;
+    height:86px;
+    margin:0 auto 6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:68px;
+    line-height:1;
+    filter:drop-shadow(0 0 20px rgba(79,195,247,.28));
+    animation:caseFloat 2.6s ease-in-out infinite;
+}
+#case-modal .case-box-visual[data-rarity="rare"] { filter:drop-shadow(0 0 20px rgba(79,195,247,.55)); }
+#case-modal .case-box-visual[data-rarity="epic"] { filter:drop-shadow(0 0 22px rgba(179,136,255,.6)); }
+#case-modal .case-box-visual[data-rarity="legendary"] { filter:drop-shadow(0 0 24px rgba(255,217,61,.62)); }
+#case-modal .case-box-visual[data-rarity="mythic"] { filter:drop-shadow(0 0 28px rgba(255,92,122,.68)); }
+@keyframes caseFloat { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-5px) rotate(1deg)} }
+#case-modal .case-title {
+    margin:0 0 4px;
+    font-size:25px;
+    letter-spacing:.2px;
+    background:linear-gradient(90deg,#dbe8ff,#fff,#b8c8e8);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+#case-modal .case-meta {
+    color:#8394b2;
+    font-size:11px;
+    font-weight:800;
+}
+#case-modal .case-pity {
+    margin:12px 0 12px;
+    padding:9px 11px;
+    border-radius:14px;
+    background:rgba(255,255,255,.028);
+    border:1px solid rgba(255,255,255,.05);
+}
+#case-modal .case-pity-head {
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:6px;
+    color:#8798b8;
+    font-size:10px;
+    font-weight:800;
+}
+#case-modal .case-pity-head b { color:#c9d7ee; }
+#case-modal .case-pity-bar {
+    height:5px;
+    overflow:hidden;
+    border-radius:5px;
+    background:rgba(255,255,255,.07);
+}
+#case-modal #case-pity-fill {
+    width:0;
+    height:100%;
+    border-radius:5px;
+    background:linear-gradient(90deg,#4fc3f7,#9c6bff,#ffd93d);
+    box-shadow:0 0 10px rgba(156,107,255,.45);
+    transition:width .3s ease;
+}
+#case-modal .case-rewards-label {
+    margin:8px 0 6px;
+    color:#647692;
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:1.4px;
+}
+#case-modal .case-reel-wrap {
+    height:112px;
+    margin-bottom:14px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:16px;
+    background:rgba(0,0,0,.28);
+    box-shadow:inset 0 0 30px rgba(0,0,0,.25);
+}
+#case-modal .case-reel-item {
+    width:92px;
+    height:92px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    background:rgba(255,255,255,.035);
+    font-size:30px;
+}
+#case-modal .case-reel-item.common { border-color:rgba(180,180,180,.18); }
+#case-modal .case-reel-item.rare { border-color:rgba(79,195,247,.42); }
+#case-modal .case-reel-item.epic { border-color:rgba(179,136,255,.45); }
+#case-modal .case-reel-item.legendary { border-color:rgba(255,217,61,.48); }
+#case-modal .case-reel-item.mythic { border-color:rgba(255,92,122,.5); }
+#case-modal .case-pointer {
+    width:2px;
+    background:linear-gradient(180deg,transparent,#fff 15%,#fff 85%,transparent);
+    box-shadow:0 0 12px rgba(255,255,255,.7);
+}
+#case-modal .case-result {
+    min-height:35px;
+    margin:3px 0 12px;
+    font-size:18px;
+    text-shadow:0 0 18px rgba(255,255,255,.18);
+}
+#case-modal .case-window.revealed .case-result {
+    animation:caseReveal .55s ease both;
+}
+@keyframes caseReveal {
+    0%{opacity:0;transform:translateY(8px) scale(.96)}
+    60%{opacity:1;transform:translateY(-2px) scale(1.03)}
+    100%{opacity:1;transform:none}
+}
+#case-modal .case-close-btn {
+    min-height:44px;
+    padding:11px 38px;
+    border-radius:13px;
+    background:linear-gradient(135deg,#4fc3f7,#6f5cff);
+    box-shadow:0 9px 25px rgba(79,195,247,.14),inset 0 1px rgba(255,255,255,.2);
+}
+@media(max-width:640px) {
+    #case-modal { padding:10px; }
+    #case-modal .case-window { width:calc(100vw - 20px); padding:18px 11px 14px; border-radius:22px; }
+    #case-modal .case-box-visual { width:90px;height:72px;font-size:58px; }
+    #case-modal .case-title { font-size:21px; }
+    #case-modal .case-reel-wrap { height:100px; }
+    #case-modal .case-reel-item { width:82px;height:82px; }
+}

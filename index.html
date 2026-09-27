@@ -1114,6 +1114,144 @@
         font-size: 11px; color: #ff5c7a; font-weight: 700;
         margin-top: 6px;
     }
+
+    /* === MAIN MENU REDESIGN === */
+    #start-screen {
+        gap: 14px;
+        padding: 28px 18px 18px;
+        background:
+            radial-gradient(circle at 18% 18%, rgba(79,195,247,0.10), transparent 30%),
+            radial-gradient(circle at 82% 24%, rgba(224,64,251,0.10), transparent 28%),
+            rgba(5,5,20,0.94);
+    }
+    #start-screen::before {
+        content: 'COMMAND DECK';
+        position: absolute; top: 18px; left: 22px;
+        font-size: 9px; letter-spacing: 3px; font-weight: 900;
+        color: rgba(138,180,255,0.45);
+        pointer-events: none;
+    }
+    #start-screen h1 {
+        margin-top: 18px;
+        margin-bottom: -2px;
+        font-size: clamp(25px, 5vw, 38px);
+        letter-spacing: 1px;
+    }
+    #start-screen h1 small { letter-spacing: 4px; }
+    #start-screen .stats-line {
+        width: min(760px, 94vw);
+        padding: 9px 16px;
+        gap: 10px 18px;
+        border-radius: 18px;
+        background: rgba(10,12,30,0.72);
+        border-color: rgba(138,180,255,0.18);
+        box-shadow: 0 10px 35px rgba(0,0,0,0.28);
+    }
+    #start-screen .stats-line .sl-item {
+        font-size: 12px;
+    }
+    #start-screen .menu-grid {
+        width: min(760px, 94vw);
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-top: 2px;
+    }
+    #start-screen .menu-tile {
+        min-height: 92px;
+        padding: 15px 12px;
+        border-width: 1.5px;
+        border-radius: 17px;
+        gap: 5px;
+        overflow: hidden;
+        transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+    #start-screen .menu-tile:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.32);
+    }
+    #start-screen .menu-tile:active { transform: translateY(-1px) scale(.99); }
+    #start-screen .menu-tile .mt-icon { font-size: 28px; }
+    #start-screen .menu-tile .mt-label { font-size: 13px; }
+    #start-screen .menu-tile .mt-sub { font-size: 10px; }
+    #start-screen .menu-tile.play {
+        grid-column: span 3;
+        min-height: 148px;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 22px 28px;
+        text-align: left;
+        background:
+            radial-gradient(circle at 82% 45%, rgba(79,195,247,0.22), transparent 32%),
+            linear-gradient(135deg, rgba(79,195,247,0.20), rgba(33,150,243,0.07) 55%, rgba(156,107,255,0.10));
+        box-shadow: inset 0 0 35px rgba(79,195,247,0.06), 0 14px 45px rgba(0,0,0,0.25);
+    }
+    #start-screen .menu-tile.play .mt-icon {
+        font-size: 18px;
+        width: 38px; height: 38px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 12px;
+        background: rgba(79,195,247,0.18);
+        border: 1px solid rgba(79,195,247,0.4);
+    }
+    #start-screen .menu-tile.play .mt-label {
+        font-size: clamp(24px, 4vw, 32px);
+        letter-spacing: 1px;
+        text-shadow: 0 0 18px rgba(79,195,247,0.45);
+    }
+    #start-screen .menu-tile.play .mt-sub {
+        font-size: 12px;
+        opacity: .9;
+        color: #b9dcff;
+        margin-top: 1px;
+    }
+    #start-screen .menu-tile.play::after {
+        content: '→';
+        position: absolute; right: 26px; top: 50%;
+        transform: translateY(-50%);
+        width: 54px; height: 54px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+        font-size: 28px; font-weight: 900;
+        color: #fff;
+        background: linear-gradient(135deg,#4fc3f7,#7c4dff);
+        box-shadow: 0 0 28px rgba(79,195,247,0.45);
+    }
+    #start-screen .menu-tile.core { grid-column: span 1; }
+    #start-screen .menu-tile.shop { grid-column: span 1; }
+    #start-screen .menu-tile.ach { grid-column: span 1; }
+    #start-screen .menu-tile.daily { grid-column: span 1; }
+    #start-screen .menu-tile.rogue { grid-column: span 2; }
+    #start-screen .bottom-row {
+        width: min(760px, 94vw);
+        justify-content: flex-end;
+        gap: 8px;
+    }
+    #start-screen .icon-btn {
+        width: 38px; height: 38px;
+        font-size: 16px;
+        border-radius: 12px;
+    }
+    #start-screen .reset-link { margin-left: 4px; }
+    @media (max-width: 680px) {
+        #start-screen { padding-top: 22px; gap: 10px; }
+        #start-screen::before { display:none; }
+        #start-screen h1 { margin-top: 20px; }
+        #start-screen .stats-line { gap: 7px 12px; }
+        #start-screen .menu-grid { grid-template-columns: repeat(2,1fr); }
+        #start-screen .menu-tile.play { grid-column: span 2; min-height: 132px; padding: 18px 20px; }
+        #start-screen .menu-tile.rogue { grid-column: span 2; }
+        #start-screen .menu-tile.play::after { right: 18px; width: 46px; height: 46px; }
+    }
+    @media (max-width: 420px) {
+        #start-screen h1 { font-size: 25px; }
+        #start-screen .stats-line { padding: 8px 10px; }
+        #start-screen .stats-line .sl-item { font-size: 11px; }
+        #start-screen .menu-tile { min-height: 82px; }
+        #start-screen .menu-tile.play { min-height: 118px; }
+        #start-screen .menu-tile.play .mt-label { font-size: 23px; }
+        #start-screen .menu-tile .mt-icon { font-size: 25px; }
+    }
+
     .hidden { display: none !important; }
 </style>
 </head>
@@ -1310,7 +1448,8 @@
         <div class="menu-grid">
             <button class="menu-tile play" id="tile-play">
                 <div class="mt-icon">▶</div>
-                <div class="mt-label">ИГРАТЬ</div>
+                <div class="mt-label">НАЧАТЬ ЗАБЕГ</div>
+                <div class="mt-sub">Выбери режим и героя — и отправляйся в космос</div>
             </button>
             <button class="menu-tile core" id="tile-core">
                 <div class="mt-icon">🌟</div>
@@ -1321,6 +1460,7 @@
             <button class="menu-tile shop" id="tile-shop">
                 <div class="mt-icon">🛒</div>
                 <div class="mt-label">МАГАЗИН</div>
+                <div class="mt-sub">Скины и предметы</div>
             </button>
             <button class="menu-tile ach" id="tile-ach">
                 <div class="mt-icon">🏆</div>
@@ -1330,7 +1470,7 @@
             <button class="menu-tile daily" id="tile-daily">
                 <div class="mt-icon">🎁</div>
                 <div class="mt-label">БОНУС</div>
-                <div class="mt-sub">Ежедневно +💎</div>
+                <div class="mt-sub">Ежедневная награда</div>
             </button>
             <button class="menu-tile rogue" id="tile-quick" style="background:linear-gradient(135deg,rgba(124,255,178,0.15),rgba(27,94,32,0.1));border-color:#7cffb2;color:#7cffb2;">
                 <div class="mt-icon">🎲</div>

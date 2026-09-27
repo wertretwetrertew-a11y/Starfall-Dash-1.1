@@ -1128,28 +1128,26 @@
 
     /* === SIMPLE REFERENCE MAIN MENU — VISUAL POLISH === */
     #start-screen {
-        gap: 12px;
-        padding: 22px 18px 14px;
-        background:
-            radial-gradient(circle at 17% 18%, rgba(79,195,247,.055), transparent 27%),
-            radial-gradient(circle at 83% 27%, rgba(156,107,255,.055), transparent 25%),
-            linear-gradient(180deg, rgba(8,9,24,.98), rgba(3,4,14,.99));
-        position: relative;
-        overflow: hidden;
-    }
-    #start-screen::before {
-        content: '';
+        gap: 10px;
+        padding: 26px 18px 18px;
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         position: absolute;
         inset: 0;
-        pointer-events: none;
-        opacity: .28;
-        background-image:
-            linear-gradient(rgba(120,160,220,.025) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(120,160,220,.025) 1px, transparent 1px);
-        background-size: 32px 32px;
-        mask-image: linear-gradient(to bottom, black, transparent 88%);
+        justify-content: center;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
+    #start-screen::before { display: none; }
     #start-screen > * { position: relative; z-index: 1; }
+
+    #start-screen .profile-badge {
+        top: 10px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
 
     #start-screen h1 {
         margin-top: 8px;
@@ -1165,7 +1163,7 @@
     }
 
     #start-screen .stats-line {
-        width: min(820px, 94vw);
+        width: min(900px, 94vw);
         padding: 7px 15px;
         gap: 8px 18px;
         border-radius: 15px;
@@ -1178,16 +1176,16 @@
     #start-screen .stats-line .sl-val { text-shadow: 0 0 10px currentColor; }
 
     .simple-menu-layout {
-        width: min(820px, 94vw);
+        width: min(900px, 94vw);
         display: grid;
-        grid-template-columns: minmax(0, 1.58fr) minmax(250px, 1fr);
+        grid-template-columns: minmax(0, 1.48fr) minmax(270px, 1fr);
         gap: 10px;
         align-items: stretch;
     }
 
     .simple-play-card {
         position: relative;
-        min-height: 360px;
+        min-height: 340px;
         overflow: hidden;
         display: flex;
         align-items: center;
@@ -1379,14 +1377,14 @@
         transition: width .35s ease;
     }
     .simple-hint {
-        width: min(820px, 94vw);
+        width: min(900px, 94vw);
         color: #5f6c86;
         font-size: 10px;
         font-weight: 700;
         line-height: 1.3;
     }
     #start-screen .bottom-row {
-        width: min(820px, 94vw);
+        width: min(900px, 94vw);
         justify-content: flex-end;
         gap: 8px;
         margin-top: -2px;

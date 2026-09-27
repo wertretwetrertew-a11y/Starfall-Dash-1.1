@@ -234,7 +234,7 @@
     #core-screen { z-index: 160; justify-content: flex-start; padding-top: 20px; }
     #login-screen { z-index: 300; }
     #login-screen.hidden, #start-screen.hidden, #mode-screen.hidden,
-    #core-screen.hidden, #class-screen.hidden { display: none; }
+    #core-screen.hidden, #class-screen.hidden, #expedition-screen.hidden { display: none; }
     #login-screen h1, #start-screen h1 {
         font-size: clamp(26px, 6vw, 40px);
         background: linear-gradient(90deg,#4fc3f7,#9c6bff,#ff5c7a);
@@ -1015,17 +1015,21 @@
     }
     .mode-grid {
         display: grid; grid-template-columns: repeat(2, 1fr);
-        gap: 14px; width: min(600px, 96vw); margin-bottom: 30px;
+        gap: 12px; width: min(680px, 96vw); margin-bottom: 30px;
     }
-    @media (max-width: 500px) { .mode-grid { grid-template-columns: 1fr; } }
+    .mode-grid .mode-card:nth-child(n+3) { min-height: 122px; }
+    @media (max-width: 500px) {
+        .mode-grid { grid-template-columns: 1fr; gap: 10px; }
+        .mode-grid .mode-card:nth-child(n+3) { min-height: 112px; }
+    }
     .mode-card {
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        gap: 8px; padding: 24px 16px;
+        gap: 6px; padding: 18px 14px;
         border-radius: 20px; border: 2px solid;
         cursor: pointer; font-family: inherit;
         background: transparent; color: #fff;
-        text-align: center; min-height: 180px;
+        text-align: center; min-height: 132px;
         transition: all 0.15s;
     }
     .mode-card:active { transform: scale(0.97); }
@@ -1038,13 +1042,31 @@
     .mode-card.survival { background: linear-gradient(135deg, rgba(255,92,122,0.18), rgba(200,40,80,0.08)); border-color: #ff5c7a; color: #ff5c7a; }
     .mode-card.timeattack { background: linear-gradient(135deg, rgba(255,217,61,0.18), rgba(255,152,0,0.08)); border-color: #ffd93d; color: #ffd93d; }
     .mode-card.hardcore { background: linear-gradient(135deg, rgba(156,107,255,0.18), rgba(103,58,183,0.08)); border-color: #9c6bff; color: #9c6bff; }
+    .mode-card.expedition {
+        background: linear-gradient(135deg, rgba(79,195,247,0.22), rgba(156,107,255,0.10));
+        border-color: #4fc3f7; color: #4fc3f7;
+        grid-column: span 2;
+        min-height: 126px;
+        position: relative;
+        overflow: hidden;
+    }
+    .mode-card.expedition::after {
+        content: 'CAMPAIGN';
+        position: absolute; top: 10px; right: 12px;
+        font-size: 9px; letter-spacing: 1.5px; font-weight: 900;
+        padding: 4px 8px; border-radius: 999px;
+        background: rgba(79,195,247,0.12); color: #8ddfff;
+    }
+    .mode-card.expedition .mc-icon { font-size: 42px; }
     .mode-card.rogue {
         background: linear-gradient(135deg, rgba(124,255,178,0.2), rgba(76,175,80,0.08));
         border-color: #7cffb2; color: #7cffb2;
         grid-column: span 2;
-        min-height: 140px;
+        min-height: 126px;
     }
-    @media (max-width: 500px) { .mode-card.rogue { grid-column: span 1; } }
+    @media (max-width: 500px) {
+        .mode-card.expedition, .mode-card.rogue { grid-column: span 1; }
+    }
     .mode-card.rogue .mc-icon { animation: rogueGlow 2s ease-in-out infinite alternate; }
     @keyframes rogueGlow {
         from { filter: drop-shadow(0 0 8px #7cffb2); }
@@ -3552,14 +3574,50 @@ function renderClassScreen() {
                 return;
             }
             selectedClass = cid;
-            startRoguelikeRun();
+            if (isExpeditionMode()) {
+                startExpeditionRun();
+            } else {
+                startRoguelikeRun();
+            }
         });
 
         classGrid.appendChild(card);
     });
 }
 
+function startExpeditionRun() {
+    currentMode = 'expedition';
+    var expedition = getExpeditionSave();
+    expedition.currentSector = Math.max(1, Math.min(EXPEDITION_SECTORS.length, Number(expedition.currentSector) || 1));
+    persist();
+
+    classScreen.classList.add('hidden');
+    expeditionScreen.classList.add('hidden');
+    modeScreen.classList.add('hidden');
+    startScreen.classList.add('hidden');
+    document.body.classList.add('playing');
+    gameOver = false;
+    paused = false;
+    running = false;
+
+    try {
+        reset();
+    } catch (err) {
+        console.error('❌ Ошибка запуска Экспедиции:', err);
+        running = false;
+        gameOver = true;
+        document.body.classList.remove('playing');
+        classScreen.classList.add('hidden');
+        expeditionScreen.classList.remove('hidden');
+        showToast('Не удалось запустить Экспедицию. Попробуй ещё раз.', 'error');
+    }
+}
+
 function startRoguelikeRun() {
+    if (isExpeditionMode()) {
+        startExpeditionRun();
+        return;
+    }
     classScreen.classList.add('hidden');
     document.body.classList.add('playing');
     gameOver = false;
@@ -6032,8 +6090,9 @@ function reset() {
 
     if (mode.isRoguelike) {
         if (isExpeditionMode()) {
-            s.expedition.totalExpeditions = (s.expedition.totalExpeditions || 0) + 1;
-            s.expedition.currentSector = Math.max(1, Math.min(EXPEDITION_SECTORS.length, s.expedition.currentSector || 1));
+            var expedition = getExpeditionSave();
+            expedition.totalExpeditions = (expedition.totalExpeditions || 0) + 1;
+            expedition.currentSector = Math.max(1, Math.min(EXPEDITION_SECTORS.length, Number(expedition.currentSector) || 1));
         } else {
             s.rogueStats.runsPlayed = (s.rogueStats.runsPlayed || 0) + 1;
         }

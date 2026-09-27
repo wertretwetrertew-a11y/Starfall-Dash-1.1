@@ -1841,7 +1841,25 @@ function showCaseAnimation(reward, caseId) {
     caseResult.textContent = '';
     caseResult.classList.remove('show');
     caseWindow.className = 'case-window ' + (CASES[caseId] ? CASES[caseId].id : 'common');
-    caseTitle.textContent = CASES[caseId].icon + ' ' + CASES[caseId].name;
+    var caseHero = document.getElementById('case-hero');
+    var caseVisual = document.getElementById('case-box-visual');
+    var caseMeta = document.getElementById('case-meta');
+    var pityText = document.getElementById('case-pity-text');
+    var pityFill = document.getElementById('case-pity-fill');
+    var pityLimit = { common:8, rare:7, epic:6, legendary:5, mythic:3 }[caseId] || 8;
+    var pityCount = Math.min(pityLimit, Number((getSave().casePity || {})[caseId] || 0));
+    caseTitle.textContent = CASES[caseId].name;
+    if (caseVisual) {
+        caseVisual.textContent = '📦';
+        caseVisual.dataset.rarity = caseId;
+    }
+    if (caseMeta) {
+        caseMeta.textContent = (isFree ? '🎁 Бесплатный' : '💰 ' + formatNumber(CASES[caseId].price)) + '  •  В наличии: ' +
+            (isFree ? Number((getSave().freeCases || {})[caseId] || 0) : '—');
+    }
+    if (pityText) pityText.textContent = pityCount + ' / ' + pityLimit;
+    if (pityFill) pityFill.style.width = (pityCount / pityLimit * 100) + '%';
+    if (caseHero) caseHero.classList.remove('revealed');
     caseCloseBtn.disabled = true;
     caseCloseBtn.textContent = 'Крутим...';
 

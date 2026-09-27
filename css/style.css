@@ -3783,3 +3783,16 @@ canvas {
     #case-modal .case-reel-wrap { height:100px; }
     #case-modal .case-reel-item { width:82px;height:82px; }
 }
+
+
+#shop-modal .case-card-pity {
+    margin-top:6px;
+    color:#7385a4;
+    font-size:9px;
+    font-weight:800;
+    letter-spacing:.2px;
+}
+#shop-modal .shop-card.legendary .case-card-pity,
+#shop-modal .shop-card.mythic .case-card-pity {
+    color:#a99bc9;
+}

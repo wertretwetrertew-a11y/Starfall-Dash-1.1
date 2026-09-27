@@ -1431,6 +1431,94 @@
     }
 
     .hidden { display: none !important; }
+
+    /* Desktop menu proportions tuned to the reference layout. */
+    @media (min-width: 701px) {
+        #start-screen {
+            justify-content: flex-start;
+            align-items: center;
+            padding: 38px 18px 18px;
+            gap: 10px;
+        }
+
+        #start-screen .profile-badge {
+            top: 16px;
+            right: 16px;
+            left: auto;
+            transform: none;
+        }
+
+        #start-screen h1 {
+            margin-top: 0;
+            margin-bottom: -1px;
+            font-size: 39px;
+            line-height: 1;
+        }
+
+        #start-screen .stats-line {
+            width: 745px;
+            max-width: calc(100vw - 36px);
+            padding: 7px 15px;
+        }
+
+        #start-screen .simple-menu-layout {
+            width: 745px;
+            max-width: calc(100vw - 36px);
+            grid-template-columns: 450px 285px;
+            gap: 10px;
+        }
+
+        #start-screen .simple-play-card {
+            min-height: 327px;
+            height: 327px;
+            padding: 28px 29px;
+            border-radius: 22px;
+        }
+
+        #start-screen .menu-grid {
+            width: 285px;
+            grid-template-rows: 112px 112px 84px;
+            gap: 10px;
+        }
+
+        #start-screen .menu-tile {
+            min-height: 0;
+            border-radius: 18px;
+            padding: 12px 10px;
+            gap: 6px;
+        }
+
+        #start-screen .menu-tile .mt-icon {
+            font-size: 29px;
+        }
+
+        #start-screen .menu-tile .mt-label {
+            font-size: 13px;
+        }
+
+        #start-screen .menu-tile .mt-sub {
+            font-size: 9px;
+        }
+
+        #start-screen .menu-tile.rogue {
+            min-height: 0;
+        }
+
+        #start-screen .simple-hint,
+        #start-screen .bottom-row {
+            width: 745px;
+            max-width: calc(100vw - 36px);
+        }
+
+        #start-screen .simple-hint {
+            margin-top: 0;
+        }
+
+        #start-screen .bottom-row {
+            margin-top: 0;
+        }
+    }
+
 </style>
 </head>
 <body>

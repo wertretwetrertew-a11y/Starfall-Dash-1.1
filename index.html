@@ -212,6 +212,17 @@
         cursor: pointer; z-index: 25;
     }
     body.playing #btn-pause { display: flex; }
+
+    /* Главный экран не должен показывать игровое поле под меню. */
+    body:not(.playing) #game,
+    body:not(.playing) #hud,
+    body:not(.playing) #hud-combo,
+    body:not(.playing) #upgrade-strip,
+    body:not(.playing) #level-toast,
+    body:not(.playing) #btn-pause,
+    body:not(.playing) #mobile-controls {
+        display: none !important;
+    }
     @media (pointer: coarse), (max-width: 800px) {
         body.playing #mobile-controls { display: block; }
         canvas { max-height: 60vh; margin-bottom: 180px; }

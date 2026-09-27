@@ -1252,6 +1252,100 @@
         #start-screen .menu-tile .mt-icon { font-size: 25px; }
     }
 
+
+    /* === COMMAND CENTER 2.0 === */
+    #start-screen .command-hero {
+        width: min(760px,94vw);
+        display: grid; grid-template-columns: 1.1fr .9fr;
+        gap: 10px; padding: 14px;
+        border: 1px solid rgba(138,180,255,.2);
+        border-radius: 22px;
+        background: linear-gradient(135deg,rgba(18,22,52,.9),rgba(10,12,28,.82));
+        box-shadow: 0 16px 45px rgba(0,0,0,.28), inset 0 0 40px rgba(79,195,247,.035);
+    }
+    .hero-profile,.hero-run { min-width:0; border-radius:17px; }
+    .hero-profile {
+        display:flex; align-items:center; gap:12px;
+        padding:14px; background:rgba(255,255,255,.035);
+        border:1px solid rgba(255,255,255,.08);
+    }
+    .hero-avatar {
+        width:62px;height:62px; flex:0 0 62px;
+        display:flex;align-items:center;justify-content:center;
+        border-radius:18px;font-size:34px;
+        background:linear-gradient(135deg,rgba(124,255,178,.14),rgba(79,195,247,.12));
+        border:1px solid rgba(124,255,178,.35);
+        box-shadow:0 0 22px rgba(124,255,178,.12);
+    }
+    .hero-copy{min-width:0;flex:1}
+    .hero-kicker,.run-kicker,.focus-title{
+        font-size:9px;letter-spacing:2px;font-weight:900;color:#7e91b8;
+    }
+    .hero-name{font-size:20px;font-weight:900;color:#fff;margin:3px 0}
+    .hero-desc{font-size:10px;line-height:1.35;color:#8fa0bf;font-weight:600}
+    .hero-level{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:42px}
+    .hero-level span{font-size:8px;color:#9c6bff;font-weight:900;letter-spacing:1px}
+    .hero-level strong{font-size:23px;color:#fff}
+    .hero-run{
+        display:flex;align-items:center;justify-content:space-between;gap:12px;
+        padding:14px; background:linear-gradient(135deg,rgba(79,195,247,.10),rgba(124,77,255,.10));
+        border:1px solid rgba(79,195,247,.2);
+    }
+    .run-copy{min-width:90px}
+    .run-score{font-size:25px;font-weight:900;color:#ffd93d;line-height:1.1;margin:4px 0}
+    .run-score small{font-size:13px}
+    .run-meta{display:flex;gap:6px;font-size:10px;color:#7f91b0;font-weight:700}
+    .run-cta{
+        flex:1;min-width:150px;min-height:64px;padding:10px 12px;
+        border:1px solid rgba(79,195,247,.55);border-radius:15px;
+        background:linear-gradient(135deg,#4fc3f7,#7c4dff);
+        color:#fff;font-family:inherit;cursor:pointer;
+        display:flex;align-items:center;gap:9px;text-align:left;
+        box-shadow:0 8px 25px rgba(79,195,247,.18);
+        transition:transform .18s,filter .18s,box-shadow .18s;
+    }
+    .run-cta:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 12px 32px rgba(79,195,247,.28)}
+    .run-cta-icon{font-size:16px}
+    .run-cta b{display:block;font-size:13px;letter-spacing:.5px}
+    .run-cta small{display:block;font-size:9px;opacity:.78;margin-top:2px}
+    .run-cta-arrow{margin-left:auto;font-size:22px;font-weight:900}
+    .deck-focus{
+        width:min(760px,94vw);padding:9px 12px;
+        border:1px solid rgba(255,217,61,.14);border-radius:15px;
+        background:rgba(255,217,61,.035);
+    }
+    .focus-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
+    .focus-item{
+        flex:1;min-width:150px;padding:7px 9px;border-radius:10px;
+        background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+        color:#b8c4dc;font-size:10px;font-weight:700;
+    }
+    .focus-item b{color:#fff}.focus-item.ready{border-color:rgba(124,255,178,.4);color:#7cffb2}
+    .focus-item.warn{border-color:rgba(255,217,61,.35);color:#ffd93d}
+    #start-screen .menu-tile{min-height:112px}
+    #start-screen .menu-tile .mt-icon{font-size:27px}
+    #start-screen .menu-tile .mt-sub{margin-top:-1px}
+    .mt-mini{font-size:9px;font-weight:800;opacity:.65;margin-top:1px}
+    .tile-progress{width:78%;height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:2px}
+    .tile-progress span{display:block;width:0;height:100%;border-radius:4px;background:linear-gradient(90deg,currentColor,#fff);transition:width .35s ease}
+    #start-screen .menu-tile.rogue{grid-column:span 2}
+    #start-screen .menu-tile.play{display:none}
+    @media (max-width:680px){
+        #start-screen .command-hero{grid-template-columns:1fr;gap:8px}
+        .hero-profile{padding:11px}.hero-avatar{width:54px;height:54px;flex-basis:54px;font-size:29px}
+        .hero-name{font-size:18px}.hero-run{padding:11px}
+        .run-score{font-size:22px}
+        #start-screen .menu-grid{grid-template-columns:repeat(2,1fr)}
+        #start-screen .menu-tile.rogue{grid-column:span 2}
+    }
+    @media (max-width:420px){
+        #start-screen .command-hero,.deck-focus,#start-screen .menu-grid{width:96vw}
+        .hero-run{flex-direction:column;align-items:stretch}
+        .run-cta{min-width:0}
+        .focus-item{min-width:100%}
+        #start-screen .menu-tile{min-height:98px}
+    }
+
     .hidden { display: none !important; }
 </style>
 </head>
@@ -1445,37 +1539,71 @@
             </div>
         </div>
 
+        <div class="command-hero">
+            <div class="hero-profile">
+                <div class="hero-avatar" id="deck-avatar">🏃</div>
+                <div class="hero-copy">
+                    <div class="hero-kicker">ТЕКУЩИЙ ПИЛОТ</div>
+                    <div class="hero-name" id="deck-class">Разведчик</div>
+                    <div class="hero-desc" id="deck-class-desc">Быстрый и ловкий. Собирает больше монет.</div>
+                </div>
+                <div class="hero-level">
+                    <span>LV</span>
+                    <strong id="deck-level">1</strong>
+                </div>
+            </div>
+            <div class="hero-run">
+                <div class="run-copy">
+                    <div class="run-kicker">ПОСЛЕДНИЙ ЗАБЕГ</div>
+                    <div class="run-score"><span id="deck-last-score">0</span> <small>🪙</small></div>
+                    <div class="run-meta"><span id="deck-last-mode">Рогалик</span><span>•</span><span id="deck-last-time">0:00</span></div>
+                </div>
+                <button class="run-cta" id="tile-play">
+                    <span class="run-cta-icon">▶</span>
+                    <span><b>НАЧАТЬ ЗАБЕГ</b><small>Выбрать режим и героя</small></span>
+                    <span class="run-cta-arrow">→</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="deck-focus">
+            <div class="focus-title">✦ ТЕБЕ СЕЙЧАС</div>
+            <div class="focus-list" id="deck-focus-list"></div>
+        </div>
+
         <div class="menu-grid">
-            <button class="menu-tile play" id="tile-play">
-                <div class="mt-icon">▶</div>
-                <div class="mt-label">НАЧАТЬ ЗАБЕГ</div>
-                <div class="mt-sub">Выбери режим и героя — и отправляйся в космос</div>
-            </button>
             <button class="menu-tile core" id="tile-core">
                 <div class="mt-icon">🌟</div>
                 <div class="mt-label">ЯДРО</div>
-                <div class="mt-sub">Прокачка</div>
+                <div class="mt-sub" id="core-tile-sub">Прокачка</div>
+                <div class="tile-progress"><span id="core-progress-fill"></span></div>
+                <div class="mt-mini" id="core-tile-meta">0 улучшений</div>
                 <div class="mt-badge" id="core-badge" style="display:none;">0</div>
             </button>
             <button class="menu-tile shop" id="tile-shop">
                 <div class="mt-icon">🛒</div>
                 <div class="mt-label">МАГАЗИН</div>
-                <div class="mt-sub">Скины и предметы</div>
+                <div class="mt-sub" id="shop-tile-sub">Скины и предметы</div>
+                <div class="mt-mini" id="shop-tile-meta">Открыть</div>
             </button>
             <button class="menu-tile ach" id="tile-ach">
                 <div class="mt-icon">🏆</div>
                 <div class="mt-label">ДОСТИЖЕНИЯ</div>
-                <div class="mt-sub">28 наград</div>
+                <div class="mt-sub" id="ach-tile-sub">28 наград</div>
+                <div class="tile-progress"><span id="ach-progress-fill"></span></div>
+                <div class="mt-mini" id="ach-tile-meta">0 открыто</div>
             </button>
             <button class="menu-tile daily" id="tile-daily">
                 <div class="mt-icon">🎁</div>
                 <div class="mt-label">БОНУС</div>
-                <div class="mt-sub">Ежедневная награда</div>
+                <div class="mt-sub" id="daily-tile-sub">Ежедневная награда</div>
+                <div class="mt-mini" id="daily-tile-meta">Проверить</div>
             </button>
             <button class="menu-tile rogue" id="tile-quick" style="background:linear-gradient(135deg,rgba(124,255,178,0.15),rgba(27,94,32,0.1));border-color:#7cffb2;color:#7cffb2;">
                 <div class="mt-icon">🎲</div>
                 <div class="mt-label">РОГАЛИК</div>
-                <div class="mt-sub">Быстрый старт</div>
+                <div class="mt-sub">БЫСТРЫЙ СТАРТ</div>
+                <div class="mt-mini">Случайный билд →</div>
             </button>
         </div>
 
@@ -2980,6 +3108,74 @@ function logoutToLogin() {
     renderProfilesList();
 }
 
+
+function updateCommandDeck() {
+    var s = getSave();
+    var cls = getClass(selectedClass || 'scout');
+    var mode = MODES[s.lastMode] || MODES.rogue;
+    var deckAvatar = document.getElementById('deck-avatar');
+    var deckClass = document.getElementById('deck-class');
+    var deckDesc = document.getElementById('deck-class-desc');
+    var deckLevel = document.getElementById('deck-level');
+    var deckLastScore = document.getElementById('deck-last-score');
+    var deckLastMode = document.getElementById('deck-last-mode');
+    var deckLastTime = document.getElementById('deck-last-time');
+    if (deckAvatar) deckAvatar.textContent = cls.icon;
+    if (deckClass) { deckClass.textContent = cls.name; deckClass.style.color = cls.color; }
+    if (deckDesc) deckDesc.textContent = cls.desc;
+    if (deckLevel) deckLevel.textContent = s.bestLevel || 1;
+    if (deckLastScore) deckLastScore.textContent = formatNumber(s.bestCoins || 0);
+    if (deckLastMode) { deckLastMode.textContent = mode.icon + ' ' + mode.name; deckLastMode.style.color = mode.color; }
+    if (deckLastTime) deckLastTime.textContent = formatTime(s.bestTime || 0);
+
+    var totalCore = 0, maxCore = 0, readyCore = 0;
+    Object.keys(CORE_STATS).forEach(function(id) {
+        var stat = CORE_STATS[id], lvl = s.coreStats[id] || 0;
+        totalCore += lvl; maxCore += stat.maxLevel || 10;
+        if (lvl < (stat.maxLevel || 10) && s.bank >= getCoreStatPrice(id)) readyCore++;
+    });
+    var coreFill = document.getElementById('core-progress-fill');
+    if (coreFill) coreFill.style.width = Math.min(100, (totalCore / Math.max(1,maxCore))*100) + '%';
+    var coreMeta = document.getElementById('core-tile-meta');
+    var coreSub = document.getElementById('core-tile-sub');
+    if (coreMeta) coreMeta.textContent = readyCore ? readyCore + ' улучшений доступно' : 'Уровень ' + totalCore;
+    if (coreSub) coreSub.textContent = totalCore + ' / ' + maxCore + ' уровней';
+
+    var achTotal = (typeof ACHIEVEMENTS !== 'undefined') ? Object.keys(ACHIEVEMENTS).length : 28;
+    var achDone = (s.claimedAchievements || []).length;
+    var achFill = document.getElementById('ach-progress-fill');
+    if (achFill) achFill.style.width = Math.min(100, (achDone / Math.max(1,achTotal))*100) + '%';
+    var achMeta = document.getElementById('ach-tile-meta');
+    var achSub = document.getElementById('ach-tile-sub');
+    if (achMeta) achMeta.textContent = achDone + ' / ' + achTotal + ' открыто';
+    if (achSub) achSub.textContent = achTotal + ' наград';
+
+    var today = getTodayStr();
+    var dailyReady = s.lastDailyClaim !== today;
+    var dailyMeta = document.getElementById('daily-tile-meta');
+    var dailySub = document.getElementById('daily-tile-sub');
+    if (dailyReady) {
+        if (dailyMeta) dailyMeta.textContent = '🎁 НАГРАДА ГОТОВА';
+        if (dailySub) dailySub.textContent = 'Забрать сейчас';
+    } else {
+        if (dailyMeta) dailyMeta.textContent = '✓ Получено сегодня';
+        if (dailySub) dailySub.textContent = 'Следующий бонус завтра';
+    }
+
+    var shopMeta = document.getElementById('shop-tile-meta');
+    if (shopMeta) shopMeta.textContent = (s.ownedSkins || []).length + ' скинов открыто';
+
+    var focus = document.getElementById('deck-focus-list');
+    if (focus) {
+        var items = [];
+        if (dailyReady) items.push('<div class="focus-item ready"><b>🎁 Бонус</b> — ежедневная награда готова</div>');
+        if (readyCore) items.push('<div class="focus-item warn"><b>🌟 Ядро</b> — доступно ' + readyCore + ' улучш.</div>');
+        if (achTotal - achDone > 0) items.push('<div class="focus-item"><b>🏆 Цель</b> — ' + (achTotal-achDone) + ' достижений впереди</div>');
+        if (!items.length) items.push('<div class="focus-item ready"><b>✦ Всё готово</b> — выбирай режим и начинай новый забег</div>');
+        focus.innerHTML = items.slice(0,3).join('');
+    }
+}
+
 function updateMainMenuStats() {
     var s = getSave();
     slBest.textContent = s.bestCoins;
@@ -2990,6 +3186,7 @@ function updateMainMenuStats() {
     slLvl.textContent = s.bestLevel;
     updateModeBests();
     updateCoreBadge();
+    updateCommandDeck();
 }
 
 function updateModeBests() {

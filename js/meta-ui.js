@@ -1392,6 +1392,10 @@ function renderCases() {
         card.appendChild(ic);
         var nm = document.createElement('div'); nm.className = 'shop-name'; nm.textContent = 'Бесплатный ' + c.name; card.appendChild(nm);
         var ds = document.createElement('div'); ds.className = 'shop-desc'; ds.textContent = 'Из инвентаря'; card.appendChild(ds);
+        var pity = document.createElement('div'); pity.className = 'case-card-pity';
+        var pityLimit = { common:8, rare:7, epic:6, legendary:5, mythic:3 }[cid] || 8;
+        pity.textContent = 'Гарантия: ' + Math.min(pityLimit, Number((s.casePity || {})[cid] || 0)) + '/' + pityLimit;
+        card.appendChild(pity);
         var pr = document.createElement('div'); pr.className = 'shop-price free'; pr.textContent = '🎁 ОТКРЫТЬ';
         card.appendChild(pr);
 
@@ -1412,6 +1416,10 @@ function renderCases() {
         card.appendChild(ic);
         var nm = document.createElement('div'); nm.className = 'shop-name'; nm.textContent = c.name; card.appendChild(nm);
         var ds = document.createElement('div'); ds.className = 'shop-desc'; ds.textContent = c.desc; card.appendChild(ds);
+        var pity = document.createElement('div'); pity.className = 'case-card-pity';
+        var pityLimit = { common:8, rare:7, epic:6, legendary:5, mythic:3 }[c.id] || 8;
+        pity.textContent = 'Гарантия: ' + Math.min(pityLimit, Number((s.casePity || {})[c.id] || 0)) + '/' + pityLimit;
+        card.appendChild(pity);
         var pr = document.createElement('div'); pr.className = 'shop-price'; pr.textContent = '💰 ' + formatNumber(c.price);
         card.appendChild(pr);
         card.addEventListener('click', function() { openCase(c.id, false); });
@@ -1789,6 +1797,7 @@ function openCase(caseId, isFree) {
     }
 
     if (allPool.length === 0) {
+        if (rarityRank[droppedRarity] >= rarityRank[pityThreshold]) s.casePity[caseId] = 0;
         var refund = DUPLICATE_REFUND[droppedRarity] || 50;
         var goldReward = {
             type: 'gold', id: 'gold_' + droppedRarity,
@@ -1811,6 +1820,7 @@ function openCase(caseId, isFree) {
     else if (reward.type === 'card') owned = s.ownedCards.indexOf(reward.id) !== -1;
 
     if (owned) {
+        if (rarityRank[droppedRarity] >= rarityRank[pityThreshold]) s.casePity[caseId] = 0;
         var refundAmount = DUPLICATE_REFUND[droppedRarity] || 50;
         var goldReward2 = {
             type: 'gold', id: 'gold_' + droppedRarity + '_' + Date.now(),

@@ -673,6 +673,15 @@ toggleWeatherBtn.addEventListener('click', function() {
 
 btnHelp.addEventListener('click', function() { helpModal.classList.add('open'); });
 helpClose.addEventListener('click', function() { helpModal.classList.remove('open'); });
+settingsModal.addEventListener('click', function(e) {
+    if (e.target === settingsModal) settingsModal.classList.remove('open');
+});
+helpModal.addEventListener('click', function(e) {
+    if (e.target === helpModal) helpModal.classList.remove('open');
+});
+profileMenuModal.addEventListener('click', function(e) {
+    if (e.target === profileMenuModal) profileMenuModal.classList.remove('open');
+});
 
 document.getElementById('reset-progress').addEventListener('click', function() {
     if (!currentProfile) return;

@@ -2065,6 +2065,7 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
             if (boss.y >= 60) { boss.y = 60; boss.entering = false; }
             continue;
         }
+        if (bossState !== 'duel') continue;
         boss.wobble += 0.05;
         boss.rotation += 0.01;
         if (boss.hitFlash > 0) boss.hitFlash--;
@@ -2166,6 +2167,8 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
             bossI--; // защита от сдвига индексов
         }
     }
+
+    updateBossDuelHUD();
 
     // Паутина
     player.inWeb = false;

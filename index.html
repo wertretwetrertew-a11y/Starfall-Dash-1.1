@@ -1696,6 +1696,128 @@
         .menu-comet { animation: none; opacity: .12; }
     }
 
+    
+    /* Deeper space scene: layered, slow and deliberately quiet. */
+    .menu-space-decor::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 50% 48%, transparent 0 28%, rgba(2,3,13,.08) 54%, rgba(1,2,9,.42) 100%),
+            linear-gradient(180deg, rgba(2,3,12,.10), rgba(2,3,12,.28));
+    }
+
+    .menu-stars {
+        position: absolute;
+        inset: 0;
+        opacity: .58;
+        background-image:
+            radial-gradient(circle at 8% 17%, rgba(205,235,255,.9) 0 1px, transparent 1.8px),
+            radial-gradient(circle at 17% 72%, rgba(151,186,255,.55) 0 1px, transparent 1.7px),
+            radial-gradient(circle at 27% 29%, rgba(255,255,255,.62) 0 1px, transparent 1.6px),
+            radial-gradient(circle at 37% 83%, rgba(155,214,255,.48) 0 1px, transparent 1.7px),
+            radial-gradient(circle at 49% 12%, rgba(255,255,255,.72) 0 1px, transparent 1.8px),
+            radial-gradient(circle at 61% 78%, rgba(174,192,255,.55) 0 1px, transparent 1.7px),
+            radial-gradient(circle at 72% 19%, rgba(220,240,255,.68) 0 1px, transparent 1.8px),
+            radial-gradient(circle at 82% 66%, rgba(145,178,255,.48) 0 1px, transparent 1.7px),
+            radial-gradient(circle at 93% 27%, rgba(255,255,255,.65) 0 1px, transparent 1.7px);
+        animation: starDrift 18s ease-in-out infinite alternate;
+    }
+
+    .menu-nebula {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(34px);
+        pointer-events: none;
+        animation: nebulaBreath 12s ease-in-out infinite alternate;
+    }
+    .nebula-a {
+        width: 42vw; height: 32vw;
+        max-width: 560px; max-height: 420px;
+        left: -15vw; top: -10vw;
+        background: radial-gradient(ellipse, rgba(75,91,190,.13), rgba(58,70,160,.045) 45%, transparent 72%);
+    }
+    .nebula-b {
+        width: 38vw; height: 30vw;
+        max-width: 520px; max-height: 390px;
+        right: -12vw; bottom: -12vw;
+        background: radial-gradient(ellipse, rgba(132,67,185,.11), rgba(73,61,150,.035) 48%, transparent 74%);
+        animation-delay: -5s;
+    }
+
+    .menu-planet {
+        width: clamp(170px, 17vw, 255px);
+        opacity: .68;
+        animation: planetFloat 9s ease-in-out infinite;
+    }
+    .menu-planet-small {
+        position: absolute;
+        right: 7vw;
+        top: 14vh;
+        width: clamp(42px, 5vw, 70px);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: radial-gradient(circle at 34% 28%, #a6b7e8, #465383 48%, #11152d 100%);
+        box-shadow: 0 0 28px rgba(91,122,210,.16), inset -10px -9px 16px rgba(0,0,0,.42);
+        opacity: .42;
+        animation: smallPlanetFloat 11s ease-in-out infinite alternate;
+    }
+    .menu-planet-small::after {
+        content: '';
+        position: absolute;
+        inset: -12% -30%;
+        border: 1px solid rgba(164,191,255,.15);
+        border-radius: 50%;
+        transform: rotate(-18deg) scaleY(.24);
+    }
+
+    .menu-comet {
+        width: 4px;
+        height: 4px;
+        box-shadow: 0 0 8px 2px rgba(135,224,255,.72);
+    }
+    .menu-comet::before {
+        width: 125px;
+        height: 2px;
+        opacity: .78;
+    }
+    .comet-e {
+        left: 76vw; top: 106vh;
+        animation-delay: -7s;
+        animation-duration: 14s;
+        transform: rotate(-20deg);
+    }
+
+    @keyframes starDrift {
+        from { transform: translate3d(0,0,0) scale(1); opacity: .48; }
+        to { transform: translate3d(-7px,4px,0) scale(1.015); opacity: .68; }
+    }
+    @keyframes nebulaBreath {
+        from { transform: scale(.96) translate3d(0,0,0); opacity: .72; }
+        to { transform: scale(1.06) translate3d(10px,-7px,0); opacity: 1; }
+    }
+    @keyframes planetFloat {
+        0%,100% { transform: rotate(-12deg) translate3d(0,0,0); }
+        50% { transform: rotate(-10deg) translate3d(0,-7px); }
+    }
+    @keyframes smallPlanetFloat {
+        from { transform: translate3d(0,0,0); }
+        to { transform: translate3d(-8px,10px,0); }
+    }
+
+    @media (max-width: 700px) {
+        .menu-planet { left: -42px; bottom: 5vh; width: 145px; opacity: .42; }
+        .menu-planet-small { right: 5vw; top: 11vh; width: 42px; }
+        .menu-comet::before { width: 72px; }
+        .menu-nebula { filter: blur(25px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .menu-stars, .menu-nebula, .menu-planet, .menu-planet-small, .menu-comet {
+            animation: none !important;
+        }
+    }
+
 </style>
 </head>
 <body>
@@ -1854,11 +1976,16 @@
 
     <div id="start-screen" class="hidden">
         <div class="menu-space-decor" aria-hidden="true">
+            <div class="menu-nebula nebula-a"></div>
+            <div class="menu-nebula nebula-b"></div>
+            <div class="menu-stars"></div>
             <div class="menu-planet"></div>
+            <div class="menu-planet-small"></div>
             <div class="menu-comet comet-a"></div>
             <div class="menu-comet comet-b"></div>
             <div class="menu-comet comet-c"></div>
             <div class="menu-comet comet-d"></div>
+            <div class="menu-comet comet-e"></div>
         </div>
         <div class="profile-badge" id="profile-badge">
             <span class="pb-avatar">🎮</span>

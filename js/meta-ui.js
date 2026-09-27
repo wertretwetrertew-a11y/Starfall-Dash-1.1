@@ -464,9 +464,31 @@ tileCore.addEventListener('click', function() {
 });
 
 coreBack.addEventListener('click', function() {
+    closeCoreScreen();
+});
+
+function closeCoreScreen() {
     coreScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');
     updateMainMenuStats();
+}
+
+coreScreen.addEventListener('click', function(e) {
+    if (e.target === coreScreen) closeCoreScreen();
+});
+
+modeScreen.addEventListener('click', function(e) {
+    if (e.target === modeScreen) {
+        modeScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+    }
+});
+
+classScreen.addEventListener('click', function(e) {
+    if (e.target === classScreen) {
+        classScreen.classList.add('hidden');
+        modeScreen.classList.remove('hidden');
+    }
 });
 
 function renderCore() {
@@ -1339,6 +1361,14 @@ function renderThemes() {
 
 function renderCases() {
     var s = getSave();
+    var totalCases = Object.keys(s.freeCases || {}).reduce(function(sum, id) {
+        return sum + Math.max(0, Number(s.freeCases[id] || 0));
+    }, 0);
+    var inventoryBadge = document.getElementById('shop-case-inventory');
+    if (inventoryBadge) {
+        inventoryBadge.textContent = '🎁 В наличии: ' + totalCases;
+        inventoryBadge.classList.toggle('has-cases', totalCases > 0);
+    }
     Object.keys(s.freeCases).forEach(function(cid) {
         if (s.freeCases[cid] <= 0) return;
         var c = CASES[cid];

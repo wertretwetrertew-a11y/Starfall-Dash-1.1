@@ -3940,3 +3940,31 @@ canvas {
 @media (prefers-reduced-motion:reduce){
     #boss-duel-overlay,#boss-duel-banner,#boss-duel-hp-fill{transition:none}
 }
+
+
+/* ROGUELIKE BUILD RECAP */
+.go-build{
+    margin-top:12px;
+    padding:9px 4px 2px;
+    text-align:center;
+    background:linear-gradient(180deg,rgba(124,77,255,.08),rgba(79,195,247,.03));
+    border-top:1px solid rgba(156,107,255,.18);
+}
+.go-build-title{
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:1.5px;
+    color:#9c6bff;
+    margin-bottom:5px;
+}
+.go-build-list{
+    color:#d9e2ff;
+    font-size:10px;
+    line-height:1.5;
+}
+.go-build-meta{
+    margin-top:5px;
+    color:#7181a5;
+    font-size:9px;
+    font-weight:700;
+}

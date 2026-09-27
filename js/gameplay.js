@@ -390,6 +390,7 @@ function spawnBoss(bossId) {
         hp: b.hp, maxHp: b.hp,
         phase: 1, wobble: 0, shootTimer: 60, specialTimer: 0,
         rotation: 0, hitFlash: 0, entering: true, defeatTimer: 0,
+        telegraphTimer: 0, vulnerableTimer: 0, fireNow: false, contactCooldown: 0,
         reward: b.reward
     };
     bosses.push(boss);
@@ -1418,8 +1419,9 @@ function updateBossDuelHUD() {
         hpText.textContent = bossState === 'victory' ? '0 / 0' : '';
     }
 
-    banner.textContent = bossAnnouncement || (bossState === 'duel' ? '⚔ ДУЭЛЬ 1 × 1' : '');
-    banner.classList.toggle('show', bossAnnouncementTimer > 0 && !!bossAnnouncement);
+    var bossIsVulnerable = boss && bossState === 'duel' && boss.vulnerableTimer > 0;
+    banner.textContent = bossIsVulnerable ? '⚡ ОКНО УРОНА — АТАКУЙ' : (bossAnnouncement || (bossState === 'duel' ? '⚔ ДУЭЛЬ 1 × 1' : ''));
+    banner.classList.toggle('show', bossIsVulnerable || (bossAnnouncementTimer > 0 && !!bossAnnouncement));
 }
 
 // ==========================================================
@@ -1669,7 +1671,7 @@ function update() {
     }
 
     // Боссы
-    if (bossState === 'none' && currentMode === 'classic' || currentMode === 'hardcore' || currentMode === 'rogue') {
+    if (bossState === 'none' && (currentMode === 'classic' || currentMode === 'hardcore' || currentMode === 'rogue')) {
        // Флаг для отслеживания, что босс этого уровня уже был заспавнен
 if (level === BOSS_TYPES.dragon.level && !bosses.some(function(b){ return b.id === 'dragon'; }) && !window._bossSpawned5) {
     window._bossSpawned5 = true;
@@ -2087,27 +2089,45 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         else if (hpPct <= 0.66) boss.phase = 2;
         else boss.phase = 1;
 
+        // Босс работает по понятному циклу:
+        // ожидание → телеграф → атака → короткое окно уязвимости.
+        // Это даёт игроку честный момент для контратаки вместо постоянного
+        // контакта, в котором раньше босс фактически не давал себя убить.
+        if (boss.contactCooldown > 0) boss.contactCooldown--;
+        if (boss.vulnerableTimer > 0) {
+            boss.vulnerableTimer--;
+        } else if (boss.telegraphTimer > 0) {
+            boss.telegraphTimer--;
+            if (boss.telegraphTimer <= 0) {
+                boss.fireNow = true;
+                boss.vulnerableTimer = 36;
+            }
+        } else if (!boss.fireNow) {
+            boss.shootTimer--;
+            if (boss.shootTimer <= 0) boss.telegraphTimer = 30;
+        }
+
         if (boss.id === 'dragon') {
             boss.x = canvas.width / 2 - boss.size / 2 + Math.sin(boss.wobble * 0.5) * 150;
             boss.y = 60 + Math.sin(boss.wobble * 0.3) * 20;
-            boss.shootTimer--;
-            if (boss.shootTimer <= 0) {
-                boss.shootTimer = 60 - boss.phase * 12;
+            if (boss.fireNow) {
                 var dbx = boss.x + boss.size / 2, dby = boss.y + boss.size / 2;
                 for (var d2 = -boss.phase; d2 <= boss.phase; d2++) {
                     spawnEnemyBullet(dbx, dby + 20, d2 * 1.5, 3.5, { color: '#ff5252', size: 9 });
                 }
+                boss.shootTimer = 60 - boss.phase * 12;
+                boss.fireNow = false;
             }
         } else if (boss.id === 'titan') {
             boss.x = canvas.width / 2 - boss.size / 2 + Math.sin(boss.wobble * 0.4) * 100;
             boss.y = 80 + Math.sin(boss.wobble * 0.5) * 15;
-            boss.shootTimer--;
-            if (boss.shootTimer <= 0) {
-                boss.shootTimer = 80 - boss.phase * 15;
+            if (boss.fireNow) {
                 var tbx = boss.x + boss.size / 2, tby = boss.y + boss.size / 2;
                 for (var t1 = -2; t1 <= 2; t1++) {
                     spawnEnemyBullet(tbx, tby + 20, t1 * 1.2, 2.5, { color: '#00e5ff', size: 10 });
                 }
+                boss.shootTimer = 80 - boss.phase * 15;
+                boss.fireNow = false;
             }
         } else if (boss.id === 'devourer') {
             boss.x = canvas.width / 2 - boss.size / 2 + Math.sin(boss.wobble * 0.3) * 80;
@@ -2119,25 +2139,37 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
             player.y += (ddy / dd) * 0.05 * boss.phase;
             player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
             player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
-            boss.shootTimer--;
-            if (boss.shootTimer <= 0) {
-                boss.shootTimer = 50 - boss.phase * 10;
+            if (boss.fireNow) {
                 var vbx = boss.x + boss.size / 2, vby = boss.y + boss.size / 2;
                 for (var v1 = 0; v1 < 12; v1++) {
                     var va = (v1 / 12) * Math.PI * 2 + boss.wobble;
                     spawnEnemyBullet(vbx, vby, Math.cos(va) * 2.5, Math.sin(va) * 2.5, { color: '#e040fb', size: 9 });
                 }
+                boss.shootTimer = 50 - boss.phase * 10;
+                boss.fireNow = false;
             }
         }
 
         var bx1 = boss.x, by1 = boss.y, bs = boss.size;
         if (player.x < bx1 + bs && player.x + player.size > bx1 &&
             player.y < by1 + bs && player.y + player.size > by1) {
-            if (player.damageFlash > 0 || buff.phantom > 0) {
-                boss.hp -= Math.max(1, playerDamage);
+
+            if (boss.vulnerableTimer > 0 && boss.contactCooldown <= 0) {
+                // У любого билда есть базовый способ убивать босса.
+                // Апгрейд "Урон" напрямую усиливает этот удар.
+                var contactDamage = Math.max(1, 2 + playerDamage);
+                if (critChance > 0 && Math.random() < critChance) contactDamage *= 3;
+                if (runUpgrades.berserk && lives > 0) {
+                    contactDamage *= 1 + Math.max(0, 1 - (lives / Math.max(1, getClass(selectedClass).startHp))) * 2;
+                }
+                boss.hp -= Math.max(1, Math.floor(contactDamage));
                 boss.hitFlash = 8;
-            } else {
-                if (buff.phantom <= 0) playerTakeDamage();
+                boss.contactCooldown = 8;
+                addFloatingText(bx1 + bs / 2, by1 - 8, '-' + Math.max(1, Math.floor(contactDamage)), '#7cffb2', 18);
+                addParticles(bx1 + bs / 2, by1 + bs / 2, '#7cffb2', 8, 7);
+                playSFX('hit');
+            } else if (buff.phantom <= 0 && player.damageFlash <= 0) {
+                playerTakeDamage();
             }
         }
 
@@ -2520,9 +2552,24 @@ function drawMonster(e) {
 function drawBoss(boss) {
     var b = boss.type;
     ctx.save();
-    ctx.shadowColor = b.glow;
-    ctx.shadowBlur = boss.hitFlash > 0 ? 40 : 25;
+    ctx.shadowColor = boss.vulnerableTimer > 0 ? '#7cffb2' : b.glow;
+    ctx.shadowBlur = boss.hitFlash > 0 ? 40 : (boss.vulnerableTimer > 0 ? 38 : (boss.telegraphTimer > 0 ? 32 : 25));
     var cx = boss.x + boss.size / 2, cy = boss.y + boss.size / 2, r = boss.size / 2;
+
+    if (boss.telegraphTimer > 0) {
+        var charge = 1 - boss.telegraphTimer / 30;
+        ctx.strokeStyle = 'rgba(255,92,122,' + (0.35 + charge * 0.55) + ')';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + 10 + charge * 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * charge);
+        ctx.stroke();
+    } else if (boss.vulnerableTimer > 0) {
+        ctx.strokeStyle = 'rgba(124,255,178,.9)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r + 9, 0, Math.PI * 2);
+        ctx.stroke();
+    }
     if (boss.hitFlash > 0) {
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
         ctx.beginPath(); ctx.arc(cx, cy, r + 6, 0, Math.PI * 2); ctx.fill();

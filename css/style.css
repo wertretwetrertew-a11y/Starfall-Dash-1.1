@@ -2341,7 +2341,7 @@
 #shop-modal .ach-card {
     min-height:205px;
     padding:16px 13px 14px;
-    border:1px solid rgba(255,255,255,.11);
+    border:1px solid rgba(255,255,255,.055);
     border-radius:20px;
     background:
         linear-gradient(145deg,rgba(255,255,255,.045),rgba(6,12,29,.74) 45%),
@@ -2397,14 +2397,14 @@
     width:64px;
     height:64px;
     border-radius:18px;
-    background:rgba(4,8,20,.32);
-    box-shadow:0 0 22px currentColor;
+    background:transparent;
+    box-shadow:none;
 }
 #shop-modal .skin-preview-inner {
     width:43px;
     height:43px;
     border-radius:12px;
-    box-shadow:0 0 14px currentColor;
+    box-shadow:0 0 16px currentColor;
 }
 #shop-modal .card-preview {
     width:66px;

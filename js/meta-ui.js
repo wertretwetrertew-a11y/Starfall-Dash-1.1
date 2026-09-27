@@ -1808,7 +1808,7 @@ function openCase(caseId, isFree) {
         s.totalRefund += refund;
         persist();
         updateMainMenuStats();
-        showCaseAnimation(goldReward, caseId);
+        showCaseAnimation(goldReward, caseId, isFree);
         return;
     }
 
@@ -1831,7 +1831,7 @@ function openCase(caseId, isFree) {
         s.totalRefund += refundAmount;
         persist();
         updateMainMenuStats();
-        showCaseAnimation(goldReward2, caseId);
+        showCaseAnimation(goldReward2, caseId, isFree);
         return;
     }
 
@@ -1843,10 +1843,10 @@ function openCase(caseId, isFree) {
     persist();
     updateMainMenuStats();
     updateShopBadges();
-    showCaseAnimation(reward, caseId);
+    showCaseAnimation(reward, caseId, isFree);
 }
 
-function showCaseAnimation(reward, caseId) {
+function showCaseAnimation(reward, caseId, isFree) {
     caseReel.innerHTML = '';
     caseResult.textContent = '';
     caseResult.classList.remove('show');
@@ -1919,6 +1919,9 @@ function showCaseAnimation(reward, caseId) {
     caseReel.style.transition = 'none';
     caseReel.style.transform = 'translateX(0px)';
     caseModal.classList.add('open');
+    caseWindow.classList.remove('opening','revealed');
+    void caseWindow.offsetWidth;
+    caseWindow.classList.add('opening');
 
     setTimeout(function() {
         var itemW = 108;
@@ -1939,6 +1942,8 @@ function showCaseAnimation(reward, caseId) {
             caseResult.textContent = '✦ ' + reward.data.name + ' ✦';
         }
         caseResult.classList.add('show');
+        caseWindow.classList.remove('opening');
+        caseWindow.classList.add('revealed');
         caseCloseBtn.disabled = false;
         caseCloseBtn.textContent = 'Забрать';
         playSFX('level');

@@ -2920,15 +2920,6 @@
 #help-modal .generic-modal > div b {
     color:#fff;
 }
-#help-modal .generic-modal > div br {
-    display:none;
-}
-#help-modal .generic-modal > div {
-    font-size:0 !important;
-}
-#help-modal .generic-modal > div::after {
-    content:'';
-}
 @media(max-width:640px) {
     #settings-modal .generic-modal,
     #help-modal .generic-modal {

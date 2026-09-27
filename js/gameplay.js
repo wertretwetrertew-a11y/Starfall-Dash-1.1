@@ -1121,6 +1121,31 @@ function showGameOverModal(isNewRecord) {
     }
     goBest.textContent = bestText;
 
+    if (goBuild) {
+        if (currentMode === 'rogue') {
+            var buildParts = [];
+            Object.keys(runUpgrades || {}).forEach(function(id) {
+                var up = UPGRADE_POOL[id];
+                if (up) buildParts.push(up.icon + ' ' + up.name + ' ×' + runUpgrades[id]);
+            });
+            (runRelics || []).forEach(function(id) {
+                var rel = RELICS[id];
+                if (rel) buildParts.push(rel.icon + ' ' + rel.name);
+            });
+            goBuild.innerHTML = '<div class="go-build-title">СБОРКА ЗАБЕГА</div>' +
+                '<div class="go-build-list">' +
+                (buildParts.length ? buildParts.slice(0, 10).join(' · ') : 'Билд ещё не собран') +
+                '</div>' +
+                '<div class="go-build-meta">⚡ Апгрейдов: ' +
+                Object.keys(runUpgrades || {}).reduce(function(sum, id) { return sum + (runUpgrades[id] || 0); }, 0) +
+                ' · 🏺 Реликвий: ' + (runRelics || []).length +
+                ' · 🔥 Синергий: ' + Object.keys(runSynergies || {}).length + '</div>';
+            goBuild.style.display = 'block';
+        } else {
+            goBuild.style.display = 'none';
+        }
+    }
+
     if (isNewRecord) {
         goRecord.style.display = 'block';
     } else {

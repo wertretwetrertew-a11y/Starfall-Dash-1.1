@@ -1065,6 +1065,7 @@ function finishRun() {
 
     s.gamesPlayed += 1;
     persist();
+    clearBossDuelPresentation();
     updateMainMenuStats();
     stopMusic();
     checkAchievements();
@@ -1379,6 +1380,16 @@ function playerTakeDamage() {
         }
         finishRun();
     }
+}
+
+function clearBossDuelPresentation() {
+    bossState = 'none';
+    bossStateTimer = 0;
+    bossAnnouncement = '';
+    bossAnnouncementTimer = 0;
+    bossDuelId = null;
+    bosses = [];
+    updateBossDuelHUD();
 }
 
 function updateBossDuelHUD() {

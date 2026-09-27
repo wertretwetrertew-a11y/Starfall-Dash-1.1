@@ -2169,6 +2169,15 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
                 addParticles(bx1 + bs / 2, by1 + bs / 2, '#7cffb2', 8, 7);
                 playSFX('hit');
             } else if (buff.phantom <= 0 && player.damageFlash <= 0) {
+                // Защитный билд тоже должен иметь рабочий путь к победе:
+                // шипы отражают часть урона босса обратно в окно контакта.
+                if (thornsDamage > 0 && boss.contactCooldown <= 0) {
+                    boss.hp -= thornsDamage;
+                    boss.hitFlash = 6;
+                    boss.contactCooldown = 18;
+                    addFloatingText(bx1 + bs / 2, by1 - 8, '-' + thornsDamage + ' THORNS', '#aed581', 15);
+                    addParticles(bx1 + bs / 2, by1 + bs / 2, '#aed581', 6, 5);
+                }
                 playerTakeDamage();
             }
         }

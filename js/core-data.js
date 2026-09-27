@@ -641,7 +641,13 @@ var RELICS = {
     berserker_mask: { id:'berserker_mask', name:'Маска берсерка', icon:'😈',
         desc:'Урон ×2 при HP = 1', rarity:'mythic' },
     star_compass: { id:'star_compass', name:'Звёздный компас', icon:'🧭',
-        desc:'+1 апгрейд на выбор', rarity:'legendary' }
+        desc:'+1 апгрейд на выбор', rarity:'legendary' },
+    blood_fang: { id:'blood_fang', name:'Кровавый клык', icon:'🩸',
+        desc:'Критические удары восстанавливают 1 HP', rarity:'legendary' },
+    void_engine: { id:'void_engine', name:'Двигатель пустоты', icon:'🕳',
+        desc:'+2 урона, но враги движутся на 10% быстрее', rarity:'mythic' },
+    titan_mark: { id:'titan_mark', name:'Клеймо титана', icon:'❄️',
+        desc:'Каждый третий контакт с боссом наносит ×2 урон', rarity:'mythic' }
 };
 
 var WAVE_MODIFIERS = {

@@ -3070,6 +3070,8 @@ var pendingUpgradeAfterWave = false;  // 🔧 ФИКС: флаг для элит
 var rerollCost = 50;
 var isChoosingUpgrade = false;
 var _finishRunCalled = false;  // 🔧 ФИКС: защита от двойного вызова finishRun
+var expeditionBossActive = false;
+var expeditionSectorWon = false;
 
 var coreBonusCache = {
     vitality: 0, speed: 1, magnet: 0, greed: 1, combo: 0, luck: 0
@@ -5900,6 +5902,8 @@ function reset() {
     screenShake = 0;
     damageFlash = 0;
     _finishRunCalled = false;  // 🔧 ФИКС: сбрасываем флаг завершения
+    expeditionBossActive = false;
+    expeditionSectorWon = false;
     resetFrameClock();  // 🔧 ФИКС
 
     if (!currentProfile) {
@@ -6053,6 +6057,61 @@ function finishRunSilent() {
 //   ЗАВЕРШЕНИЕ ИГРЫ
 // ==========================================================
 
+function completeExpeditionSector() {
+    if (!isExpeditionMode() || expeditionSectorWon) return;
+
+    expeditionSectorWon = true;
+    expeditionBossActive = false;
+    running = false;
+    gameOver = true;
+
+    var s = getSave();
+    var e = getExpeditionSave();
+    var sectorId = e.currentSector || 1;
+    var sector = EXPEDITION_SECTORS[sectorId - 1] || EXPEDITION_SECTORS[0];
+
+    if ((e.completedSectors || []).indexOf(sectorId) === -1) {
+        e.completedSectors.push(sectorId);
+    }
+    e.successfulExpeditions = (e.successfulExpeditions || 0) + 1;
+    e.bestSector = Math.max(e.bestSector || 1, sectorId);
+
+    if (sectorId < EXPEDITION_SECTORS.length) {
+        e.unlockedSector = Math.max(e.unlockedSector || 1, sectorId + 1);
+    }
+
+    var rewardShards = sectorId * 10;
+    s.starShards = (s.starShards || 0) + rewardShards;
+    e.claimedRewards = e.claimedRewards || [];
+    if (e.claimedRewards.indexOf('sector_' + sectorId) === -1) {
+        e.claimedRewards.push('sector_' + sectorId);
+    }
+
+    s.gamesPlayed = (s.gamesPlayed || 0) + 1;
+    s.modeBests.expedition = s.modeBests.expedition || { coins:0, time:0 };
+    s.modeBests.expedition.coins = Math.max(s.modeBests.expedition.coins || 0, score);
+    s.totalTime = (s.totalTime || 0) + runTime;
+
+    persist();
+    updateMainMenuStats();
+
+    goTitle.textContent = '🚀 Сектор ' + String(sectorId).padStart(2,'0') + ' завершён';
+    goScore.textContent = score;
+    goScoreLabel.textContent = 'монет собрано';
+    goLevel.textContent = level;
+    goTime.textContent = formatTime(runTime);
+    goGold.textContent = formatNumber(goldEarned);
+    goCrystals.textContent = crystalsEarned;
+    goRecord.style.display = 'block';
+    goRecord.textContent = '✓ СЕКТОР ЗАХВАЧЕН • +' + rewardShards + ' ✨';
+    goBest.textContent = sectorId < EXPEDITION_SECTORS.length
+        ? 'Открыт следующий маршрут: SECTOR ' + String(sectorId + 1).padStart(2,'0')
+        : 'Экспедиционная цепь завершена';
+    gameoverModal.classList.add('open');
+    document.body.classList.remove('playing');
+    stopMusic();
+}
+
 function finishRun() {
     // 🔧 ФИКС: защита от двойного вызова
     if (_finishRunCalled) return;
@@ -6069,7 +6128,14 @@ function finishRun() {
 
     var isNewRecord = false;
 
-    if (currentMode === 'rogue') {
+    if (isExpeditionMode()) {
+        var e = getExpeditionSave();
+        e.bestSector = Math.max(e.bestSector || 1, e.currentSector || 1);
+        if (score > (s.modeBests.expedition.coins || 0)) {
+            s.modeBests.expedition.coins = score;
+            isNewRecord = true;
+        }
+    } else if (currentMode === 'rogue') {
         var bestLvl = s.rogueStats.bestLevel || 0;
         if (level > bestLvl) {
             s.rogueStats.bestLevel = level;
@@ -6368,7 +6434,25 @@ function levelUp() {
     }
 
     // 🎲 ROGUELIKE
-       if (mode.isRoguelike) {
+       if (isExpeditionMode()) {
+        var expedition = getExpeditionSave();
+        var sector = EXPEDITION_SECTORS[(expedition.currentSector || 1) - 1] || EXPEDITION_SECTORS[0];
+        var completedWave = level - 1;
+
+        if (completedWave >= sector.waves && !expeditionBossActive) {
+            expeditionBossActive = true;
+            isChoosingUpgrade = false;
+            running = true;
+            showToast('⚠️ СЕКТОР ' + String(sector.id).padStart(2,'0') + ': БОСС НА ПОДХОДЕ', 'legendary');
+            setTimeout(function() {
+                if (running && !gameOver && expeditionBossActive && bosses.length === 0) {
+                    spawnBoss(sector.boss);
+                }
+            }, 450);
+        } else {
+            showUpgradeChoice();
+        }
+    } else if (mode.isRoguelike) {
         if (level % 5 === 0 && level > 1) {
             pendingUpgradeAfterWave = true;
             startEliteWave();
@@ -6630,6 +6714,11 @@ function update() {
     if (level <= 3) baseInterval = 75;
     else baseInterval = Math.max(15, 55 - (level - 1) * 6);
     var enemyMult = mode.enemyMultiplier || 1;
+
+    if (isExpeditionMode()) {
+        var expCfg = EXPEDITION_SECTORS[(getExpeditionSave().currentSector || 1) - 1] || EXPEDITION_SECTORS[0];
+        enemyMult *= (expCfg.enemyMultiplier || 1);
+    }
 
     if (mode.isRoguelike && currentWaveModifier) {
         if (currentWaveModifier.enemyMult) enemyMult *= currentWaveModifier.enemyMult;
@@ -7135,6 +7224,11 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
             persist();
             updateMainMenuStats();
             checkAchievements();
+
+            if (isExpeditionMode() && expeditionBossActive && bosses.length === 0) {
+                completeExpeditionSector();
+            }
+
             bossI--; // защита от сдвига индексов
         }
     }

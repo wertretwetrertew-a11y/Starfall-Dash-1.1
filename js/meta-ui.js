@@ -634,6 +634,11 @@ function renderShopNavigation() {
     var subWrap = document.getElementById('shop-subtabs');
     if (!categoryWrap || !subWrap) return;
 
+    var caseInventory = document.getElementById('shop-case-inventory');
+    if (caseInventory) {
+        caseInventory.classList.toggle('visible', currentShopTab === 'cases');
+    }
+
     categoryWrap.querySelectorAll('.shop-category').forEach(function(btn) {
         btn.classList.toggle('active', btn.dataset.category === category);
     });

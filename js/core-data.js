@@ -149,6 +149,7 @@ var goGold = document.getElementById('go-gold');
 var goCrystals = document.getElementById('go-crystals');
 var goRecord = document.getElementById('go-record');
 var goBest = document.getElementById('go-best');
+var goBuild = document.getElementById('go-build');
 var goRestart = document.getElementById('go-restart');
 var goMenu = document.getElementById('go-menu');
 var goShare = document.getElementById('go-share');

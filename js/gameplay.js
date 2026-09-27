@@ -886,6 +886,9 @@ function reset() {
         critChance = 0;
     }
 
+    // Survival всегда начинается и остаётся с одной жизнью.
+    if (mode.id === 'survival') lives = 1;
+
     level = 1;
     LEVEL_DURATION = mode.levelDuration;
     levelTimer = LEVEL_DURATION;
@@ -954,7 +957,7 @@ function reset() {
     // Бусты
     if (s.boosts) {
         if (s.boosts.x2gold > 0) { s.boosts.x2gold--; runBoosts.x2gold = true; }
-        if (s.boosts.shieldRun > 0) { s.boosts.shieldRun--; lives += 1; runBoosts.shield = true; }
+        if (s.boosts.shieldRun > 0) { s.boosts.shieldRun--; if (currentMode !== 'survival') lives += 1; runBoosts.shield = true; }
         if (s.boosts.startCoins > 0) { s.boosts.startCoins--; score = 10; goldEarned = 10; s.bank += 10; }
         if (s.boosts.magnetRun > 0) { s.boosts.magnetRun--; buff.magnet = 30 * 60; runBoosts.magnetRun = true; }
         if (s.boosts.comboRun > 0) { s.boosts.comboRun--; combo = 2; comboTimer = COMBO_WINDOW; runBoosts.comboRun = true; }
@@ -1174,7 +1177,7 @@ function applyDrop(type, x, y) {
         addParticles(px, py, '#fff', 20, 10);
         showToast('👻 Фантом!', 'success');
     } else if (type === 'medkit') {
-        if (lives < 8) {
+        if (currentMode !== 'survival' && lives < 8) {
             lives++;
             addParticles(px, py, '#ff5c7a', 20, 10);
             showToast('🩹 +1 жизнь!', 'success');
@@ -1219,7 +1222,7 @@ function openChest() {
         for (var i = 0; i < 15; i++) spawnCoin();
         showToast('🎁 15 монет!', 'legendary');
     } else if (roll < 0.75) {
-        if (lives < 8) { lives++; }
+        if (currentMode !== 'survival' && lives < 8) { lives++; }
         showToast('🎁 +1 жизнь!', 'legendary');
     } else if (roll < 0.9) {
         buff.freeze = 3 * 60; buff.x2gold = 10 * 60; buff.speedBoost = 5 * 60;
@@ -1358,7 +1361,7 @@ function playerTakeDamage() {
     }
 
     if (lives <= 0) {
-        if (revivesLeft > 0) {
+        if (revivesLeft > 0 && currentMode !== 'survival') {
             revivesLeft--;
             lives = 2;
             buff.phantom = 3 * 60;
@@ -1514,7 +1517,7 @@ function update() {
         var threshold = 25 * 60 / runUpgrades.regen;
         if (regenTimer >= threshold) {
             regenTimer = 0;
-            if (lives < 10) {
+            if (currentMode !== 'survival' && lives < 10) {
                 lives++;
                 addFloatingText(player.x + player.size/2, player.y - 10, '+❤', '#7cffb2', 22);
                 updateHUD();

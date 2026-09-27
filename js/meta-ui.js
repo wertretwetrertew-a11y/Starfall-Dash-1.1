@@ -637,6 +637,12 @@ function renderShopNavigation() {
     var caseInventory = document.getElementById('shop-case-inventory');
     if (caseInventory) {
         caseInventory.classList.toggle('visible', currentShopTab === 'cases');
+        if (currentShopTab === 'cases') {
+            var liveCases = Object.keys(getSave().freeCases || {}).reduce(function(sum, id) {
+                return sum + Math.max(0, Number(getSave().freeCases[id] || 0));
+            }, 0);
+            caseInventory.textContent = '🎁 В наличии: ' + liveCases;
+        }
     }
 
     categoryWrap.querySelectorAll('.shop-category').forEach(function(btn) {
@@ -1235,6 +1241,14 @@ function renderShop() {
     else if (currentShopTab === 'achievements') renderAchievements();
 }
 
+function refreshShopLiveState() {
+    if (!shopModal.classList.contains('open')) return;
+    // Кошелёк и инвентарь должны обновляться сразу после любой покупки/открытия кейса.
+    shopBankVal.textContent = formatNumber(getSave().bank);
+    renderShopNavigation();
+    renderShop();
+}
+
 function renderSkins() {
     var s = getSave();
     Object.keys(SKINS).forEach(function(k) {
@@ -1743,6 +1757,7 @@ function openCase(caseId, isFree) {
     persist();
     updateMainMenuStats();
     updateShopBadges();
+    refreshShopLiveState();
     playSFX('case');
 
     var roll = Math.random() * 100;
@@ -1808,6 +1823,7 @@ function openCase(caseId, isFree) {
         s.totalRefund += refund;
         persist();
         updateMainMenuStats();
+        refreshShopLiveState();
         showCaseAnimation(goldReward, caseId, isFree);
         return;
     }
@@ -1831,6 +1847,7 @@ function openCase(caseId, isFree) {
         s.totalRefund += refundAmount;
         persist();
         updateMainMenuStats();
+        refreshShopLiveState();
         showCaseAnimation(goldReward2, caseId, isFree);
         return;
     }
@@ -1843,6 +1860,7 @@ function openCase(caseId, isFree) {
     persist();
     updateMainMenuStats();
     updateShopBadges();
+    refreshShopLiveState();
     showCaseAnimation(reward, caseId, isFree);
 }
 

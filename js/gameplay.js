@@ -451,6 +451,15 @@ function checkSynergies() {
         showToast('⚡ СИНЕРГИЯ: Хаос!', 'legendary');
         playSFX('upgrade');
     }
+    // Кровавый клык + крит = Blood Hunt
+    if (bloodFangActive && runUpgrades.crit && !runSynergies.blood_hunt) {
+        runSynergies.blood_hunt = true;
+        vampiresHeal += 0.03;
+        showToast('🩸 СИНЕРГИЯ: Кровавая охота!', 'legendary');
+        playSFX('upgrade');
+        s.rogueStats.synergiesActivated = (s.rogueStats.synergiesActivated || 0) + 1;
+        persist();
+    }
     // Vampire + Berserk = Blood God
     if (runUpgrades.vampire && runUpgrades.berserk && !runSynergies.blood_god) {
         runSynergies.blood_god = true;
@@ -531,6 +540,9 @@ function applyRelic(relicId) {
         case 'chaos_orb': chaosOrbTimer = 10 * 60; break;
         case 'berserker_mask': berserkerMask = true; break;
         case 'star_compass': extraUpgradeChoice = true; break;
+        case 'blood_fang': bloodFangActive = true; break;
+        case 'void_engine': playerDamage += 2; enemySlowMult *= 1.10; break;
+        case 'titan_mark': titanMarkContacts = 0; break;
     }
 
     var s = getSave();
@@ -639,6 +651,7 @@ function getSynergyHint(upgradeId) {
     if (upgradeId === 'dodge' && runUpgrades.speed) return 'Синергия со скоростью!';
     if (upgradeId === 'berserk' && runUpgrades.vampire) return 'Синергия с вампиризмом!';
     if (upgradeId === 'vampire' && runUpgrades.berserk) return 'Синергия с берсерком!';
+    if (upgradeId === 'crit' && bloodFangActive) return 'Кровавый клык усиливает криты!';
     if (upgradeId === 'explosive' && runUpgrades.chain) return 'Синергия с молниями!';
     if (upgradeId === 'chain' && explosiveCoins) return 'Синергия с взрывом!';
     return null;
@@ -935,6 +948,8 @@ function reset() {
     revivesLeft = 0;
     chaosOrbTimer = 0;
     berserkerMask = false;
+    titanMarkContacts = 0;
+    bloodFangActive = false;
     explosiveCoins = false;
     pierceCount = 0;
     chainLightning = 0;
@@ -2161,7 +2176,16 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
                 // У любого билда есть базовый способ убивать босса.
                 // Апгрейд "Урон" напрямую усиливает этот удар.
                 var contactDamage = Math.max(1, 2 + playerDamage);
-                if (critChance > 0 && Math.random() < critChance) contactDamage *= 3;
+                var isCrit = critChance > 0 && Math.random() < critChance;
+                if (isCrit) contactDamage *= 3;
+                if (titanMarkContacts !== undefined && runRelics.indexOf('titan_mark') !== -1) {
+                    titanMarkContacts++;
+                    if (titanMarkContacts % 3 === 0) contactDamage *= 2;
+                }
+                if (isCrit && bloodFangActive) {
+                    lives = Math.min(Math.max(1, getClass(selectedClass).startHp), lives + 1);
+                    addFloatingText(player.x + player.size / 2, player.y - 8, '+1 HP', '#ff5c7a', 14);
+                }
                 if (runUpgrades.berserk && lives > 0) {
                     contactDamage *= 1 + Math.max(0, 1 - (lives / Math.max(1, getClass(selectedClass).startHp))) * 2;
                 }

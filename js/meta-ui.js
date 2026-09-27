@@ -1600,6 +1600,9 @@ document.querySelectorAll('.shop-tab').forEach(function(tab) {
 });
 
 shopClose.addEventListener('click', function() { shopModal.classList.remove('open'); });
+shopModal.addEventListener('click', function(e) {
+    if (e.target === shopModal) shopModal.classList.remove('open');
+});
 
 // ==========================================================
 //   КЕЙСЫ

@@ -2843,19 +2843,6 @@
         0 26px 70px rgba(0,0,0,.44),
         0 0 42px rgba(79,195,247,.07);
 }
-#settings-modal .generic-modal::before,
-#help-modal .generic-modal::before {
-    content:'';
-    position:absolute;
-    width:250px;height:150px;
-    left:50%;top:-110px;
-    transform:translateX(-50%);
-    border-radius:50%;
-    background:#4fc3f7;
-    opacity:.08;
-    filter:blur(34px);
-    pointer-events:none;
-}
 #settings-modal h2,
 #help-modal h2 {
     position:relative;
@@ -2878,9 +2865,7 @@
     color:#c8d0e3;
     font-size:13px;
 }
-#settings-modal .row-actions {
-    gap:6px;
-}
+#settings-modal .row-actions { gap:6px; }
 #settings-modal .modal-btn {
     min-width:43px;
     padding:8px 12px;
@@ -2902,24 +2887,73 @@
     box-shadow:inset 0 1px rgba(255,255,255,.05),0 8px 20px rgba(0,0,0,.18);
 }
 #help-modal .generic-modal {
-    width:min(680px,92vw);
+    width:min(620px,92vw);
 }
 #help-modal h2 {
     text-align:center;
     text-shadow:0 0 25px rgba(124,255,178,.12);
 }
-#help-modal .generic-modal > div {
-    position:relative;
+#help-modal .help-cards {
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:9px;
+    margin-bottom:14px;
+}
+#help-modal .help-card {
+    display:flex;
+    align-items:center;
     gap:10px;
-    margin-bottom:16px !important;
-    color:#b9c3d9 !important;
-    line-height:1.45 !important;
+    min-height:62px;
+    padding:10px 11px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:15px;
+    background:
+        linear-gradient(145deg,rgba(255,255,255,.035),rgba(6,12,29,.58)),
+        radial-gradient(circle at 100% 0,rgba(79,195,247,.07),transparent 55%);
+    box-shadow:inset 0 1px rgba(255,255,255,.035);
 }
-#help-modal .generic-modal > div b {
+#help-modal .help-icon {
+    flex:0 0 34px;
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:21px;
+    filter:drop-shadow(0 0 7px rgba(79,195,247,.16));
+}
+#help-modal .help-card > div {
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+}
+#help-modal .help-card b {
     color:#fff;
+    font-size:12px;
+    line-height:1.2;
 }
+#help-modal .help-card span:not(.help-icon) {
+    color:#aebbd4;
+    font-size:11px;
+    line-height:1.35;
+}
+@media(max-width:640px) {
+    #settings-modal .generic-modal,
+    #help-modal .generic-modal {
+        width:calc(100vw - 24px);
+        padding:21px 14px 17px;
+        border-radius:22px;
+    }
+    #help-modal .help-cards {
+        grid-template-columns:1fr;
+        gap:8px;
+    }
+    #help-modal .help-card {
+        min-height:56px;
+    }
+}
+
 @media(max-width:640px) {
     #settings-modal .generic-modal,
     #help-modal .generic-modal {

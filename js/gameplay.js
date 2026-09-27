@@ -1671,7 +1671,7 @@ function update() {
     }
 
     // Боссы
-    if (bossState === 'none' && (currentMode === 'classic' || currentMode === 'hardcore' || currentMode === 'rogue')) {
+    if (bossState === 'none' && currentMode === 'rogue') {
        // Флаг для отслеживания, что босс этого уровня уже был заспавнен
 if (level === BOSS_TYPES.dragon.level && !bosses.some(function(b){ return b.id === 'dragon'; }) && !window._bossSpawned5) {
     window._bossSpawned5 = true;

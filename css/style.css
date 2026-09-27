@@ -1889,3 +1889,195 @@
         }
     }
 
+
+
+/* === HERO SELECT — VISUAL POLISH === */
+#class-screen {
+    position: relative;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background:
+        radial-gradient(circle at 50% 12%, rgba(79,195,247,.09), transparent 28%),
+        radial-gradient(circle at 15% 72%, rgba(124,255,178,.055), transparent 26%),
+        radial-gradient(circle at 86% 72%, rgba(224,64,251,.06), transparent 25%),
+        linear-gradient(180deg, #080e20 0%, #05091a 58%, #02050f 100%);
+}
+#class-screen::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .42;
+    background-image:
+        radial-gradient(circle at 12% 18%, rgba(255,255,255,.55) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 74% 24%, rgba(255,255,255,.4) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 88% 78%, rgba(255,255,255,.35) 0 1px, transparent 1.5px),
+        radial-gradient(circle at 32% 84%, rgba(255,255,255,.3) 0 1px, transparent 1.5px);
+    background-size: 190px 190px, 270px 270px, 230px 230px, 310px 310px;
+}
+#class-screen .class-header {
+    width: min(900px, 94vw);
+    margin-top: 14px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+}
+#class-screen .class-header h2 {
+    font-size: clamp(22px, 4vw, 32px);
+    letter-spacing: .3px;
+    text-shadow: 0 0 24px rgba(255,92,122,.14);
+}
+#class-screen .mode-back {
+    border-color: rgba(138,180,255,.35);
+    background: rgba(255,255,255,.045);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 22px rgba(0,0,0,.18);
+}
+#class-screen .class-grid {
+    width: min(900px, 94vw);
+    gap: 14px;
+    margin-bottom: 34px;
+    position: relative;
+    z-index: 2;
+}
+#class-screen .class-card {
+    min-height: 220px;
+    padding: 22px 22px 18px;
+    border: 1px solid;
+    border-radius: 24px;
+    overflow: hidden;
+    isolation: isolate;
+    background: rgba(10,16,34,.72);
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.07),
+        0 18px 42px rgba(0,0,0,.28);
+    transition: transform .22s ease, box-shadow .22s ease, filter .22s ease;
+}
+#class-screen .class-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.075), transparent 32%),
+        radial-gradient(circle at 88% 8%, currentColor, transparent 34%);
+    opacity: .16;
+}
+#class-screen .class-card::after {
+    content: '';
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    right: -80px;
+    bottom: -100px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .055;
+    filter: blur(10px);
+    pointer-events: none;
+    z-index: -1;
+}
+#class-screen .class-card:hover:not(.locked) {
+    transform: translateY(-5px);
+    filter: brightness(1.08);
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.1),
+        0 24px 52px rgba(0,0,0,.36),
+        0 0 28px color-mix(in srgb, currentColor 13%, transparent);
+}
+#class-screen .class-card-header {
+    gap: 14px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+#class-screen .class-icon {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    display: grid;
+    place-items: center;
+    font-size: 48px;
+    filter: drop-shadow(0 0 12px currentColor);
+    transition: transform .22s ease, filter .22s ease;
+}
+#class-screen .class-card:hover:not(.locked) .class-icon {
+    transform: translateY(-3px) scale(1.08) rotate(-3deg);
+    filter: drop-shadow(0 0 18px currentColor);
+}
+#class-screen .class-name {
+    font-size: 21px;
+    line-height: 1.05;
+}
+#class-screen .class-sub {
+    margin-top: 5px;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    opacity: .72;
+}
+#class-screen .class-desc {
+    min-height: 38px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    line-height: 1.45;
+    color: #c8cee0;
+}
+#class-screen .class-stats {
+    gap: 7px;
+}
+#class-screen .class-stat {
+    padding: 5px 9px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 999px;
+    background: rgba(0,0,0,.24);
+}
+#class-screen .class-passive {
+    margin-top: 10px;
+    padding: 7px 10px;
+    border: 1px solid rgba(255,217,61,.2);
+    border-radius: 10px;
+    background: rgba(255,217,61,.055);
+}
+#class-screen .class-card.locked {
+    opacity: .58;
+    filter: grayscale(.35);
+}
+#class-screen .class-card.locked:hover {
+    transform: none;
+    filter: grayscale(.35);
+}
+#class-screen .class-card.locked::after {
+    top: 16px;
+    right: 16px;
+    font-size: 20px;
+    opacity: .9;
+}
+#class-screen .class-lock-hint {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,92,122,.12);
+}
+#class-screen .class-card.scout {
+    background: linear-gradient(135deg, rgba(124,255,178,.16), rgba(10,22,30,.74) 62%);
+    border-color: rgba(124,255,178,.72);
+    color: #7cffb2;
+}
+#class-screen .class-card.tank {
+    background: linear-gradient(135deg, rgba(79,195,247,.16), rgba(9,20,36,.74) 62%);
+    border-color: rgba(79,195,247,.72);
+    color: #4fc3f7;
+}
+#class-screen .class-card.mage {
+    background: linear-gradient(135deg, rgba(224,64,251,.16), rgba(24,12,39,.74) 62%);
+    border-color: rgba(224,64,251,.72);
+    color: #e040fb;
+}
+#class-screen .class-card.rogue {
+    background: linear-gradient(135deg, rgba(255,217,61,.16), rgba(34,25,10,.74) 62%);
+    border-color: rgba(255,217,61,.72);
+    color: #ffd93d;
+}
+@media (max-width: 640px) {
+    #class-screen .class-grid { gap: 12px; }
+    #class-screen .class-card { min-height: 205px; padding: 19px; }
+}

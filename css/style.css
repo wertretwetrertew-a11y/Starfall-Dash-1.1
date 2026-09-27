@@ -3834,3 +3834,109 @@ canvas {
 #shop-modal .shop-card.mythic .case-card-pity {
     color:#a99bc9;
 }
+
+
+/* ==========================================================
+   BOSS DUEL — CLEAN 1v1 PRESENTATION
+   ========================================================== */
+#boss-duel-overlay{
+    position:absolute;
+    inset:0;
+    z-index:24;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .35s ease;
+}
+#boss-duel-overlay.active{opacity:1}
+#boss-duel-overlay::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 50% 28%, rgba(88,45,150,.16), rgba(0,0,0,0) 42%), linear-gradient(180deg, rgba(3,5,18,.38), rgba(3,5,18,0) 35%, rgba(3,5,18,.2));
+    transition:background .4s ease;
+}
+#boss-duel-overlay.duel::before{
+    background:radial-gradient(circle at 50% 28%, rgba(140,60,255,.13), rgba(0,0,0,0) 45%), linear-gradient(180deg, rgba(2,3,14,.5), rgba(2,3,14,0) 36%, rgba(2,3,14,.12));
+}
+#boss-duel-overlay.victory::before{
+    background:radial-gradient(circle at 50% 42%, rgba(124,255,178,.18), rgba(0,0,0,0) 48%);
+}
+#boss-duel-overlay.lost::before{
+    background:radial-gradient(circle at 50% 42%, rgba(255,70,110,.18), rgba(0,0,0,0) 48%);
+}
+.boss-duel-hud{
+    position:absolute;
+    top:16px;
+    left:50%;
+    width:min(360px,72vw);
+    transform:translateX(-50%);
+    text-align:center;
+    padding:7px 12px 9px;
+    border:1px solid rgba(170,150,255,.18);
+    border-radius:14px;
+    background:rgba(8,10,27,.62);
+    backdrop-filter:blur(10px);
+    box-shadow:0 12px 34px rgba(0,0,0,.28), 0 0 28px rgba(120,80,255,.08);
+}
+.boss-duel-label{
+    color:#a9a1c7;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+.boss-duel-name{
+    margin-top:1px;
+    color:#fff;
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:.8px;
+    text-shadow:0 0 16px rgba(180,150,255,.45);
+}
+.boss-duel-bar{
+    height:6px;
+    margin:6px 0 3px;
+    overflow:hidden;
+    border-radius:99px;
+    background:rgba(255,255,255,.08);
+}
+#boss-duel-hp-fill{
+    width:100%;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#ff5c7a,#ff9b70 52%,#ffd166);
+    box-shadow:0 0 14px rgba(255,92,122,.55);
+    transition:width .16s ease;
+}
+.boss-duel-hp-text{
+    min-height:10px;
+    color:#9aa6c3;
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:.4px;
+}
+#boss-duel-banner{
+    position:absolute;
+    top:42%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(.92);
+    opacity:0;
+    white-space:nowrap;
+    color:#fff;
+    font-size:clamp(20px,4vw,34px);
+    font-weight:1000;
+    letter-spacing:4px;
+    text-align:center;
+    text-shadow:0 0 10px rgba(255,255,255,.7),0 0 34px rgba(156,107,255,.75);
+    transition:opacity .2s ease,transform .2s ease;
+}
+#boss-duel-banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+#boss-duel-overlay.victory #boss-duel-banner{color:#baffdc;text-shadow:0 0 14px rgba(124,255,178,.75),0 0 38px rgba(124,255,178,.4)}
+#boss-duel-overlay.lost #boss-duel-banner{color:#ff9aae;text-shadow:0 0 14px rgba(255,92,122,.75),0 0 38px rgba(255,92,122,.4)}
+@media (max-width:700px){
+    .boss-duel-hud{top:10px;width:min(320px,78vw);padding:6px 10px 8px}
+    .boss-duel-name{font-size:11px}
+    #boss-duel-banner{letter-spacing:2px;font-size:clamp(18px,6vw,28px)}
+}
+@media (prefers-reduced-motion:reduce){
+    #boss-duel-overlay,#boss-duel-banner,#boss-duel-hp-fill{transition:none}
+}

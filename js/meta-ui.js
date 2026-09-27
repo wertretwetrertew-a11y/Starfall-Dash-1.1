@@ -1724,6 +1724,14 @@ function openCase(caseId, isFree) {
     }
 
     s.openedCases++;
+    s.casePity = s.casePity || {};
+    s.casePity[caseId] = Math.max(0, Number(s.casePity[caseId] || 0) + 1);
+
+    // Guaranteed rarity threshold per case.
+    var pityLimit = { common: 8, rare: 7, epic: 6, legendary: 5, mythic: 3 }[caseId] || 8;
+    var pityThreshold = { common: 'epic', rare: 'epic', epic: 'legendary', legendary: 'mythic', mythic: 'mythic' }[caseId] || 'epic';
+    var rarityRank = { common:1, rare:2, epic:3, legendary:4, mythic:5 };
+    var forcePity = s.casePity[caseId] >= pityLimit;
     persist();
     updateMainMenuStats();
     updateShopBadges();
@@ -1735,6 +1743,21 @@ function openCase(caseId, isFree) {
     for (var i = 0; i < c.dropTable.length; i++) {
         cum += c.dropTable[i].chance;
         if (roll <= cum) { droppedRarity = c.dropTable[i].rarity; break; }
+    }
+    if (forcePity) {
+        var eligible = c.dropTable.filter(function(entry) {
+            return rarityRank[entry.rarity] >= rarityRank[pityThreshold];
+        });
+        if (eligible.length) {
+            var total = eligible.reduce(function(sum, entry) { return sum + entry.chance; }, 0);
+            var pityRoll = Math.random() * total, pityCum = 0;
+            droppedRarity = eligible[eligible.length - 1].rarity;
+            eligible.some(function(entry) {
+                pityCum += entry.chance;
+                if (pityRoll <= pityCum) { droppedRarity = entry.rarity; return true; }
+                return false;
+            });
+        }
     }
 
     var allPool = [];
@@ -1802,6 +1825,7 @@ function openCase(caseId, isFree) {
         return;
     }
 
+    if (rarityRank[droppedRarity] >= rarityRank[pityThreshold]) s.casePity[caseId] = 0;
     if (reward.type === 'skin') s.ownedSkins.push(reward.id);
     else if (reward.type === 'sound') { s.ownedSoundPacks.push(reward.id); s.equippedSoundPack = reward.id; }
     else if (reward.type === 'music') { s.ownedMusic.push(reward.id); s.equippedMusic = reward.id; }

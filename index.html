@@ -6031,7 +6031,12 @@ function reset() {
     player.isBlinking = false;
 
     if (mode.isRoguelike) {
-        s.rogueStats.runsPlayed = (s.rogueStats.runsPlayed || 0) + 1;
+        if (isExpeditionMode()) {
+            s.expedition.totalExpeditions = (s.expedition.totalExpeditions || 0) + 1;
+            s.expedition.currentSector = Math.max(1, Math.min(EXPEDITION_SECTORS.length, s.expedition.currentSector || 1));
+        } else {
+            s.rogueStats.runsPlayed = (s.rogueStats.runsPlayed || 0) + 1;
+        }
         persist();
     }
 

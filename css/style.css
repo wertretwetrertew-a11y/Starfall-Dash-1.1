@@ -2801,3 +2801,142 @@
     #daily-modal .daily-grid { grid-template-columns:repeat(4,minmax(0,1fr));gap:7px; }
     #daily-modal .daily-day { min-height:92px;padding:9px 4px; }
 }
+
+
+/* === SETTINGS + HOW TO PLAY — UNIFIED COSMIC STYLE === */
+#settings-modal,
+#help-modal {
+    background:
+        radial-gradient(circle at 50% 12%, rgba(79,195,247,.10), transparent 30%),
+        radial-gradient(circle at 14% 76%, rgba(124,255,178,.055), transparent 26%),
+        radial-gradient(circle at 86% 72%, rgba(156,107,255,.07), transparent 27%),
+        linear-gradient(180deg, rgba(4,8,24,.91), rgba(2,5,15,.97));
+    backdrop-filter:blur(15px);
+    -webkit-backdrop-filter:blur(15px);
+}
+#settings-modal::before,
+#help-modal::before {
+    content:'';
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.36;
+    background-image:
+        radial-gradient(circle at 11% 19%,rgba(255,255,255,.5) 0 1px,transparent 1.5px),
+        radial-gradient(circle at 76% 17%,rgba(79,195,247,.4) 0 1px,transparent 1.5px),
+        radial-gradient(circle at 89% 77%,rgba(156,107,255,.38) 0 1px,transparent 1.5px),
+        radial-gradient(circle at 28% 86%,rgba(255,255,255,.28) 0 1px,transparent 1.5px);
+    background-size:210px 210px,270px 270px,240px 240px,320px 320px;
+}
+#settings-modal .generic-modal,
+#help-modal .generic-modal {
+    position:relative;
+    z-index:1;
+    width:min(620px,92vw);
+    max-width:620px;
+    padding:25px 24px 21px;
+    border:1px solid rgba(138,180,255,.20);
+    border-radius:26px;
+    background:linear-gradient(180deg,rgba(12,20,42,.90),rgba(5,10,25,.93));
+    box-shadow:
+        inset 0 1px rgba(255,255,255,.07),
+        0 26px 70px rgba(0,0,0,.44),
+        0 0 42px rgba(79,195,247,.07);
+}
+#settings-modal .generic-modal::before,
+#help-modal .generic-modal::before {
+    content:'';
+    position:absolute;
+    width:250px;height:150px;
+    left:50%;top:-110px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:#4fc3f7;
+    opacity:.08;
+    filter:blur(34px);
+    pointer-events:none;
+}
+#settings-modal h2,
+#help-modal h2 {
+    position:relative;
+    font-size:clamp(24px,4vw,31px);
+    margin-bottom:18px;
+    letter-spacing:.4px;
+    text-shadow:0 0 25px rgba(79,195,247,.15);
+}
+#settings-modal .row {
+    position:relative;
+    min-height:58px;
+    margin-bottom:9px;
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,.065);
+    border-radius:16px;
+    background:linear-gradient(145deg,rgba(255,255,255,.04),rgba(6,12,29,.62));
+    box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+#settings-modal .row-label {
+    color:#c8d0e3;
+    font-size:13px;
+}
+#settings-modal .row-actions {
+    gap:6px;
+}
+#settings-modal .modal-btn {
+    min-width:43px;
+    padding:8px 12px;
+    border-radius:11px;
+    border-width:1px;
+    transition:transform .18s ease,filter .18s ease,background .18s ease;
+}
+#settings-modal .modal-btn:hover {
+    transform:translateY(-1px);
+    filter:brightness(1.08);
+}
+#settings-modal #settings-close,
+#help-modal #help-close {
+    margin-top:15px !important;
+    width:100% !important;
+    border:1px solid rgba(138,180,255,.22);
+    border-radius:13px;
+    background:rgba(255,255,255,.045);
+    box-shadow:inset 0 1px rgba(255,255,255,.05),0 8px 20px rgba(0,0,0,.18);
+}
+#help-modal .generic-modal {
+    width:min(680px,92vw);
+}
+#help-modal h2 {
+    text-align:center;
+    text-shadow:0 0 25px rgba(124,255,178,.12);
+}
+#help-modal .generic-modal > div {
+    position:relative;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-bottom:16px !important;
+    color:#b9c3d9 !important;
+    line-height:1.45 !important;
+}
+#help-modal .generic-modal > div b {
+    color:#fff;
+}
+#help-modal .generic-modal > div br {
+    display:none;
+}
+#help-modal .generic-modal > div {
+    font-size:0 !important;
+}
+#help-modal .generic-modal > div::after {
+    content:'';
+}
+@media(max-width:640px) {
+    #settings-modal .generic-modal,
+    #help-modal .generic-modal {
+        width:calc(100vw - 24px);
+        padding:21px 14px 17px;
+        border-radius:22px;
+    }
+    #help-modal .generic-modal > div {
+        grid-template-columns:1fr;
+    }
+}

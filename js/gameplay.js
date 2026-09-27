@@ -1417,14 +1417,17 @@ function playerTakeDamage() {
             screenShake = 30;
             return;
         }
+        // Смерть должна немедленно остановить игровой тик: иначе текущий update
+        // может продолжить обрабатывать врагов/снаряды уже после gameOver.
         gameOver = true;
+        running = false;
+        resetFrameClock();
         if (bossState === 'duel' || bossState === 'intro') {
             bossState = 'lost';
             bossStateTimer = 45;
             bossAnnouncement = '☠ DUEL LOST';
             bossAnnouncementTimer = 45;
             updateBossDuelHUD();
-            running = false;
             setTimeout(function() { finishRun(); }, 650);
             return;
         }

@@ -1115,235 +1115,264 @@
         margin-top: 6px;
     }
 
-    /* === MAIN MENU REDESIGN === */
+    /* === SIMPLE REFERENCE MAIN MENU === */
     #start-screen {
-        gap: 14px;
-        padding: 28px 18px 18px;
+        gap: 12px;
+        padding: 22px 18px 14px;
         background:
-            radial-gradient(circle at 18% 18%, rgba(79,195,247,0.10), transparent 30%),
-            radial-gradient(circle at 82% 24%, rgba(224,64,251,0.10), transparent 28%),
-            rgba(5,5,20,0.94);
-    }
-    #start-screen::before {
-        content: 'COMMAND DECK';
-        position: absolute; top: 18px; left: 22px;
-        font-size: 9px; letter-spacing: 3px; font-weight: 900;
-        color: rgba(138,180,255,0.45);
-        pointer-events: none;
+            radial-gradient(circle at 18% 20%, rgba(79,195,247,.07), transparent 28%),
+            radial-gradient(circle at 84% 25%, rgba(224,64,251,.07), transparent 25%),
+            rgba(5,5,20,.96);
     }
     #start-screen h1 {
-        margin-top: 18px;
+        margin-top: 8px;
         margin-bottom: -2px;
-        font-size: clamp(25px, 5vw, 38px);
+        font-size: clamp(28px, 5vw, 39px);
         letter-spacing: 1px;
+        line-height: 1;
     }
     #start-screen h1 small { letter-spacing: 4px; }
     #start-screen .stats-line {
-        width: min(760px, 94vw);
-        padding: 9px 16px;
-        gap: 10px 18px;
+        width: min(820px, 94vw);
+        padding: 8px 15px;
+        gap: 8px 18px;
         border-radius: 18px;
-        background: rgba(10,12,30,0.72);
-        border-color: rgba(138,180,255,0.18);
-        box-shadow: 0 10px 35px rgba(0,0,0,0.28);
+        background: rgba(10,12,30,.68);
+        border-color: rgba(138,180,255,.16);
+        box-shadow: 0 10px 30px rgba(0,0,0,.22);
     }
-    #start-screen .stats-line .sl-item {
-        font-size: 12px;
-    }
-    #start-screen .menu-grid {
-        width: min(760px, 94vw);
-        grid-template-columns: repeat(3, 1fr);
+    #start-screen .stats-line .sl-item { font-size: 12px; }
+
+    .simple-menu-layout {
+        width: min(820px, 94vw);
+        display: grid;
+        grid-template-columns: minmax(0, 1.58fr) minmax(250px, 1fr);
         gap: 10px;
-        margin-top: 2px;
+        align-items: stretch;
+    }
+
+    .simple-play-card {
+        position: relative;
+        min-height: 360px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding: 28px 30px;
+        border: 2px solid #4fc3f7;
+        border-radius: 23px;
+        background:
+            radial-gradient(circle at 82% 45%, rgba(124,77,255,.20), transparent 28%),
+            linear-gradient(135deg, rgba(79,195,247,.18), rgba(33,150,243,.08) 48%, rgba(156,107,255,.14));
+        box-shadow: inset 0 0 40px rgba(79,195,247,.055), 0 14px 40px rgba(0,0,0,.25);
+    }
+    .simple-play-card::before {
+        content: '';
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        right: -95px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(156,107,255,.20), transparent 66%);
+        pointer-events: none;
+    }
+    .simple-play-copy { position: relative; z-index: 2; max-width: 330px; }
+    .simple-kicker {
+        color: #65d5ff;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        margin-bottom: 14px;
+    }
+    .simple-play-card h2 {
+        margin: 0 0 8px;
+        color: #fff;
+        font-size: clamp(38px, 5vw, 47px);
+        line-height: .95;
+        letter-spacing: 1px;
+        text-shadow: 0 0 22px rgba(79,195,247,.28);
+    }
+    .simple-play-card p {
+        max-width: 330px;
+        margin: 0 0 22px;
+        color: #b4bfd8;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+    .simple-play-btn {
+        min-width: 190px;
+        height: 46px;
+        padding: 0 16px 0 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        border: 0;
+        border-radius: 13px;
+        background: linear-gradient(135deg,#4fc3f7,#2196f3);
+        color: #fff;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: .6px;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(33,150,243,.25);
+        transition: transform .18s, filter .18s, box-shadow .18s;
+    }
+    .simple-play-btn strong { font-size: 20px; line-height: 1; }
+    .simple-play-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.08);
+        box-shadow: 0 11px 28px rgba(33,150,243,.34);
+    }
+    .simple-play-btn:active { transform: translateY(0) scale(.99); }
+
+    .simple-core-art {
+        position: absolute;
+        right: 20px;
+        bottom: 22px;
+        width: 90px;
+        height: 90px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        z-index: 1;
+    }
+    .simple-core-glow {
+        position: absolute;
+        width: 78px;
+        height: 78px;
+        border-radius: 24px;
+        background: radial-gradient(circle, rgba(224,198,255,.88) 0%, rgba(156,107,255,.72) 42%, rgba(124,77,255,.18) 70%, transparent 72%);
+        filter: blur(2px);
+        transform: rotate(-10deg);
+    }
+    .simple-core-orb {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #c8b5ff, #7650bb 58%, #33205e);
+        box-shadow: 0 0 20px rgba(156,107,255,.55);
+        transform: translate(3px, -10px);
+    }
+    .simple-core-art span {
+        position: absolute;
+        bottom: -2px;
+        color: #7f91b0;
+        font-size: 8px;
+        font-weight: 900;
+        letter-spacing: 1.3px;
+    }
+
+    #start-screen .menu-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        grid-template-rows: repeat(2, minmax(0,1fr)) minmax(86px,auto);
+        gap: 10px;
+        margin: 0;
     }
     #start-screen .menu-tile {
-        min-height: 92px;
-        padding: 15px 12px;
+        min-height: 0;
+        padding: 13px 10px;
         border-width: 1.5px;
         border-radius: 17px;
-        gap: 5px;
+        gap: 4px;
         overflow: hidden;
         transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
     }
     #start-screen .menu-tile:hover {
         transform: translateY(-3px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.32);
+        box-shadow: 0 12px 28px rgba(0,0,0,.30);
     }
     #start-screen .menu-tile:active { transform: translateY(-1px) scale(.99); }
-    #start-screen .menu-tile .mt-icon { font-size: 28px; }
-    #start-screen .menu-tile .mt-label { font-size: 13px; }
-    #start-screen .menu-tile .mt-sub { font-size: 10px; }
-    #start-screen .menu-tile.play {
-        grid-column: span 3;
-        min-height: 148px;
-        align-items: flex-start;
-        justify-content: center;
-        padding: 22px 28px;
-        text-align: left;
-        background:
-            radial-gradient(circle at 82% 45%, rgba(79,195,247,0.22), transparent 32%),
-            linear-gradient(135deg, rgba(79,195,247,0.20), rgba(33,150,243,0.07) 55%, rgba(156,107,255,0.10));
-        box-shadow: inset 0 0 35px rgba(79,195,247,0.06), 0 14px 45px rgba(0,0,0,0.25);
+    #start-screen .menu-tile .mt-icon {
+        font-size: 27px;
+        line-height: 1;
     }
-    #start-screen .menu-tile.play .mt-icon {
-        font-size: 18px;
-        width: 38px; height: 38px;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 12px;
-        background: rgba(79,195,247,0.18);
-        border: 1px solid rgba(79,195,247,0.4);
+    #start-screen .menu-tile .mt-label {
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: .4px;
     }
-    #start-screen .menu-tile.play .mt-label {
-        font-size: clamp(24px, 4vw, 32px);
-        letter-spacing: 1px;
-        text-shadow: 0 0 18px rgba(79,195,247,0.45);
+    #start-screen .menu-tile .mt-sub {
+        font-size: 9px;
+        font-weight: 700;
+        opacity: .72;
+        margin-top: 0;
     }
-    #start-screen .menu-tile.play .mt-sub {
-        font-size: 12px;
-        opacity: .9;
-        color: #b9dcff;
-        margin-top: 1px;
+    #start-screen .menu-tile.core { grid-column: 1; grid-row: 1; }
+    #start-screen .menu-tile.shop { grid-column: 2; grid-row: 1; }
+    #start-screen .menu-tile.ach { grid-column: 1; grid-row: 2; }
+    #start-screen .menu-tile.daily { grid-column: 2; grid-row: 2; }
+    #start-screen .menu-tile.rogue {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        min-height: 86px;
     }
-    #start-screen .menu-tile.play::after {
-        content: '→';
-        position: absolute; right: 26px; top: 50%;
-        transform: translateY(-50%);
-        width: 54px; height: 54px;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 50%;
-        font-size: 28px; font-weight: 900;
-        color: #fff;
-        background: linear-gradient(135deg,#4fc3f7,#7c4dff);
-        box-shadow: 0 0 28px rgba(79,195,247,0.45);
+    .mt-mini { font-size: 8px; font-weight: 800; opacity: .58; margin-top: 1px; }
+    .tile-progress {
+        width: 78%;
+        height: 3px;
+        border-radius: 4px;
+        background: rgba(255,255,255,.08);
+        overflow: hidden;
+        margin-top: 2px;
     }
-    #start-screen .menu-tile.core { grid-column: span 1; }
-    #start-screen .menu-tile.shop { grid-column: span 1; }
-    #start-screen .menu-tile.ach { grid-column: span 1; }
-    #start-screen .menu-tile.daily { grid-column: span 1; }
-    #start-screen .menu-tile.rogue { grid-column: span 2; }
+    .tile-progress span {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(90deg,currentColor,#fff);
+        transition: width .35s ease;
+    }
+    .simple-hint {
+        width: min(820px, 94vw);
+        color: #66738f;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
     #start-screen .bottom-row {
-        width: min(760px, 94vw);
+        width: min(820px, 94vw);
         justify-content: flex-end;
         gap: 8px;
+        margin-top: -2px;
     }
     #start-screen .icon-btn {
-        width: 38px; height: 38px;
+        width: 38px;
+        height: 38px;
         font-size: 16px;
-        border-radius: 12px;
+        border-radius: 50%;
     }
     #start-screen .reset-link { margin-left: 4px; }
-    @media (max-width: 680px) {
-        #start-screen { padding-top: 22px; gap: 10px; }
-        #start-screen::before { display:none; }
-        #start-screen h1 { margin-top: 20px; }
-        #start-screen .stats-line { gap: 7px 12px; }
-        #start-screen .menu-grid { grid-template-columns: repeat(2,1fr); }
-        #start-screen .menu-tile.play { grid-column: span 2; min-height: 132px; padding: 18px 20px; }
-        #start-screen .menu-tile.rogue { grid-column: span 2; }
-        #start-screen .menu-tile.play::after { right: 18px; width: 46px; height: 46px; }
+
+    @media (max-width: 700px) {
+        #start-screen { padding-top: 18px; gap: 9px; }
+        #start-screen h1 { font-size: 29px; }
+        #start-screen .stats-line { gap: 6px 10px; padding: 7px 10px; }
+        #start-screen .stats-line .sl-item { font-size: 10px; }
+        .simple-menu-layout { grid-template-columns: 1fr; }
+        .simple-play-card { min-height: 230px; padding: 22px; }
+        .simple-core-art { right: 16px; bottom: 16px; transform: scale(.8); transform-origin: bottom right; }
+        #start-screen .menu-grid { grid-template-rows: repeat(2,86px) 76px; }
     }
-    @media (max-width: 420px) {
+    @media (max-width: 430px) {
         #start-screen h1 { font-size: 25px; }
-        #start-screen .stats-line { padding: 8px 10px; }
-        #start-screen .stats-line .sl-item { font-size: 11px; }
-        #start-screen .menu-tile { min-height: 82px; }
-        #start-screen .menu-tile.play { min-height: 118px; }
-        #start-screen .menu-tile.play .mt-label { font-size: 23px; }
-        #start-screen .menu-tile .mt-icon { font-size: 25px; }
-    }
-
-
-    /* === COMMAND CENTER 2.0 === */
-    #start-screen .command-hero {
-        width: min(760px,94vw);
-        display: grid; grid-template-columns: 1.1fr .9fr;
-        gap: 10px; padding: 14px;
-        border: 1px solid rgba(138,180,255,.2);
-        border-radius: 22px;
-        background: linear-gradient(135deg,rgba(18,22,52,.9),rgba(10,12,28,.82));
-        box-shadow: 0 16px 45px rgba(0,0,0,.28), inset 0 0 40px rgba(79,195,247,.035);
-    }
-    .hero-profile,.hero-run { min-width:0; border-radius:17px; }
-    .hero-profile {
-        display:flex; align-items:center; gap:12px;
-        padding:14px; background:rgba(255,255,255,.035);
-        border:1px solid rgba(255,255,255,.08);
-    }
-    .hero-avatar {
-        width:62px;height:62px; flex:0 0 62px;
-        display:flex;align-items:center;justify-content:center;
-        border-radius:18px;font-size:34px;
-        background:linear-gradient(135deg,rgba(124,255,178,.14),rgba(79,195,247,.12));
-        border:1px solid rgba(124,255,178,.35);
-        box-shadow:0 0 22px rgba(124,255,178,.12);
-    }
-    .hero-copy{min-width:0;flex:1}
-    .hero-kicker,.run-kicker,.focus-title{
-        font-size:9px;letter-spacing:2px;font-weight:900;color:#7e91b8;
-    }
-    .hero-name{font-size:20px;font-weight:900;color:#fff;margin:3px 0}
-    .hero-desc{font-size:10px;line-height:1.35;color:#8fa0bf;font-weight:600}
-    .hero-level{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:42px}
-    .hero-level span{font-size:8px;color:#9c6bff;font-weight:900;letter-spacing:1px}
-    .hero-level strong{font-size:23px;color:#fff}
-    .hero-run{
-        display:flex;align-items:center;justify-content:space-between;gap:12px;
-        padding:14px; background:linear-gradient(135deg,rgba(79,195,247,.10),rgba(124,77,255,.10));
-        border:1px solid rgba(79,195,247,.2);
-    }
-    .run-copy{min-width:90px}
-    .run-score{font-size:25px;font-weight:900;color:#ffd93d;line-height:1.1;margin:4px 0}
-    .run-score small{font-size:13px}
-    .run-meta{display:flex;gap:6px;font-size:10px;color:#7f91b0;font-weight:700}
-    .run-cta{
-        flex:1;min-width:150px;min-height:64px;padding:10px 12px;
-        border:1px solid rgba(79,195,247,.55);border-radius:15px;
-        background:linear-gradient(135deg,#4fc3f7,#7c4dff);
-        color:#fff;font-family:inherit;cursor:pointer;
-        display:flex;align-items:center;gap:9px;text-align:left;
-        box-shadow:0 8px 25px rgba(79,195,247,.18);
-        transition:transform .18s,filter .18s,box-shadow .18s;
-    }
-    .run-cta:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 12px 32px rgba(79,195,247,.28)}
-    .run-cta-icon{font-size:16px}
-    .run-cta b{display:block;font-size:13px;letter-spacing:.5px}
-    .run-cta small{display:block;font-size:9px;opacity:.78;margin-top:2px}
-    .run-cta-arrow{margin-left:auto;font-size:22px;font-weight:900}
-    .deck-focus{
-        width:min(760px,94vw);padding:9px 12px;
-        border:1px solid rgba(255,217,61,.14);border-radius:15px;
-        background:rgba(255,217,61,.035);
-    }
-    .focus-list{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}
-    .focus-item{
-        flex:1;min-width:150px;padding:7px 9px;border-radius:10px;
-        background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
-        color:#b8c4dc;font-size:10px;font-weight:700;
-    }
-    .focus-item b{color:#fff}.focus-item.ready{border-color:rgba(124,255,178,.4);color:#7cffb2}
-    .focus-item.warn{border-color:rgba(255,217,61,.35);color:#ffd93d}
-    #start-screen .menu-tile{min-height:112px}
-    #start-screen .menu-tile .mt-icon{font-size:27px}
-    #start-screen .menu-tile .mt-sub{margin-top:-1px}
-    .mt-mini{font-size:9px;font-weight:800;opacity:.65;margin-top:1px}
-    .tile-progress{width:78%;height:4px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:2px}
-    .tile-progress span{display:block;width:0;height:100%;border-radius:4px;background:linear-gradient(90deg,currentColor,#fff);transition:width .35s ease}
-    #start-screen .menu-tile.rogue{grid-column:span 2}
-    #start-screen .menu-tile.play{display:none}
-    @media (max-width:680px){
-        #start-screen .command-hero{grid-template-columns:1fr;gap:8px}
-        .hero-profile{padding:11px}.hero-avatar{width:54px;height:54px;flex-basis:54px;font-size:29px}
-        .hero-name{font-size:18px}.hero-run{padding:11px}
-        .run-score{font-size:22px}
-        #start-screen .menu-grid{grid-template-columns:repeat(2,1fr)}
-        #start-screen .menu-tile.rogue{grid-column:span 2}
-    }
-    @media (max-width:420px){
-        #start-screen .command-hero,.deck-focus,#start-screen .menu-grid{width:96vw}
-        .hero-run{flex-direction:column;align-items:stretch}
-        .run-cta{min-width:0}
-        .focus-item{min-width:100%}
-        #start-screen .menu-tile{min-height:98px}
+        #start-screen .stats-line { gap: 5px 7px; }
+        #start-screen .stats-line .sl-item { font-size: 9px; }
+        .simple-play-card { min-height: 205px; padding: 19px; }
+        .simple-play-card h2 { font-size: 34px; }
+        .simple-play-card p { font-size: 11px; max-width: 250px; margin-bottom: 15px; }
+        .simple-play-btn { height: 42px; min-width: 170px; }
+        .simple-core-art { display: none; }
+        #start-screen .menu-tile .mt-icon { font-size: 23px; }
+        #start-screen .menu-tile .mt-label { font-size: 11px; }
+        #start-screen .menu-tile .mt-sub { font-size: 8px; }
     }
 
     .hidden { display: none !important; }
@@ -1539,73 +1568,65 @@
             </div>
         </div>
 
-        <div class="command-hero">
-            <div class="hero-profile">
-                <div class="hero-avatar" id="deck-avatar">🏃</div>
-                <div class="hero-copy">
-                    <div class="hero-kicker">ТЕКУЩИЙ ПИЛОТ</div>
-                    <div class="hero-name" id="deck-class">Разведчик</div>
-                    <div class="hero-desc" id="deck-class-desc">Быстрый и ловкий. Собирает больше монет.</div>
+        <div class="simple-menu-layout">
+            <section class="simple-play-card">
+                <div class="simple-play-copy">
+                    <div class="simple-kicker">✦ НОВЫЙ ЗАБЕГ</div>
+                    <h2>▶ ИГРАТЬ</h2>
+                    <p>Выбери режим и героя, собери билд и переживи как можно больше волн.</p>
+                    <button class="simple-play-btn" id="tile-play">
+                        <span>НАЧАТЬ ЗАБЕГ</span>
+                        <strong>→</strong>
+                    </button>
                 </div>
-                <div class="hero-level">
-                    <span>LV</span>
-                    <strong id="deck-level">1</strong>
+                <div class="simple-core-art" aria-hidden="true">
+                    <div class="simple-core-glow"></div>
+                    <div class="simple-core-orb"></div>
+                    <span>STAR CORE</span>
                 </div>
-            </div>
-            <div class="hero-run">
-                <div class="run-copy">
-                    <div class="run-kicker">ПОСЛЕДНИЙ ЗАБЕГ</div>
-                    <div class="run-score"><span id="deck-last-score">0</span> <small>🪙</small></div>
-                    <div class="run-meta"><span id="deck-last-mode">Рогалик</span><span>•</span><span id="deck-last-time">0:00</span></div>
-                </div>
-                <button class="run-cta" id="tile-play">
-                    <span class="run-cta-icon">▶</span>
-                    <span><b>НАЧАТЬ ЗАБЕГ</b><small>Выбрать режим и героя</small></span>
-                    <span class="run-cta-arrow">→</span>
+            </section>
+
+            <div class="menu-grid">
+                <button class="menu-tile core" id="tile-core">
+                    <div class="mt-icon">🌟</div>
+                    <div class="mt-label">ЯДРО</div>
+                    <div class="mt-sub" id="core-tile-sub">Прокачка</div>
+                    <div class="tile-progress"><span id="core-progress-fill"></span></div>
+                    <div class="mt-mini" id="core-tile-meta">0 улучшений</div>
+                    <div class="mt-badge" id="core-badge" style="display:none;">0</div>
+                </button>
+
+                <button class="menu-tile shop" id="tile-shop">
+                    <div class="mt-icon">🛒</div>
+                    <div class="mt-label">МАГАЗИН</div>
+                    <div class="mt-sub" id="shop-tile-sub">Предметы и скины</div>
+                    <div class="mt-mini" id="shop-tile-meta">Открыть</div>
+                </button>
+
+                <button class="menu-tile ach" id="tile-ach">
+                    <div class="mt-icon">🏆</div>
+                    <div class="mt-label">ЦЕЛИ</div>
+                    <div class="mt-sub" id="ach-tile-sub">28 наград</div>
+                    <div class="tile-progress"><span id="ach-progress-fill"></span></div>
+                    <div class="mt-mini" id="ach-tile-meta">0 открыто</div>
+                </button>
+
+                <button class="menu-tile daily" id="tile-daily">
+                    <div class="mt-icon">🎁</div>
+                    <div class="mt-label">DAILY</div>
+                    <div class="mt-sub" id="daily-tile-sub">Ежедневный бонус</div>
+                    <div class="mt-mini" id="daily-tile-meta">Проверить</div>
+                </button>
+
+                <button class="menu-tile rogue" id="tile-quick">
+                    <div class="mt-icon">🎲</div>
+                    <div class="mt-label">БЫСТРЫЙ ROGUE</div>
+                    <div class="mt-sub">Сразу в рогалик</div>
                 </button>
             </div>
         </div>
 
-        <div class="deck-focus">
-            <div class="focus-title">✦ ТЕБЕ СЕЙЧАС</div>
-            <div class="focus-list" id="deck-focus-list"></div>
-        </div>
-
-        <div class="menu-grid">
-            <button class="menu-tile core" id="tile-core">
-                <div class="mt-icon">🌟</div>
-                <div class="mt-label">ЯДРО</div>
-                <div class="mt-sub" id="core-tile-sub">Прокачка</div>
-                <div class="tile-progress"><span id="core-progress-fill"></span></div>
-                <div class="mt-mini" id="core-tile-meta">0 улучшений</div>
-                <div class="mt-badge" id="core-badge" style="display:none;">0</div>
-            </button>
-            <button class="menu-tile shop" id="tile-shop">
-                <div class="mt-icon">🛒</div>
-                <div class="mt-label">МАГАЗИН</div>
-                <div class="mt-sub" id="shop-tile-sub">Скины и предметы</div>
-                <div class="mt-mini" id="shop-tile-meta">Открыть</div>
-            </button>
-            <button class="menu-tile ach" id="tile-ach">
-                <div class="mt-icon">🏆</div>
-                <div class="mt-label">ДОСТИЖЕНИЯ</div>
-                <div class="mt-sub" id="ach-tile-sub">28 наград</div>
-                <div class="tile-progress"><span id="ach-progress-fill"></span></div>
-                <div class="mt-mini" id="ach-tile-meta">0 открыто</div>
-            </button>
-            <button class="menu-tile daily" id="tile-daily">
-                <div class="mt-icon">🎁</div>
-                <div class="mt-label">БОНУС</div>
-                <div class="mt-sub" id="daily-tile-sub">Ежедневная награда</div>
-                <div class="mt-mini" id="daily-tile-meta">Проверить</div>
-            </button>
-            <button class="menu-tile rogue" id="tile-quick" style="background:linear-gradient(135deg,rgba(124,255,178,0.15),rgba(27,94,32,0.1));border-color:#7cffb2;color:#7cffb2;">
-                <div class="mt-icon">🎲</div>
-                <div class="mt-label">РОГАЛИК</div>
-                <div class="mt-sub">БЫСТРЫЙ СТАРТ</div>
-                <div class="mt-mini">Случайный билд →</div>
-            </button>
-        </div>
+        <div class="simple-hint">💡 Совет: экспериментируй с апгрейдами — синергии меняют стиль игры.</div>
 
         <div class="bottom-row">
             <button class="icon-btn" id="btn-settings" title="Настройки">⚙️</button>

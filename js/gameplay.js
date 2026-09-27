@@ -1313,7 +1313,7 @@ function levelUp() {
         else if (level >= 6) caseType = 'rare';
         s.freeCases[caseType] = (s.freeCases[caseType] || 0) + 1;
         persist();
-        showToast('🎁 Бесплатный ' + CASES[caseType].name + '!', 'legendary');
+        // Кейсы выдаются в инвентарь без всплывающего уведомления поверх игрового поля.
     }
 
     // 🎲 ROGUELIKE
@@ -2418,17 +2418,55 @@ function drawEnemyBullet(b) {
 
 function drawWeb(w) {
     var alpha = Math.min(1, w.life / 60);
+    var radius = w.size / 2;
+    var spokes = 10;
+
     ctx.save();
-    ctx.globalAlpha = alpha * 0.5;
-    ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 1.5;
-    var spokes = 8;
+    ctx.translate(w.x, w.y);
+    ctx.globalAlpha = alpha * 0.72;
+    ctx.strokeStyle = '#dce7f7';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = 'rgba(190,220,255,.45)';
+    ctx.shadowBlur = 5;
+
+    // Радиальные нити — от центра к краям.
+    ctx.lineWidth = 1.1;
     for (var i = 0; i < spokes; i++) {
         var a = (i / spokes) * Math.PI * 2;
+        var endR = radius * (0.9 + 0.1 * Math.sin(i * 1.7));
         ctx.beginPath();
-        ctx.moveTo(w.x, w.y);
-        ctx.lineTo(w.x + Math.cos(a) * w.size / 2, w.y + Math.sin(a) * w.size / 2);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(a) * endR, Math.sin(a) * endR);
         ctx.stroke();
     }
+
+    // Концентрические нити — именно они дают силуэту настоящей паутины.
+    ctx.shadowBlur = 2;
+    ctx.lineWidth = 0.9;
+    var rings = 4;
+    for (var r = 1; r <= rings; r++) {
+        var ringR = radius * (r / rings) * 0.9;
+        ctx.beginPath();
+        for (var j = 0; j <= spokes; j++) {
+            var a2 = (j / spokes) * Math.PI * 2;
+            var wobble = 1 + 0.045 * Math.sin(j * 2.4 + r * 0.8);
+            var rr = ringR * wobble;
+            var x = Math.cos(a2) * rr;
+            var y = Math.sin(a2) * rr;
+            if (j === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+
+    // Маленький узел в центре и мягкое свечение.
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = '#f4f8ff';
+    ctx.beginPath();
+    ctx.arc(0, 0, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.restore();
 }
 

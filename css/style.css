@@ -1588,8 +1588,8 @@
         inset: 0;
         overflow: hidden;
         pointer-events: none;
-        z-index: 0;
-        opacity: .9;
+        z-index: 1;
+        opacity: 1;
     }
 
     .menu-planet {
@@ -1672,8 +1672,8 @@
         100% { opacity: 0; transform: translate(112vw,82vh) rotate(-34deg) scale(1); }
     }
 
-    #start-screen > .menu-space-decor { z-index: 0; }
-    #start-screen > *:not(.menu-space-decor) { position: relative; z-index: 1; }
+    #start-screen > .menu-space-decor { z-index: 1; }
+    #start-screen > *:not(.menu-space-decor) { position: relative; z-index: 2; }
 
     @media (max-width: 700px) {
         .menu-planet {
@@ -1740,7 +1740,7 @@
 
     .menu-planet {
         width: clamp(170px, 17vw, 255px);
-        opacity: .68;
+        opacity: .9;
         animation: planetFloat 9s ease-in-out infinite;
     }
     .menu-planet-small {
@@ -1752,7 +1752,7 @@
         border-radius: 50%;
         background: radial-gradient(circle at 34% 28%, #a6b7e8, #465383 48%, #11152d 100%);
         box-shadow: 0 0 28px rgba(91,122,210,.16), inset -10px -9px 16px rgba(0,0,0,.42);
-        opacity: .42;
+        opacity: .72;
         animation: smallPlanetFloat 11s ease-in-out infinite alternate;
     }
     .menu-planet-small::after {
@@ -1767,12 +1767,12 @@
     .menu-comet {
         width: 4px;
         height: 4px;
-        box-shadow: 0 0 8px 2px rgba(135,224,255,.72);
+        box-shadow: 0 0 10px 3px rgba(135,224,255,.95);
     }
     .menu-comet::before {
         width: 125px;
         height: 2px;
-        opacity: .78;
+        opacity: .95;
     }
     .comet-e {
         left: 76vw; top: 106vh;

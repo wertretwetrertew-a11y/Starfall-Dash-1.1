@@ -2033,6 +2033,7 @@ pauseMenu.addEventListener('click', function() {
     document.body.classList.remove('playing');
     if (typeof finishRunSilent === 'function') finishRunSilent();
     stopMusic();
+    if (typeof clearBossDuelPresentation === 'function') clearBossDuelPresentation();
     startScreen.classList.remove('hidden');
     updateMainMenuStats();
 });
@@ -2062,6 +2063,7 @@ if (goMenu) {
         isChoosingUpgrade = false;
         _finishRunCalled = false;
         stopMusic();
+        if (typeof clearBossDuelPresentation === 'function') clearBossDuelPresentation();
         updateMainMenuStats();
     });
 }

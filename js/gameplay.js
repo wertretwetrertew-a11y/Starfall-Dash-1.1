@@ -1262,8 +1262,14 @@ function openChest() {
         for (var i = 0; i < 15; i++) spawnCoin();
         showToast('🎁 15 монет!', 'legendary');
     } else if (roll < 0.75) {
-        if (currentMode !== 'survival' && lives < 8) { lives++; }
-        showToast('🎁 +1 жизнь!', 'legendary');
+        if (currentMode !== 'survival' && lives < 8) {
+            lives++;
+            showToast('🎁 +1 жизнь!', 'legendary');
+        } else {
+            s.bank += 100;
+            persist();
+            showToast('🎁 +100 золота!', 'legendary');
+        }
     } else if (roll < 0.9) {
         buff.freeze = 3 * 60; buff.x2gold = 10 * 60; buff.speedBoost = 5 * 60;
         updateBuffBadges();

@@ -1347,6 +1347,67 @@
     }
 
     .hidden { display: none !important; }
+
+    /* ===== EXPEDITION FOUNDATION ===== */
+    #expedition-screen {
+        position: absolute; inset: 0; z-index: 40;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 28px 20px; overflow-y: auto;
+    }
+    #expedition-screen.hidden { display:none !important; }
+    .exp-header {
+        width: min(960px, 94vw); display:flex; align-items:center; justify-content:space-between;
+        margin-bottom: 18px;
+    }
+    .exp-header h2 {
+        margin:0; font-size:26px; letter-spacing:1px;
+        text-shadow:0 0 18px rgba(79,195,247,.45);
+    }
+    .exp-back {
+        min-width:82px; padding:10px 14px; border-radius:12px;
+        border:1px solid rgba(255,255,255,.14); background:rgba(12,18,40,.72);
+        color:#fff; font-weight:800; cursor:pointer;
+    }
+    .exp-progress {
+        width:min(960px,94vw); padding:16px 18px; margin-bottom:16px;
+        border:1px solid rgba(79,195,247,.22); border-radius:18px;
+        background:linear-gradient(135deg,rgba(18,28,58,.9),rgba(12,12,32,.82));
+        box-shadow:0 10px 34px rgba(0,0,0,.28);
+    }
+    .exp-progress-top { display:flex; justify-content:space-between; gap:12px; align-items:center; }
+    .exp-progress-label { font-size:12px; opacity:.65; letter-spacing:1.4px; font-weight:900; }
+    .exp-progress-value { font-size:15px; font-weight:900; color:#7fdcff; }
+    .exp-progress-bar { height:7px; margin-top:10px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; }
+    .exp-progress-bar span { display:block; height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,#4fc3f7,#9c6bff); box-shadow:0 0 14px rgba(79,195,247,.5); transition:width .25s ease; }
+    .exp-map {
+        width:min(960px,94vw); display:grid; gap:12px;
+        grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); padding-bottom:24px;
+    }
+    .exp-sector {
+        position:relative; text-align:left; min-height:180px; padding:18px;
+        border-radius:20px; border:1px solid rgba(255,255,255,.12);
+        background:linear-gradient(145deg,rgba(20,25,54,.9),rgba(8,10,25,.88));
+        color:#fff; cursor:pointer; overflow:hidden;
+        transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+    }
+    .exp-sector:not(.locked):hover { transform:translateY(-2px); border-color:rgba(79,195,247,.55); box-shadow:0 12px 30px rgba(0,0,0,.3); }
+    .exp-sector.locked { cursor:default; opacity:.48; filter:saturate(.45); }
+    .exp-sector.current { border-color:rgba(124,255,178,.48); box-shadow:inset 0 0 30px rgba(124,255,178,.06); }
+    .exp-sector-icon { font-size:34px; margin-bottom:10px; }
+    .exp-sector-number { font-size:10px; letter-spacing:1.5px; opacity:.5; font-weight:900; }
+    .exp-sector-name { font-size:18px; font-weight:900; margin:4px 0 7px; }
+    .exp-sector-desc { font-size:12px; line-height:1.45; opacity:.68; min-height:36px; }
+    .exp-sector-meta { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; font-size:11px; font-weight:800; }
+    .exp-chip { padding:5px 8px; border-radius:999px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.08); }
+    .exp-lock { position:absolute; top:16px; right:16px; font-size:18px; }
+    .exp-status { color:#7cffb2; }
+    @media (max-width:520px){
+        #expedition-screen{padding:18px 12px}
+        .exp-header h2{font-size:21px}
+        .exp-map{grid-template-columns:1fr}
+        .exp-sector{min-height:160px}
+    }
+
 </style>
 </head>
 <body>
@@ -1447,6 +1508,12 @@
             <div style="width:80px;"></div>
         </div>
         <div class="mode-grid">
+            <button class="mode-card expedition" data-mode="expedition">
+                <div class="mc-icon">🚀</div>
+                <div class="mc-name">ЭКСПЕДИЦИЯ</div>
+                <div class="mc-desc">Проходи сектора, побеждай боссов и открывай новые маршруты</div>
+                <div class="mc-best" id="best-expedition">🚀 Сектор 1</div>
+            </button>
             <button class="mode-card rogue" data-mode="rogue">
                 <div class="mc-icon">🎲</div>
                 <div class="mc-name">РЕЖИМ РОГАЛИК</div>
@@ -1478,6 +1545,22 @@
                 <div class="mc-best" id="best-hardcore">🏆 0</div>
             </button>
         </div>
+    </div>
+
+    <div id="expedition-screen" class="hidden">
+        <div class="exp-header">
+            <button class="exp-back" id="expedition-back">← Назад</button>
+            <h2>🚀 Экспедиция</h2>
+            <div style="width:82px;"></div>
+        </div>
+        <div class="exp-progress">
+            <div class="exp-progress-top">
+                <div class="exp-progress-label">ПРОГРЕСС ЭКСПЕДИЦИИ</div>
+                <div class="exp-progress-value" id="expedition-progress-value">Сектор 1 / 6</div>
+            </div>
+            <div class="exp-progress-bar"><span id="expedition-progress-fill"></span></div>
+        </div>
+        <div class="exp-map" id="expedition-map"></div>
     </div>
 
     <div id="class-screen" class="hidden">
@@ -1878,6 +1961,11 @@ var pwError = document.getElementById('pw-error');
 var startScreen = document.getElementById('start-screen');
 var modeScreen = document.getElementById('mode-screen');
 var modeBack = document.getElementById('mode-back');
+var expeditionScreen = document.getElementById('expedition-screen');
+var expeditionBack = document.getElementById('expedition-back');
+var expeditionMap = document.getElementById('expedition-map');
+var expeditionProgressFill = document.getElementById('expedition-progress-fill');
+var expeditionProgressValue = document.getElementById('expedition-progress-value');
 var classScreen = document.getElementById('class-screen');
 var classBack = document.getElementById('class-back');
 var classGrid = document.getElementById('class-grid');
@@ -2579,7 +2667,19 @@ function makeDefaultSave() {
             bestLevel: 0, runsPlayed: 0
         },
         lastMode: 'rogue',
-        lastDailyCrystals: null
+        lastDailyCrystals: null,
+        expedition: {
+            unlockedSector: 1,
+            currentSector: 1,
+            completedSectors: [],
+            bossesDefeated: {},
+            discoveredEvents: [],
+            totalExpeditions: 0,
+            successfulExpeditions: 0,
+            bestSector: 1,
+            claimedRewards: [],
+            milestones: []
+        }
     };
 }
 
@@ -2593,6 +2693,20 @@ function migrateSave(d) {
             changed = true;
         }
     });
+
+    if (!d.expedition || typeof d.expedition !== 'object') {
+        d.expedition = JSON.parse(JSON.stringify(defaults.expedition));
+        changed = true;
+    } else {
+        Object.keys(defaults.expedition).forEach(function(key) {
+            if (typeof d.expedition[key] === 'undefined') {
+                d.expedition[key] = Array.isArray(defaults.expedition[key])
+                    ? defaults.expedition[key].slice()
+                    : defaults.expedition[key];
+                changed = true;
+            }
+        });
+    }
 
     if (!d.coreStats) {
         d.coreStats = { vitality:0, speed:0, magnet:0, greed:0, combo:0, luck:0 };
@@ -2642,6 +2756,79 @@ function migrateSave(d) {
 
     if (changed) console.log('✓ Сейв мигрирован на 2.6');
     return d;
+}
+
+var EXPEDITION_SECTORS = [
+    { id:1, name:'THE OUTSKIRTS', icon:'🌌', desc:'Безопасный край системы. Первый маршрут для пилота.', boss:'dragon', waves:10, enemyMultiplier:1, speedMultiplier:1, reward:'💎 +5  ✨ +10' },
+    { id:2, name:'DEAD ORBIT', icon:'🪐', desc:'Мёртвая орбита. Враги становятся быстрее и плотнее.', boss:'titan', waves:10, enemyMultiplier:1.15, speedMultiplier:1.05, reward:'💎 +10  ✨ +20' },
+    { id:3, name:'NEBULA', icon:'🌫️', desc:'Туманность с нестабильной навигацией.', boss:'devourer', waves:10, enemyMultiplier:1.3, speedMultiplier:1.1, reward:'💎 +15  ✨ +30' },
+    { id:4, name:'VOID RIFT', icon:'🌀', desc:'Разлом пространства. Маршрут пока закрыт.', boss:'dragon', waves:10, enemyMultiplier:1.5, speedMultiplier:1.15, reward:'🔒 Будет доступно позже' },
+    { id:5, name:'ZERO ZONE', icon:'⚫', desc:'Зона нулевой стабильности. Маршрут пока закрыт.', boss:'titan', waves:10, enemyMultiplier:1.75, speedMultiplier:1.2, reward:'🔒 Будет доступно позже' },
+    { id:6, name:'THE CORE', icon:'💠', desc:'Сердце системы. Финальный маршрут будущей кампании.', boss:'devourer', waves:10, enemyMultiplier:2, speedMultiplier:1.25, reward:'🔒 Будет доступно позже' }
+];
+
+function getExpeditionSave() {
+    var s = getSave();
+    if (!s.expedition || typeof s.expedition !== 'object') {
+        s.expedition = makeDefaultSave().expedition;
+    }
+    return s.expedition;
+}
+
+function isExpeditionMode() {
+    return currentMode === 'expedition';
+}
+
+function renderExpeditionMap() {
+    if (!expeditionMap) return;
+    var e = getExpeditionSave();
+    var unlocked = Math.max(1, Math.min(EXPEDITION_SECTORS.length, e.unlockedSector || 1));
+
+    expeditionProgressValue.textContent = 'Сектор ' + unlocked + ' / ' + EXPEDITION_SECTORS.length;
+    expeditionProgressFill.style.width = ((unlocked / EXPEDITION_SECTORS.length) * 100) + '%';
+    expeditionMap.innerHTML = '';
+
+    EXPEDITION_SECTORS.forEach(function(sector) {
+        var isUnlocked = sector.id <= unlocked;
+        var isCompleted = (e.completedSectors || []).indexOf(sector.id) !== -1;
+        var card = document.createElement('button');
+        card.className = 'exp-sector' + (isUnlocked ? '' : ' locked') + (sector.id === unlocked ? ' current' : '');
+        card.type = 'button';
+
+        var status = isCompleted ? '✓ ПРОЙДЕН' : (isUnlocked ? 'ДОСТУПЕН' : 'ЗАБЛОКИРОВАН');
+        var lock = isUnlocked ? '' : '<div class="exp-lock">🔒</div>';
+
+        card.innerHTML =
+            lock +
+            '<div class="exp-sector-icon">' + sector.icon + '</div>' +
+            '<div class="exp-sector-number">SECTOR ' + String(sector.id).padStart(2,'0') + '</div>' +
+            '<div class="exp-sector-name">' + sector.name + '</div>' +
+            '<div class="exp-sector-desc">' + sector.desc + '</div>' +
+            '<div class="exp-sector-meta">' +
+                '<span class="exp-chip">' + sector.waves + ' волн</span>' +
+                '<span class="exp-chip">' + sector.reward + '</span>' +
+                '<span class="exp-chip exp-status">' + status + '</span>' +
+            '</div>';
+
+        if (isUnlocked) {
+            card.addEventListener('click', function() {
+                e.currentSector = sector.id;
+                persist();
+                expeditionScreen.classList.add('hidden');
+                classScreen.classList.remove('hidden');
+                renderClassScreen();
+            });
+        }
+
+        expeditionMap.appendChild(card);
+    });
+}
+
+function openExpeditionMap() {
+    modeScreen.classList.add('hidden');
+    classScreen.classList.add('hidden');
+    expeditionScreen.classList.remove('hidden');
+    renderExpeditionMap();
 }
 
 function getSave() {
@@ -3196,7 +3383,8 @@ function updateModeBests() {
         'best-rogue': mb.rogue ? mb.rogue.coins : 0,
         'best-classic': mb.classic ? mb.classic.coins : 0,
         'best-timeattack': mb.timeattack ? mb.timeattack.coins : 0,
-        'best-hardcore': mb.hardcore ? mb.hardcore.coins : 0
+        'best-hardcore': mb.hardcore ? mb.hardcore.coins : 0,
+        'best-expedition': '🚀 Сектор ' + ((s.expedition && s.expedition.bestSector) || 1)
     };
     Object.keys(elements).forEach(function(id) {
         var el = document.getElementById(id);
@@ -3255,6 +3443,13 @@ modeBack.addEventListener('click', function() {
     startScreen.classList.remove('hidden');
 });
 
+expeditionBack.addEventListener('click', function() {
+    expeditionScreen.classList.add('hidden');
+    modeScreen.classList.remove('hidden');
+});
+
+
+
 document.querySelectorAll('.mode-card').forEach(function(card) {
     card.addEventListener('click', function() {
         var modeId = card.dataset.mode;
@@ -3275,7 +3470,9 @@ function selectMode(modeId) {
     }
     persist();
 
-    if (MODES[modeId].isRoguelike) {
+    if (isExpeditionMode()) {
+        openExpeditionMap();
+    } else if (MODES[modeId].isRoguelike) {
         modeScreen.classList.add('hidden');
         classScreen.classList.remove('hidden');
         renderClassScreen();
@@ -3292,7 +3489,12 @@ function selectMode(modeId) {
 // ===== ЭКРАН ВЫБОРА КЛАССА =====
 classBack.addEventListener('click', function() {
     classScreen.classList.add('hidden');
-    modeScreen.classList.remove('hidden');
+    if (isExpeditionMode()) {
+        expeditionScreen.classList.remove('hidden');
+        renderExpeditionMap();
+    } else {
+        modeScreen.classList.remove('hidden');
+    }
 });
 
 function renderClassScreen() {

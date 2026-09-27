@@ -465,20 +465,20 @@ var CARDS = {
 };
 
 var CASES = {
-    common: { id:'common', name:'Обычный кейс', icon:'🥉', price:300, desc:'Скин + шанс на карту',
+    common: { id:'common', name:'Обычный кейс', icon:'📦', price:300, desc:'Скин + шанс на карту',
         dropTable: [{ rarity:'common', chance:75 }, { rarity:'rare', chance:20 },
                     { rarity:'epic', chance:4 }, { rarity:'legendary', chance:1 }] },
-    rare: { id:'rare', name:'Редкий кейс', icon:'🥈', price:800, desc:'Скин + шанс на звук',
+    rare: { id:'rare', name:'Редкий кейс', icon:'🎁', price:800, desc:'Скин + шанс на звук',
         dropTable: [{ rarity:'common', chance:30 }, { rarity:'rare', chance:50 },
                     { rarity:'epic', chance:17 }, { rarity:'legendary', chance:2.5 },
                     { rarity:'mythic', chance:0.5 }] },
-    epic: { id:'epic', name:'Эпический кейс', icon:'🥇', price:2000, desc:'Скин + шанс на музыку',
+    epic: { id:'epic', name:'Эпический кейс', icon:'🧰', price:2000, desc:'Скин + шанс на музыку',
         dropTable: [{ rarity:'rare', chance:25 }, { rarity:'epic', chance:55 },
                     { rarity:'legendary', chance:17 }, { rarity:'mythic', chance:3 }] },
-    legendary: { id:'legendary', name:'Легендарный кейс', icon:'💎', price:4000, desc:'Топ-скин + карта + звук',
+    legendary: { id:'legendary', name:'Легендарный кейс', icon:'✦', price:4000, desc:'Топ-скин + карта + звук',
         dropTable: [{ rarity:'rare', chance:5 }, { rarity:'epic', chance:30 },
                     { rarity:'legendary', chance:55 }, { rarity:'mythic', chance:10 }] },
-    mythic: { id:'mythic', name:'Мифический кейс', icon:'👑', price:10000, desc:'Гарантия mythic + всё',
+    mythic: { id:'mythic', name:'Мифический кейс', icon:'◈', price:10000, desc:'Гарантия mythic + всё',
         dropTable: [{ rarity:'epic', chance:10 }, { rarity:'legendary', chance:40 },
                     { rarity:'mythic', chance:50 }] }
 };

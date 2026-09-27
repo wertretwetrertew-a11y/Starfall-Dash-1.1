@@ -581,16 +581,77 @@ function upgradeCoreStat(statId, useCrystal) {
 }
 
 // ===== МАГАЗИН / ДОСТИЖЕНИЯ / ЕЖЕДНЕВКА =====
+var SHOP_CATEGORIES = {
+    appearance: [
+        { tab: 'skins', label: '🎨 Скины' },
+        { tab: 'themes', label: '🌌 Темы' }
+    ],
+    effects: [
+        { tab: 'items', label: '⚡ Улучшения' },
+        { tab: 'boosts', label: '🛍 Бусты' },
+        { tab: 'sound', label: '🔊 Звуки' },
+        { tab: 'music', label: '🎵 Музыка' }
+    ],
+    collection: [
+        { tab: 'cases', label: '📦 Кейсы' },
+        { tab: 'cards', label: '🎴 Карты' },
+        { tab: 'achievements', label: '🏆 Достижения' }
+    ]
+};
+
+function getShopCategory(tab) {
+    for (var key in SHOP_CATEGORIES) {
+        if (SHOP_CATEGORIES[key].some(function(item) { return item.tab === tab; })) return key;
+    }
+    return 'appearance';
+}
+
+function renderShopNavigation() {
+    var category = getShopCategory(currentShopTab);
+    var categoryWrap = document.getElementById('shop-category-tabs');
+    var subWrap = document.getElementById('shop-subtabs');
+    if (!categoryWrap || !subWrap) return;
+
+    categoryWrap.querySelectorAll('.shop-category').forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.category === category);
+    });
+
+    subWrap.innerHTML = '';
+    SHOP_CATEGORIES[category].forEach(function(item) {
+        var btn = document.createElement('button');
+        btn.className = 'shop-subtab' + (item.tab === currentShopTab ? ' active' : '');
+        btn.dataset.tab = item.tab;
+        btn.textContent = item.label;
+        subWrap.appendChild(btn);
+    });
+}
+
+document.querySelectorAll('.shop-category').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var category = btn.dataset.category;
+        currentShopTab = SHOP_CATEGORIES[category][0].tab;
+        renderShopNavigation();
+        renderShop();
+    });
+});
+
+document.getElementById('shop-subtabs').addEventListener('click', function(e) {
+    var btn = e.target.closest('.shop-subtab');
+    if (!btn) return;
+    currentShopTab = btn.dataset.tab;
+    renderShopNavigation();
+    renderShop();
+});
+
 tileShop.addEventListener('click', function() {
+    renderShopNavigation();
     renderShop();
     shopModal.classList.add('open');
 });
 
 tileAch.addEventListener('click', function() {
     currentShopTab = 'achievements';
-    document.querySelectorAll('.shop-tab').forEach(function(t) {
-        t.classList.toggle('active', t.dataset.tab === 'achievements');
-    });
+    renderShopNavigation();
     renderShop();
     shopModal.classList.add('open');
 });
@@ -1029,7 +1090,7 @@ function updateShopBadges() {
         var progress = getAchievementProgress(a);
         if (progress >= a.target && s.claimedAchievements.indexOf(a.id) === -1) unclaimed++;
     });
-    var achTab = document.querySelector('.shop-tab[data-tab="achievements"]');
+    var achTab = document.querySelector('.shop-subtab[data-tab="achievements"]');
     if (achTab) {
         var old = achTab.querySelector('.tab-badge');
         if (old) old.remove();
@@ -1598,15 +1659,6 @@ function handleCardClick(cd) {
     persist(); renderShop(); updateMainMenuStats();
     showToast('🎴 Карта: ' + cd.name + '!', 'legendary');
 }
-
-document.querySelectorAll('.shop-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() {
-        document.querySelectorAll('.shop-tab').forEach(function(t) { t.classList.remove('active'); });
-        tab.classList.add('active');
-        currentShopTab = tab.dataset.tab;
-        renderShop();
-    });
-});
 
 shopClose.addEventListener('click', function() { shopModal.classList.remove('open'); });
 shopModal.addEventListener('click', function(e) {

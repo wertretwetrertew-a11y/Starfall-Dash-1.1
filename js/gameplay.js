@@ -311,7 +311,7 @@ function spawnRogueXP(x, y, enemy) {
         x: Math.max(10, Math.min(canvas.width - 28, Number(x) || canvas.width / 2)),
         y: Math.max(10, Math.min(canvas.height - 28, Number(y) || canvas.height / 2)),
         size: 18,
-        speed: 0.8 + Math.random() * 0.45,
+        speed: 0.18 + Math.random() * 0.12,
         phase: Math.random() * Math.PI * 2,
         value: value,
         life: 1
@@ -2021,14 +2021,15 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         return c.y < canvas.height + 20;
     });
 
-    // Roguelike XP — отдельный падающий ресурс.
+    // Roguelike XP — награда за убийства, остающаяся на поле до подбора.
     if (currentMode === 'rogue') {
         var xpMagnetRadius = (getSave().magnetRadius || 0) + coreBonusCache.magnet;
         if (runUpgrades.magnet) xpMagnetRadius += runUpgrades.magnet * 40;
         if (buff.magnet > 0) xpMagnetRadius = Math.max(xpMagnetRadius, 250);
 
         rogueXPOrbs.forEach(function(xp) {
-            xp.y += xp.speed;
+            xp.y = Math.min(canvas.height - xp.size - 2, xp.y + xp.speed);
+            xp.x = Math.max(2, Math.min(canvas.width - xp.size - 2, xp.x));
             xp.phase += 0.14;
 
             if (xpMagnetRadius > 0 || buff.magnet > 0) {

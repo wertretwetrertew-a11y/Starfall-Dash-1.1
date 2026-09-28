@@ -352,6 +352,7 @@ function spawnEnemy(forcedType) {
         baseX: 0, hitFlash: 0,
         flightTime: 0, shootTimer: t.shootsEvery || 0,
         ghostPhase: 0, ghostAlpha: 1,
+        rogueContactCooldown: 0,
         rotation: Math.random() * Math.PI * 2,
         wingPhase: 0,
         vx: t.vx || 0,
@@ -1949,6 +1950,7 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         e.rotation = (e.rotation + 0.02) % (Math.PI * 2);
         e.wingPhase += 0.2;
         if (e.hitFlash > 0) e.hitFlash--;
+        if (e.rogueContactCooldown > 0) e.rogueContactCooldown--;
         if (frozen) continue;
 
         // Движение по типам
@@ -2106,7 +2108,7 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
                 addParticles(e.x + e.size/2, e.y + e.size/2, '#aed581', 6, 6);
             }
 
-            if (mode.isRoguelike && playerDamage > 0) {
+            if (!mode.isRoguelike && playerDamage > 0) {
                 e.hp -= playerDamage;
                 e.hitFlash = 6;
             }

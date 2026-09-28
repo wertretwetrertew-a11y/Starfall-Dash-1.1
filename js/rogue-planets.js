@@ -15,7 +15,7 @@ var ROGUE_PLANETS = {
         id:'arden', name:'АРДЕН', subtitle:'ПЕПЕЛЬНЫЙ МИР', icon:'🔥', color:'#ff7043', boss:'dragon',
         description:'Пепел, метеориты и огненные разломы.',
         stages:[
-            {name:'Пепельное поле', type:'distance', icon:'⚔️', desc:'Пройди 12000 единиц пути. Здесь появляются только базовые противники.', enemyConfig:{pool:['normal','flyer'],speedMult:0.90,hpMult:1.00,spawnInterval:82,maxAlive:5,minAlive:3}, objective:{kind:'distance',target:12000,label:'Путь',unit:'ед.'}},
+            {name:'Пепельное поле', type:'core', icon:'💠', desc:'Собери 5 осколков космического ядра. Осколок иногда выпадает из поверженного врага и падает по полю.', enemyConfig:{pool:['normal','flyer'],speedMult:0.90,hpMult:1.00,spawnInterval:82,maxAlive:5,minAlive:3}, objective:{kind:'coreFragments',target:5,label:'Осколки ядра',unit:''}},
             {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 150 секунд под метеорами. Враги становятся заметно разнообразнее и быстрее.', enemyConfig:{pool:['zigzag','ghost'],speedMult:0.98,hpMult:1.02,spawnInterval:78,maxAlive:5,minAlive:3}, objective:{kind:'time',target:150,label:'Время',unit:'с'}},
             {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 25 врагов в огненной зоне. Здесь впервые появляются враги с особыми паттернами и опасными эффектами.', enemyConfig:{pool:['hunter','bomber','crystal'],speedMult:1.04,hpMult:1.06,spawnInterval:72,maxAlive:5,minAlive:3}, objective:{kind:'kills',target:25,label:'Враги',unit:''}},
             {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 6 усиленных врагов. Здесь собирается первый полный боевой набор Ардена.', enemyConfig:{pool:['snake','spider','barrier'],speedMult:1.10,hpMult:1.12,spawnInterval:68,maxAlive:5,minAlive:3}, objective:{kind:'strongKills',target:6,label:'Сильные',unit:''}}
@@ -56,7 +56,8 @@ var roguePlanetState = {
     stageStrongKills:0,
     stageLastX:0,
     stageLastY:0,
-    stageMinDuration:150*60,
+    stageCoreFragments:0,
+    stageMinDuration:0,
     stageBanner:'',
     stageBannerTimer:0,
     stageDuration:180*60,
@@ -259,6 +260,8 @@ function roguePlanetPrepareRun(){
     roguePlanetState.stageDistance=0;
     roguePlanetState.stageKills=0;
     roguePlanetState.stageStrongKills=0;
+    roguePlanetState.stageCoreFragments=0;
+    if(typeof rogueCoreFragments!=='undefined') rogueCoreFragments.length=0;
     roguePlanetState.stageLastX=0;
     roguePlanetState.stageLastY=0;
     roguePlanetState.hazardTimer=0;
@@ -302,6 +305,8 @@ function roguePlanetStartStage(index){
     roguePlanetState.stageDistance=0;
     roguePlanetState.stageKills=0;
     roguePlanetState.stageStrongKills=0;
+    roguePlanetState.stageCoreFragments=0;
+    if(typeof rogueCoreFragments!=='undefined') rogueCoreFragments.length=0;
     roguePlanetState.stageLastX=player.x;
     roguePlanetState.stageLastY=player.y;
     roguePlanetState.hazardTimer=0;
@@ -319,11 +324,17 @@ function roguePlanetStartStage(index){
     roguePlanetShowBanner('ЭТАП '+(index+1),roguePlanetCurrentStage().name);
 }
 
+function roguePlanetCoreFragmentProgress(){
+    if(typeof rogueCoreFragments==='undefined') return 0;
+    return rogueCoreFragments.length ? (roguePlanetState.stageCoreFragments||0) : (roguePlanetState.stageCoreFragments||0);
+}
+
 function roguePlanetStageObjectiveMet(){
     var st=roguePlanetCurrentStage();
     if(!st || !st.objective) return false;
     var o=st.objective;
     if(o.kind==='distance') return roguePlanetState.stageDistance>=o.target;
+    if(o.kind==='coreFragments') return roguePlanetState.stageCoreFragments>=o.target;
     if(o.kind==='time') return roguePlanetState.stageTimer>=o.target*60;
     if(o.kind==='kills') return roguePlanetState.stageKills>=o.target;
     if(o.kind==='strongKills') return roguePlanetState.stageStrongKills>=o.target;
@@ -335,6 +346,7 @@ function roguePlanetObjectiveText(){
     if(!st || !st.objective) return '';
     var o=st.objective, value=0;
     if(o.kind==='distance') value=Math.floor(roguePlanetState.stageDistance);
+    else if(o.kind==='coreFragments') value=roguePlanetState.stageCoreFragments||0;
     else if(o.kind==='time') value=Math.floor(roguePlanetState.stageTimer/60);
     else if(o.kind==='kills') value=roguePlanetState.stageKills;
     else if(o.kind==='strongKills') value=roguePlanetState.stageStrongKills;
@@ -362,16 +374,19 @@ function roguePlanetRenderStageObjective(){
 
     var value=0;
     if(o.kind==='distance') value=Math.floor(roguePlanetState.stageDistance);
+    else if(o.kind==='coreFragments') value=roguePlanetState.stageCoreFragments||0;
     else if(o.kind==='time') value=Math.floor(roguePlanetState.stageTimer/60);
     else if(o.kind==='kills') value=roguePlanetState.stageKills;
     else if(o.kind==='strongKills') value=roguePlanetState.stageStrongKills;
 
     var ratio=Math.max(0,Math.min(1,value/o.target));
-    var label=o.kind==='distance'?'ПУТЬ':(o.kind==='time'?'ВРЕМЯ':o.label.toUpperCase());
+    var label=o.kind==='distance'?'ПУТЬ':(o.kind==='coreFragments'?'ОСКОЛКИ ЯДРА':(o.kind==='time'?'ВРЕМЯ':o.label.toUpperCase()));
     var text=label+'  '+Math.min(value,o.target)+' / '+o.target+(o.unit?' '+o.unit:'');
-    var remaining=roguePlanetState.stageTimer<roguePlanetState.stageMinDuration
-        ? 'Минимум: '+Math.ceil((roguePlanetState.stageMinDuration-roguePlanetState.stageTimer)/60)+' сек'
-        : 'Цель выполнена';
+    var remaining=o.kind==='coreFragments'
+        ? (value>=o.target ? 'Цель выполнена' : 'Ищи осколки после убийств')
+        : (roguePlanetState.stageTimer<roguePlanetState.stageMinDuration
+            ? 'Минимум: '+Math.ceil((roguePlanetState.stageMinDuration-roguePlanetState.stageTimer)/60)+' сек'
+            : 'Цель выполнена');
 
     document.getElementById('rogue-stage-objective-title').textContent=st.name;
     document.getElementById('rogue-stage-objective-text').textContent=text;
@@ -589,8 +604,7 @@ update=function(){
         roguePlanetState.stageLastX=player.x;
         roguePlanetState.stageLastY=player.y;
 
-        if(roguePlanetState.stageTimer>=roguePlanetState.stageMinDuration &&
-           roguePlanetStageObjectiveMet()){
+        if(roguePlanetStageObjectiveMet()){
             roguePlanetCompleteStage();
             return;
         }

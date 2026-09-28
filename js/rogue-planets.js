@@ -56,7 +56,7 @@ var roguePlanetState = {
     stageStrongKills:0,
     stageLastX:0,
     stageLastY:0,
-    stageMinDuration:30*60,
+    stageMinDuration:45*60,
     stageBanner:'',
     stageBannerTimer:0,
     stageDuration:90*60,

@@ -15,7 +15,7 @@ var ROGUE_PLANETS = {
         id:'arden', name:'АРДЕН', subtitle:'ПЕПЕЛЬНЫЙ МИР', icon:'🔥', color:'#ff7043', boss:'dragon',
         description:'Пепел, метеориты и огненные разломы.',
         stages:[
-            {name:'Пепельное поле', type:'core', icon:'💠', desc:'Собери 3 осколка космического ядра. Осколок иногда выпадает из поверженного врага и падает по полю.', enemyConfig:{pool:['normal','flyer'],speedMult:0.90,hpMult:1.00,spawnInterval:82,maxAlive:5,minAlive:3}, objective:{kind:'coreFragments',target:3,label:'Осколки ядра',unit:''}},
+            {name:'Пепельное поле', type:'core', icon:'💠', desc:'Собери 3 осколка космического ядра. Осколок иногда выпадает из поверженного врага и остаётся на поле до подбора.', enemyConfig:{pool:['normal','flyer'],speedMult:0.90,hpMult:1.00,spawnInterval:82,maxAlive:5,minAlive:3}, objective:{kind:'coreFragments',target:3,label:'Осколки ядра',unit:''}},
             {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 150 секунд под метеорами. Враги становятся заметно разнообразнее и быстрее.', enemyConfig:{pool:['zigzag','ghost'],speedMult:0.98,hpMult:1.02,spawnInterval:78,maxAlive:5,minAlive:3}, objective:{kind:'time',target:150,label:'Время',unit:'с'}},
             {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 25 врагов в огненной зоне. Здесь впервые появляются враги с особыми паттернами и опасными эффектами.', enemyConfig:{pool:['hunter','bomber','crystal'],speedMult:1.04,hpMult:1.06,spawnInterval:72,maxAlive:5,minAlive:3}, objective:{kind:'kills',target:25,label:'Враги',unit:''}},
             {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 6 усиленных врагов. Здесь собирается первый полный боевой набор Ардена.', enemyConfig:{pool:['snake','spider','barrier'],speedMult:1.10,hpMult:1.12,spawnInterval:68,maxAlive:5,minAlive:3}, objective:{kind:'strongKills',target:6,label:'Сильные',unit:''}}
@@ -542,11 +542,7 @@ spawnBoss=function(id){
     return roguePlanetOriginalSpawnBoss(id);
 };
 
-/* XP is a separate falling resource. It is intentionally NOT tied to kills. */
-if(typeof spawnRogueXP==='function'){
-    // gameplay.js already owns the spawn implementation.
-    // Do not overwrite it here: XP must keep falling from the top during stages.
-}
+/* XP is created by defeated enemies; gameplay.js owns the pickup implementation. */
 
 /* ---- Start flow: class -> map -> selected stage -> gameplay. ---- */
 var roguePlanetOriginalStartRun=startRoguelikeRun;

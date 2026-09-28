@@ -15,30 +15,30 @@ var ROGUE_PLANETS = {
         id:'arden', name:'АРДЕН', subtitle:'ПЕПЕЛЬНЫЙ МИР', icon:'🔥', color:'#ff7043', boss:'dragon',
         description:'Пепел, метеориты и огненные разломы.',
         stages:[
-            {name:'Пепельное поле', type:'distance', icon:'⚔️', desc:'Пройди 12000 единиц пути. Здесь появляются только базовые противники.', enemyConfig:{pool:['normal','flyer'],speedMult:0.82,hpMult:0.90,spawnInterval:115,maxAlive:4}, objective:{kind:'distance',target:12000,label:'Путь',unit:'ед.'}},
-            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 150 секунд под метеорами. Враги становятся заметно разнообразнее и быстрее.', enemyConfig:{pool:['zigzag','ghost'],speedMult:0.94,hpMult:0.98,spawnInterval:105,maxAlive:4}, objective:{kind:'time',target:150,label:'Время',unit:'с'}},
-            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 25 врагов в огненной зоне. Здесь впервые появляются враги с особыми паттернами и опасными эффектами.', enemyConfig:{pool:['hunter','bomber','crystal'],speedMult:1.02,hpMult:1.05,spawnInterval:95,maxAlive:5}, objective:{kind:'kills',target:25,label:'Враги',unit:''}},
-            {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 6 усиленных врагов. Здесь собирается первый полный боевой набор Ардена.', enemyConfig:{pool:['snake','spider','barrier'],speedMult:1.10,hpMult:1.12,spawnInterval:85,maxAlive:5}, objective:{kind:'strongKills',target:6,label:'Сильные',unit:''}}
+            {name:'Пепельное поле', type:'distance', icon:'⚔️', desc:'Пройди 12000 единиц пути. Здесь появляются только базовые противники.', enemyConfig:{pool:['normal','flyer'],speedMult:0.90,hpMult:1.00,spawnInterval:82,maxAlive:5,minAlive:3}, objective:{kind:'distance',target:12000,label:'Путь',unit:'ед.'}},
+            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 150 секунд под метеорами. Враги становятся заметно разнообразнее и быстрее.', enemyConfig:{pool:['zigzag','ghost'],speedMult:0.98,hpMult:1.02,spawnInterval:78,maxAlive:5,minAlive:3}, objective:{kind:'time',target:150,label:'Время',unit:'с'}},
+            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 25 врагов в огненной зоне. Здесь впервые появляются враги с особыми паттернами и опасными эффектами.', enemyConfig:{pool:['hunter','bomber','crystal'],speedMult:1.04,hpMult:1.06,spawnInterval:72,maxAlive:5,minAlive:3}, objective:{kind:'kills',target:25,label:'Враги',unit:''}},
+            {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 6 усиленных врагов. Здесь собирается первый полный боевой набор Ардена.', enemyConfig:{pool:['snake','spider','barrier'],speedMult:1.10,hpMult:1.12,spawnInterval:68,maxAlive:5,minAlive:3}, objective:{kind:'strongKills',target:6,label:'Сильные',unit:''}}
         ]
     },
     nivara: {
         id:'nivara', name:'НИВАРА', subtitle:'МЁРТВЫЙ ЛЁД', icon:'❄️', color:'#4fc3f7', boss:'titan',
         description:'Лёд меняет движение, а пространство сжимается.',
         stages:[
-            {name:'Ледяное поле', type:'ice', icon:'❄️', desc:'Пройди 15000 единиц пути по льду. На Ниваре враги уже заметно опаснее Ардена.', enemyConfig:{pool:['ice','hunter'],speedMult:1.06,hpMult:1.08,spawnInterval:105,maxAlive:4}, objective:{kind:'distance',target:15000,label:'Путь',unit:'ед.'}},
-            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Победи 30 врагов в ближней засаде. В пуле появляются взрывающиеся и паучьи враги.', enemyConfig:{pool:['snake','bomber','spider'],speedMult:1.10,hpMult:1.10,spawnInterval:95,maxAlive:5}, objective:{kind:'kills',target:30,label:'Враги',unit:''}},
-            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Продержись 150 секунд в буре. Дальние угрозы и тяжёлые враги становятся нормой.', enemyConfig:{pool:['star','crystal','teleporter'],speedMult:1.14,hpMult:1.14,spawnInterval:88,maxAlive:5}, objective:{kind:'time',target:150,label:'Время',unit:'с'}},
-            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Победи 7 усиленных врагов в сужающейся зоне. Почти весь арсенал Нивары работает против игрока.', enemyConfig:{pool:['magnet_enemy','doppel','barrier'],speedMult:1.18,hpMult:1.18,spawnInterval:80,maxAlive:5}, objective:{kind:'strongKills',target:7,label:'Сильные',unit:''}}
+            {name:'Ледяное поле', type:'ice', icon:'❄️', desc:'Пройди 15000 единиц пути по льду. На Ниваре враги уже заметно опаснее Ардена.', enemyConfig:{pool:['ice','hunter'],speedMult:1.08,hpMult:1.08,spawnInterval:76,maxAlive:5,minAlive:3}, objective:{kind:'distance',target:15000,label:'Путь',unit:'ед.'}},
+            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Победи 30 врагов в ближней засаде. В пуле появляются взрывающиеся и паучьи враги.', enemyConfig:{pool:['snake','bomber','spider'],speedMult:1.12,hpMult:1.12,spawnInterval:70,maxAlive:5,minAlive:3}, objective:{kind:'kills',target:30,label:'Враги',unit:''}},
+            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Продержись 150 секунд в буре. Дальние угрозы и тяжёлые враги становятся нормой.', enemyConfig:{pool:['star','crystal','teleporter'],speedMult:1.16,hpMult:1.16,spawnInterval:68,maxAlive:5,minAlive:3}, objective:{kind:'time',target:150,label:'Время',unit:'с'}},
+            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Победи 7 усиленных врагов в сужающейся зоне. Почти весь арсенал Нивары работает против игрока.', enemyConfig:{pool:['magnet_enemy','doppel','barrier'],speedMult:1.20,hpMult:1.20,spawnInterval:65,maxAlive:5,minAlive:4}, objective:{kind:'strongKills',target:7,label:'Сильные',unit:''}}
         ]
     },
     exor: {
         id:'exor', name:'ЭКЗОР', subtitle:'МЁРТВАЯ ЗВЕЗДА', icon:'🌌', color:'#9c6bff', boss:'devourer',
         description:'Разломы и гравитация разрушают пространство.',
         stages:[
-            {name:'Разлом', type:'rift', icon:'🌀', desc:'Пройди 18000 единиц пути через разломы. Это уже поздняя игра: медленные, тяжёлые и телепортирующиеся враги.', enemyConfig:{pool:['crystal','teleporter','star'],speedMult:1.20,hpMult:1.18,spawnInterval:82,maxAlive:5}, objective:{kind:'distance',target:18000,label:'Путь',unit:'ед.'}},
-            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Победи 35 врагов в гравитационных полях. Телепортеры, магниты и двойники ломают привычный ритм.', enemyConfig:{pool:['magnet_enemy','doppel','laser'],speedMult:1.24,hpMult:1.22,spawnInterval:78,maxAlive:5}, objective:{kind:'kills',target:35,label:'Враги',unit:''}},
-            {name:'Крах', type:'collapse', icon:'💠', desc:'Победи 7 усиленных врагов до полного коллапса. Самые опасные обычные враги появляются здесь.', enemyConfig:{pool:['barrier','laser','teleporter'],speedMult:1.28,hpMult:1.28,spawnInterval:74,maxAlive:6}, objective:{kind:'strongKills',target:7,label:'Сильные',unit:''}},
-            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Продержись 150 секунд перед Пожирателем. Финальная смесь проверяет все основные механики врагов.', enemyConfig:{pool:['doppel','laser','magnet_enemy'],speedMult:1.34,hpMult:1.32,spawnInterval:70,maxAlive:6}, objective:{kind:'time',target:150,label:'Время',unit:'с'}}
+            {name:'Разлом', type:'rift', icon:'🌀', desc:'Пройди 18000 единиц пути через разломы. Это уже поздняя игра: медленные, тяжёлые и телепортирующиеся враги.', enemyConfig:{pool:['crystal','teleporter','star'],speedMult:1.22,hpMult:1.20,spawnInterval:63,maxAlive:5,minAlive:4}, objective:{kind:'distance',target:18000,label:'Путь',unit:'ед.'}},
+            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Победи 35 врагов в гравитационных полях. Телепортеры, магниты и двойники ломают привычный ритм.', enemyConfig:{pool:['magnet_enemy','doppel','laser'],speedMult:1.26,hpMult:1.24,spawnInterval:60,maxAlive:5,minAlive:4}, objective:{kind:'kills',target:35,label:'Враги',unit:''}},
+            {name:'Крах', type:'collapse', icon:'💠', desc:'Победи 7 усиленных врагов до полного коллапса. Самые опасные обычные враги появляются здесь.', enemyConfig:{pool:['barrier','laser','teleporter'],speedMult:1.30,hpMult:1.30,spawnInterval:58,maxAlive:6,minAlive:4}, objective:{kind:'strongKills',target:7,label:'Сильные',unit:''}},
+            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Продержись 150 секунд перед Пожирателем. Финальная смесь проверяет все основные механики врагов.', enemyConfig:{pool:['doppel','laser','magnet_enemy'],speedMult:1.36,hpMult:1.34,spawnInterval:55,maxAlive:6,minAlive:4}, objective:{kind:'time',target:150,label:'Время',unit:'с'}}
         ]
     }
 };
@@ -566,6 +566,21 @@ update=function(){
 
     // Core gameplay runs first so movement and kills from this frame are counted.
     roguePlanetOriginalUpdate();
+
+    // Pressure director: keep a small number of active threats on screen.
+    // It fills empty space gradually instead of creating a crowd.
+    if(currentMode==='rogue' && roguePlanetState.active && roguePlanetState.stageStarted &&
+       running && !gameOver && !isChoosingUpgrade && typeof getRogueStageEnemyConfig==='function'){
+        var pressureCfg=getRogueStageEnemyConfig();
+        if(pressureCfg){
+            var pressureMax=pressureCfg.maxAlive || 5;
+            var pressureMin=pressureCfg.minAlive || Math.max(2, pressureMax-2);
+            if(enemies.length < pressureMin && frame % 45 === 0){
+                var pressureNeed=Math.min(pressureMin-enemies.length,2);
+                for(var pi=0;pi<pressureNeed;pi++) spawnEnemy();
+            }
+        }
+    }
 
     if(currentMode==='rogue' && roguePlanetState.active && roguePlanetState.stageStarted && running && !gameOver && !isChoosingUpgrade){
         var dx=player.x-roguePlanetState.stageLastX;

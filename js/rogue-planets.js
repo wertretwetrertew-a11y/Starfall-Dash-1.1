@@ -218,9 +218,11 @@ function roguePlanetRenderMap(){
         var objective=st.objective || {kind:'time',target:60,label:'Время',unit:'с'};
         var objectiveText=objective.kind==='distance'
             ? 'Цель: '+objective.target+' '+objective.unit+' пути'
-            : (objective.kind==='time'
-                ? 'Цель: '+objective.target+' '+objective.unit
-                : 'Цель: '+objective.target+' '+objective.label.toLowerCase());
+            : (objective.kind==='coreFragments'
+                ? 'Цель: '+objective.target+' осколков ядра'
+                : (objective.kind==='time'
+                    ? 'Цель: '+objective.target+' '+objective.unit
+                    : 'Цель: '+objective.target+' '+objective.label.toLowerCase()));
         var node=document.createElement('button');
         node.className=cls;
         node.style.setProperty('--planet-color',p.color);
@@ -307,6 +309,7 @@ function roguePlanetStartStage(index){
     roguePlanetState.stageStrongKills=0;
     roguePlanetState.stageCoreFragments=0;
     if(typeof rogueCoreFragments!=='undefined') rogueCoreFragments.length=0;
+    if(typeof rogueCoreFragmentMisses!=='undefined') rogueCoreFragmentMisses=0;
     roguePlanetState.stageLastX=player.x;
     roguePlanetState.stageLastY=player.y;
     roguePlanetState.hazardTimer=0;

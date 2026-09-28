@@ -971,6 +971,12 @@ function finishWaveAndShowUpgrade() {
 function reset() {
     console.log('→ reset() вызван. Режим:', currentMode);
 
+    // Reset can be triggered from menus as well as from game-over.
+    // Clear the duel presentation immediately instead of waiting for finishRun().
+    if (typeof clearBossDuelPresentation === 'function') {
+        clearBossDuelPresentation();
+    }
+
     try {
         gameoverModal.classList.remove('open');
         pauseModal.classList.remove('open');
@@ -1589,6 +1595,10 @@ function clearBossDuelPresentation() {
     bossAnnouncementTimer = 0;
     bossDuelId = null;
     bosses = [];
+    // Boss cleanup must also remove every duel-only visual/effect so a
+    // defeated boss can never leak into the next stage or main menu.
+    if (typeof rogueEnemyHazards !== 'undefined') rogueEnemyHazards.length = 0;
+    if (typeof rogueCoreFragments !== 'undefined') rogueCoreFragments.length = 0;
     updateBossDuelHUD();
 }
 

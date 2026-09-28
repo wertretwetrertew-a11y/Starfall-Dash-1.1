@@ -282,6 +282,22 @@ function spawnCoin() {
     });
 }
 
+// Roguelike XP is an independent falling resource, not a kill reward.
+function spawnRogueXP() {
+    if (currentMode !== 'rogue') return;
+    var roll = Math.random();
+    var value = roll < 0.76 ? 1 : (roll < 0.96 ? 2 : 3);
+    rogueXPOrbs.push({
+        x: 20 + Math.random() * (canvas.width - 40),
+        y: -18,
+        size: 18,
+        speed: 3.0 + Math.random() * 1.2,
+        phase: Math.random() * Math.PI * 2,
+        value: value,
+        life: 1
+    });
+}
+
 function spawnDrop(type, x, y) {
     drops.push({
         type: type, x: x, y: y, size: 24, vy: 2.2,
@@ -1706,6 +1722,9 @@ function update() {
     // Спавн монет
     if (bossState === 'none' && frame % 40 === 0) spawnCoin();
 
+    // Roguelike XP падает сверху независимо от убийств и заметно реже золота.
+    if (bossState === 'none' && currentMode === 'rogue' && frame % 180 === 0) spawnRogueXP();
+
     // Спавн врагов
     var baseInterval;
     if (level <= 3) baseInterval = 75;
@@ -1844,6 +1863,53 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         }
         return c.y < canvas.height + 20;
     });
+
+    // Roguelike XP — отдельный падающий ресурс.
+    if (currentMode === 'rogue') {
+        var xpMagnetRadius = (getSave().magnetRadius || 0) + coreBonusCache.magnet;
+        if (runUpgrades.magnet) xpMagnetRadius += runUpgrades.magnet * 40;
+        if (buff.magnet > 0) xpMagnetRadius = Math.max(xpMagnetRadius, 250);
+
+        rogueXPOrbs.forEach(function(xp) {
+            xp.y += xp.speed;
+            xp.phase += 0.14;
+
+            if (xpMagnetRadius > 0 || buff.magnet > 0) {
+                var xpcx = xp.x + xp.size / 2;
+                var xpcy = xp.y + xp.size / 2;
+                var pxc = player.x + player.size / 2;
+                var pyc = player.y + player.size / 2;
+                var dx = pxc - xpcx;
+                var dy = pyc - xpcy;
+                var dist = Math.hypot(dx, dy);
+                if (dist < xpMagnetRadius && dist > 0) {
+                    var pull = buff.magnet > 0 ? 0.3 : 0.18;
+                    xp.x += dx * pull;
+                    xp.y += dy * pull;
+                }
+            }
+        });
+
+        rogueXPOrbs = rogueXPOrbs.filter(function(xp) {
+            if (rectsCollide(player, xp)) {
+                var gainedXP = xp.value || 1;
+                rogueXP += gainedXP;
+                addParticles(xp.x + xp.size / 2, xp.y + xp.size / 2, '#b388ff', 10, 6);
+                addFloatingText(xp.x + xp.size / 2, xp.y, '+' + gainedXP + ' XP', '#b388ff', 16);
+                playSFX('coin');
+
+                while (rogueXP >= rogueXPNext) {
+                    rogueXP -= rogueXPNext;
+                    rogueXPNext = Math.floor(rogueXPNext * 1.32 + 3);
+                    if (typeof _rogueOldLevelUp === 'function') _rogueOldLevelUp();
+                    if (isChoosingUpgrade || !running) break;
+                }
+                updateHUD();
+                return false;
+            }
+            return xp.y < canvas.height + 30;
+        });
+    }
 
     // Дропы
     drops.forEach(function(d) {
@@ -2489,6 +2555,39 @@ function drawCoins() {
     }
 }
 
+function drawRogueXP() {
+    var t = performance.now();
+    for (var i = 0; i < rogueXPOrbs.length; i++) {
+        var xp = rogueXPOrbs[i];
+        var pulse = 1 + Math.sin(t / 130 + xp.phase) * 0.10;
+        ctx.save();
+        ctx.translate(xp.x + xp.size / 2, xp.y + xp.size / 2);
+        ctx.scale(pulse, pulse);
+        ctx.shadowColor = '#9c6bff';
+        ctx.shadowBlur = 18;
+        var g = ctx.createRadialGradient(0, -3, 1, 0, 0, xp.size / 2);
+        g.addColorStop(0, '#ffffff');
+        g.addColorStop(0.35, '#d1b3ff');
+        g.addColorStop(0.72, '#9c6bff');
+        g.addColorStop(1, '#4a148c');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(0, -xp.size / 2);
+        ctx.lineTo(xp.size / 2, 0);
+        ctx.lineTo(0, xp.size / 2);
+        ctx.lineTo(-xp.size / 2, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if (xp.value > 1) ctx.fillText('+' + xp.value, 0, 1);
+        ctx.restore();
+    }
+}
+
 function drawDrop(d) {
     var style = DROP_STYLE[d.type] || DROP_STYLE.magnet;
     var t = performance.now();
@@ -2774,6 +2873,7 @@ function draw() {
     drawPlayer();
     drawOrbitals();
     drawCoins();
+    if (currentMode === 'rogue') drawRogueXP();
     for (var di = 0; di < drops.length; di++) drawDrop(drops[di]);
     for (var ei = 0; ei < enemies.length; ei++) drawMonster(enemies[ei]);
     for (var bi = 0; bi < bosses.length; bi++) drawBoss(bosses[bi]);

@@ -557,6 +557,9 @@ spawnBoss=function(id){
 /* ---- Start flow: class -> map -> selected stage -> gameplay. ---- */
 var roguePlanetOriginalStartRun=startRoguelikeRun;
 startRoguelikeRun=function(){
+    // A new Roguelike attempt always starts with a fresh run-only build.
+    // Permanent Core/class progression remains in the save.
+    if(typeof clearRogueRunState==='function') clearRogueRunState();
     roguePlanetOriginalStartRun.apply(this,arguments);
     running=false;
     stopMusic();

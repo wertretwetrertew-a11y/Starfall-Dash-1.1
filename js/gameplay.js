@@ -1898,23 +1898,10 @@ function update() {
         }
     }
 
-    // Боссы
-    if (bossState === 'none' && currentMode === 'rogue') {
-       // Флаг для отслеживания, что босс этого уровня уже был заспавнен
-if (level === BOSS_TYPES.dragon.level && !bosses.some(function(b){ return b.id === 'dragon'; }) && !window._bossSpawned5) {
-    window._bossSpawned5 = true;
-    spawnBoss('dragon');
-}
-if (level === BOSS_TYPES.titan.level && !bosses.some(function(b){ return b.id === 'titan'; }) && !window._bossSpawned10) {
-    window._bossSpawned10 = true;
-    spawnBoss('titan');
-}
-if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id === 'devourer'; }) && !window._bossSpawned15) {
-    window._bossSpawned15 = true;
-    spawnBoss('devourer');
-}
-    }
-
+    // Roguelike bosses are controlled exclusively by rogue-planets.js.
+    // The legacy level 5/10/15 boss triggers were removed so a run can
+    // only enter a boss duel after completing the planet's four stages.
+    
     // Параллакс
     for (var psi = 0; psi < parallaxStars.length; psi++) {
         var ps = parallaxStars[psi];

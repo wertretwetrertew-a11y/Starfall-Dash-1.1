@@ -238,15 +238,20 @@ function roguePlanetRenderMap(){
     var xpInfo=(typeof rogueXP!=='undefined' && typeof rogueXPNext!=='undefined')
         ? ' • Уровень '+level+' • XP '+rogueXP+' / '+rogueXPNext
         : '';
+    var savedProgressText=(roguePlanetState.planetIndex>0 || roguePlanetState.stageIndex>0 || roguePlanetState.bossUnlocked)
+        ? ' • ПРОГРЕСС СОХРАНЁН'
+        : '';
     status.textContent=(roguePlanetState.bossUnlocked
         ? 'Все этапы пройдены. Босс ждёт тебя.'
-        : 'Выбери подсвеченный этап.')+xpInfo;
+        : 'Выбери подсвеченный этап.')+xpInfo+savedProgressText;
 }
 
 function roguePlanetPrepareRun(){
+    var save=(typeof getSave==='function') ? getSave() : {};
+    var progress=save.rogueProgress || {planetIndex:0,stageIndex:0,bossUnlocked:false};
     roguePlanetState.active=true;
-    roguePlanetState.planetIndex=0;
-    roguePlanetState.stageIndex=0;
+    roguePlanetState.planetIndex=Math.max(0,Math.min(roguePlanetKeys.length-1,Number(progress.planetIndex)||0));
+    roguePlanetState.stageIndex=Math.max(0,Math.min(3,Number(progress.stageIndex)||0));
     roguePlanetState.stageStarted=false;
     roguePlanetState.stageTimer=0;
     roguePlanetState.stageDistance=0;
@@ -256,7 +261,7 @@ function roguePlanetPrepareRun(){
     roguePlanetState.stageLastY=0;
     roguePlanetState.hazardTimer=0;
     roguePlanetState.hazards=[];
-    roguePlanetState.bossUnlocked=false;
+    roguePlanetState.bossUnlocked=!!progress.bossUnlocked;
     roguePlanetState.bossActive=false;
     roguePlanetState.bossHandled=false;
     roguePlanetState.awaitingMap=false;
@@ -433,6 +438,16 @@ function roguePlanetCompleteStage(){
         roguePlanetState.stageIndex++;
     }
 
+    // Completed stages are a permanent checkpoint. Dying later will return
+    // the player to this stage/boss instead of forcing the route from the start.
+    var checkpoint=getSave();
+    checkpoint.rogueProgress={
+        planetIndex:roguePlanetState.planetIndex,
+        stageIndex:roguePlanetState.stageIndex,
+        bossUnlocked:roguePlanetState.bossUnlocked
+    };
+    persist();
+
     roguePlanetRenderMap();
     roguePlanetShowStageComplete();
 }
@@ -455,6 +470,9 @@ function roguePlanetAdvanceAfterBoss(){
     if(typeof clearBossDuelPresentation==='function') clearBossDuelPresentation();
     var old=roguePlanetState.planetIndex;
     if(old>=roguePlanetKeys.length-1){
+        var completedSave=getSave();
+        completedSave.rogueProgress={planetIndex:0,stageIndex:0,bossUnlocked:false};
+        persist();
         roguePlanetState.active=false;
         roguePlanetState.bossActive=false;
         roguePlanetState.mapOpen=false;
@@ -477,6 +495,15 @@ function roguePlanetAdvanceAfterBoss(){
     roguePlanetState.bossUnlocked=false;
     roguePlanetState.bossActive=false;
     roguePlanetState.bossHandled=false;
+
+    // The boss was defeated, so the next planet becomes the persistent checkpoint.
+    var nextCheckpoint=getSave();
+    nextCheckpoint.rogueProgress={
+        planetIndex:roguePlanetState.planetIndex,
+        stageIndex:0,
+        bossUnlocked:false
+    };
+    persist();
 
     // Small recovery between planets; it does not create an extra life.
     rogueHP=Math.min(rogueMaxHP,rogueHP+15);

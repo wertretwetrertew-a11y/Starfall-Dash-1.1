@@ -16,9 +16,9 @@ var ROGUE_PLANETS = {
         description:'Пепел, метеориты и огненные разломы.',
         stages:[
             {name:'Пепельное поле', type:'distance', icon:'⚔️', desc:'Пройди 1400 единиц пути.', objective:{kind:'distance',target:2800,label:'Путь',unit:'ед.'}},
-            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 30 секунд под метеорами.', objective:{kind:'time',target:30,label:'Время',unit:'с'}},
-            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 8 врагов в огненной зоне.', objective:{kind:'kills',target:8,label:'Враги',unit:''}},
-            {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 2 усиленных врага.', objective:{kind:'strongKills',target:2,label:'Сильные',unit:''}}
+            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 30 секунд под метеорами.', objective:{kind:'time',target:60,label:'Время',unit:'с'}},
+            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 8 врагов в огненной зоне.', objective:{kind:'kills',target:15,label:'Враги',unit:''}},
+            {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 2 усиленных врага.', objective:{kind:'strongKills',target:4,label:'Сильные',unit:''}}
         ]
     },
     nivara: {
@@ -26,9 +26,9 @@ var ROGUE_PLANETS = {
         description:'Лёд меняет движение, а пространство сжимается.',
         stages:[
             {name:'Ледяное поле', type:'ice', icon:'❄️', desc:'Пройди 1800 единиц пути по льду.', objective:{kind:'distance',target:3200,label:'Путь',unit:'ед.'}},
-            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Победи 10 врагов в ближней засаде.', objective:{kind:'kills',target:10,label:'Враги',unit:''}},
-            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Продержись 32 секунды в буре.', objective:{kind:'time',target:32,label:'Время',unit:'с'}},
-            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Победи 3 усиленных врага в сужающейся зоне.', objective:{kind:'strongKills',target:3,label:'Сильные',unit:''}}
+            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Победи 10 врагов в ближней засаде.', objective:{kind:'kills',target:18,label:'Враги',unit:''}},
+            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Продержись 32 секунды в буре.', objective:{kind:'time',target:70,label:'Время',unit:'с'}},
+            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Победи 3 усиленных врага в сужающейся зоне.', objective:{kind:'strongKills',target:5,label:'Сильные',unit:''}}
         ]
     },
     exor: {
@@ -36,9 +36,9 @@ var ROGUE_PLANETS = {
         description:'Разломы и гравитация разрушают пространство.',
         stages:[
             {name:'Разлом', type:'rift', icon:'🌀', desc:'Пройди 2000 единиц пути через разломы.', objective:{kind:'distance',target:3600,label:'Путь',unit:'ед.'}},
-            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Победи 12 врагов в гравитационных полях.', objective:{kind:'kills',target:12,label:'Враги',unit:''}},
-            {name:'Крах', type:'collapse', icon:'💠', desc:'Победи 2 усиленных врага до полного коллапса.', objective:{kind:'strongKills',target:2,label:'Сильные',unit:''}},
-            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Продержись 35 секунд перед Пожирателем.', objective:{kind:'time',target:35,label:'Время',unit:'с'}}
+            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Победи 12 врагов в гравитационных полях.', objective:{kind:'kills',target:22,label:'Враги',unit:''}},
+            {name:'Крах', type:'collapse', icon:'💠', desc:'Победи 2 усиленных врага до полного коллапса.', objective:{kind:'strongKills',target:4,label:'Сильные',unit:''}},
+            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Продержись 35 секунд перед Пожирателем.', objective:{kind:'time',target:80,label:'Время',unit:'с'}}
         ]
     }
 };
@@ -56,7 +56,10 @@ var roguePlanetState = {
     stageStrongKills:0,
     stageLastX:0,
     stageLastY:0,
-    stageDuration:35*60,
+    stageMinDuration:30*60,
+    stageBanner:'',
+    stageBannerTimer:0,
+    stageDuration:90*60,
     hazardTimer:0,
     hazards:[],
     bossUnlocked:false,
@@ -181,7 +184,7 @@ function roguePlanetRenderMap(){
         var available=current && !roguePlanetState.stageStarted;
         var cls='rpm-node '+(done?'done ':'')+(current?'current ':'')+(available?'available ':'locked ');
         var statusText=done?'✓ ПРОЙДЕНО':(current?'ТЕКУЩИЙ ЭТАП':'ЗАБЛОКИРОВАН');
-        var objective=st.objective || {kind:'time',target:30,label:'Время',unit:'с'};
+        var objective=st.objective || {kind:'time',target:60,label:'Время',unit:'с'};
         var objectiveText=objective.kind==='distance'
             ? 'Цель: '+objective.target+' '+objective.unit+' пути'
             : (objective.kind==='time'
@@ -268,6 +271,8 @@ function roguePlanetStartStage(index){
     roguePlanetState.stageLastY=player.y;
     roguePlanetState.hazardTimer=0;
     roguePlanetState.hazards=[];
+    roguePlanetState.stageBanner='ЭТАП '+(index+1)+' • '+roguePlanetCurrentStage().name;
+    roguePlanetState.stageBannerTimer=180;
     roguePlanetApplyStage();
     roguePlanetCloseMap();
     document.body.classList.add('playing');
@@ -301,6 +306,24 @@ function roguePlanetObjectiveText(){
     return o.label+': '+Math.min(value,o.target)+' / '+o.target+(o.unit?' '+o.unit:'');
 }
 
+function roguePlanetShowStageComplete(){
+    var el=document.getElementById('rogue-stage-complete');
+    if(!el){
+        el=document.createElement('div');
+        el.id='rogue-stage-complete';
+        el.style.cssText='position:fixed;inset:0;z-index:13000;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(2,6,18,.5);backdrop-filter:blur(3px);';
+        el.innerHTML='<div style="text-align:center;padding:30px 44px;border:1px solid rgba(150,200,255,.3);border-radius:22px;background:rgba(7,13,30,.95);box-shadow:0 0 70px rgba(80,160,255,.2);"><div style="font-size:12px;letter-spacing:4px;opacity:.65;">ЭТАП ПРОЙДЕН</div><div id="rogue-stage-complete-name" style="font-size:30px;font-weight:900;margin-top:8px;"></div><div style="font-size:12px;opacity:.6;margin-top:10px;">Переход на карту...</div></div>';
+        document.body.appendChild(el);
+    }
+    document.getElementById('rogue-stage-complete-name').textContent =
+        roguePlanetState.stageIndex>=3 ? '🔥 БОСС ОТКРЫТ' : '✓ СЛЕДУЮЩИЙ ЭТАП ОТКРЫТ';
+    el.style.display='flex';
+    setTimeout(function(){
+        el.style.display='none';
+        if(currentMode==='rogue' && !gameOver) roguePlanetOpenMap();
+    },1500);
+}
+
 function roguePlanetCompleteStage(){
     if(!roguePlanetState.active || !roguePlanetState.stageStarted || roguePlanetState.bossActive || gameOver) return;
     roguePlanetState.stageStarted=false;
@@ -315,7 +338,7 @@ function roguePlanetCompleteStage(){
     }
 
     roguePlanetRenderMap();
-    roguePlanetOpenMap();
+    roguePlanetShowStageComplete();
 }
 
 function roguePlanetStartBoss(){
@@ -426,7 +449,8 @@ update=function(){
         roguePlanetState.stageLastX=player.x;
         roguePlanetState.stageLastY=player.y;
 
-        if(roguePlanetStageObjectiveMet()){
+        if(roguePlanetState.stageTimer>=roguePlanetState.stageMinDuration &&
+           roguePlanetStageObjectiveMet()){
             roguePlanetCompleteStage();
             return;
         }
@@ -546,6 +570,49 @@ var roguePlanetOriginalDraw=draw;
 draw=function(){
     roguePlanetOriginalDraw();
     roguePlanetDrawLayer();
+
+    if(currentMode==='rogue' && roguePlanetState.active && roguePlanetState.stageStarted){
+        var st=roguePlanetCurrentStage(), o=st && st.objective;
+        if(o && typeof ctx!=='undefined'){
+            var value=0;
+            if(o.kind==='distance') value=Math.floor(roguePlanetState.stageDistance);
+            else if(o.kind==='time') value=Math.floor(roguePlanetState.stageTimer/60);
+            else if(o.kind==='kills') value=roguePlanetState.stageKills;
+            else if(o.kind==='strongKills') value=roguePlanetState.stageStrongKills;
+            var ratio=Math.min(1,value/o.target);
+            var w=Math.min(370,canvas.width-24), x=(canvas.width-w)/2, y=52;
+            ctx.save();
+            ctx.fillStyle='rgba(4,9,25,.82)';
+            ctx.strokeStyle='rgba(255,255,255,.16)';
+            ctx.lineWidth=1;
+            ctx.beginPath(); ctx.roundRect(x,y,w,48,12); ctx.fill(); ctx.stroke();
+            ctx.textAlign='left';
+            ctx.font='800 11px system-ui'; ctx.fillStyle='#fff';
+            ctx.fillText(st.name,x+14,y+17);
+            ctx.font='600 10px system-ui'; ctx.fillStyle='rgba(255,255,255,.72)';
+            var label=o.kind==='distance'?'ПУТЬ':(o.kind==='time'?'ВРЕМЯ':o.label.toUpperCase());
+            ctx.fillText(label+'  '+Math.min(value,o.target)+' / '+o.target+(o.unit?' '+o.unit:''),x+14,y+34);
+            ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fillRect(x+w-112,y+17,96,6);
+            ctx.fillStyle='rgba(120,200,255,.9)'; ctx.fillRect(x+w-112,y+17,96*ratio,6);
+            if(roguePlanetState.stageTimer<roguePlanetState.stageMinDuration){
+                ctx.font='500 9px system-ui'; ctx.fillStyle='rgba(255,255,255,.55)';
+                ctx.fillText('Минимум этапа: '+Math.ceil((roguePlanetState.stageMinDuration-roguePlanetState.stageTimer)/60)+' сек',x+w-112,y+36);
+            }
+            ctx.restore();
+        }
+        if(roguePlanetState.stageBannerTimer>0){
+            roguePlanetState.stageBannerTimer--;
+            ctx.save();
+            ctx.textAlign='center';
+            ctx.fillStyle='rgba(255,255,255,.96)';
+            ctx.font='900 25px system-ui';
+            ctx.fillText(roguePlanetState.stageBanner,canvas.width/2,canvas.height*.20);
+            ctx.font='600 11px system-ui';
+            ctx.fillStyle='rgba(255,255,255,.6)';
+            ctx.fillText('ВЫПОЛНИ ЦЕЛЬ ЭТАПА',canvas.width/2,canvas.height*.20+23);
+            ctx.restore();
+        }
+    }
 };
 
 /* Upgrade choices belong to XP level-ups only.

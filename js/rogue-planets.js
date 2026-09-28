@@ -495,10 +495,12 @@ function roguePlanetStartBoss(){
     try { spawnBoss(p.boss); } finally { roguePlanetManualBossSpawn=false; }
 }
 
-function roguePlanetAdvanceAfterBoss(){
+function roguePlanetAdvanceAfterBoss(token){
+    if(token!==undefined && token!==roguePlanetState.transitionToken) return;
     if(roguePlanetState.bossHandled===false) return;
     if(typeof clearBossDuelPresentation==='function') clearBossDuelPresentation();
     var old=roguePlanetState.planetIndex;
+    roguePlanetState.transitionToken++;
     if(old>=roguePlanetKeys.length-1){
         var completedSave=getSave();
         completedSave.rogueProgress={planetIndex:0,stageIndex:0,bossUnlocked:false};
@@ -507,7 +509,11 @@ function roguePlanetAdvanceAfterBoss(){
         roguePlanetState.bossActive=false;
         roguePlanetState.mapOpen=false;
         showToast('🌌 ФИНАЛ ПРОЙДЕН — СИСТЕМА СПАСЕНА!','legendary');
-        setTimeout(function(){ finishRun(); },700);
+        var finalToken=roguePlanetState.transitionToken;
+        setTimeout(function(){
+            if(finalToken!==roguePlanetState.transitionToken) return;
+            if(currentMode==='rogue' && !roguePlanetState.active) finishRun();
+        },700);
         return;
     }
 
@@ -539,8 +545,10 @@ function roguePlanetAdvanceAfterBoss(){
     rogueHP=Math.min(rogueMaxHP,rogueHP+15);
     updateHUD();
     roguePlanetShowBanner('ПЛАНЕТА '+(roguePlanetState.planetIndex+1),roguePlanetCurrentPlanet().icon+' '+roguePlanetCurrentPlanet().name);
+    var mapToken=roguePlanetState.transitionToken;
     setTimeout(function(){
-        if(currentMode==='rogue' && !gameOver) roguePlanetOpenMap();
+        if(mapToken!==roguePlanetState.transitionToken) return;
+        if(currentMode==='rogue' && !gameOver && roguePlanetState.active) roguePlanetOpenMap();
     },900);
 }
 
@@ -581,6 +589,7 @@ reset=function(){
         roguePlanetState.bossHandled=false;
         roguePlanetState.mapOpen=false;
         roguePlanetState.awaitingMap=false;
+        roguePlanetState.transitionToken++;
         running=false;
         resetFrameClock();
     }
@@ -635,7 +644,8 @@ update=function(){
             roguePlanetState.bossHandled=true;
             running=false;
             resetFrameClock();
-            setTimeout(roguePlanetAdvanceAfterBoss,650);
+            var bossToken=roguePlanetState.transitionToken;
+        setTimeout(function(){ roguePlanetAdvanceAfterBoss(bossToken); },650);
         }
     }
 };

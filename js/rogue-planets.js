@@ -279,6 +279,7 @@ function roguePlanetStartBoss(){
 
 function roguePlanetAdvanceAfterBoss(){
     if(roguePlanetState.bossHandled===false) return;
+    if(typeof clearBossDuelPresentation==='function') clearBossDuelPresentation();
     var old=roguePlanetState.planetIndex;
     if(old>=roguePlanetKeys.length-1){
         roguePlanetState.active=false;

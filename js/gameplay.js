@@ -1853,7 +1853,7 @@ function update() {
             bossAnnouncement = '';
             updateBossDuelHUD();
             levelTimer = LEVEL_DURATION;
-            // Roguelike progression is driven only by collected falling XP.
+            // Roguelike progression is driven only by XP earned from enemy kills.
             // Boss victory advances the planet route; it must not create a free level.
             if (currentMode !== 'rogue') {
                 levelUp();

@@ -1100,9 +1100,6 @@ function reset() {
     pendingUpgradeChoices = [];
     pendingRelicChoices = [];
     pendingUpgradeAfterWave = false; 
-    window._bossSpawned5 = false;
-    window._bossSpawned10 = false;
-    window._bossSpawned15 = false; // 🔧 ФИКС
 
     // Классовые бонусы
     if (mode.isRoguelike) {

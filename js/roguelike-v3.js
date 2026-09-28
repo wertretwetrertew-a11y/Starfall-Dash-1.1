@@ -335,6 +335,7 @@ reset = function reset() {
     roguePhaseTimer = 0;
     playerShields = 0;
     maxShields = 0;
+    rogueShieldBroken = false;
     roguePhaseReady = false;
     rogueContactTimer = 0;
     roguePulseMarks = {};
@@ -362,6 +363,7 @@ reset = function reset() {
     vampiresHeal = 0;
     maxShields = 0;
     playerShields = 0;
+    rogueShieldBroken = false;
     enemySlowMult = 1;
     hpPenalty = 0;
 
@@ -447,6 +449,7 @@ function playerTakeDamage() {
 
     if (playerShields > 0) {
         playerShields--;
+        if (playerShields <= 0) rogueShieldBroken = true;
         var sx = player.x + player.size/2, sy = player.y + player.size/2;
         var shieldPower = 2 + Math.max(1, maxShields || 1);
         enemies.forEach(function(e){
@@ -475,7 +478,11 @@ function playerTakeDamage() {
     resetCombo();
 
     if (runUpgrades.blood) rogueBloodCharges = Math.min(3, rogueBloodCharges + runUpgrades.blood);
-    if (runUpgrades.shield) rogueGrantShields(runUpgrades.shield);
+    if (runUpgrades.shield && rogueShieldBroken) {
+        rogueShieldBroken = false;
+        rogueGrantShields(runUpgrades.shield);
+        showToast('🛡 ЩИТ ВОССТАНОВЛЕН!', 'info');
+    }
     if (runUpgrades.counter) rogueCounterTimer = 90;
     if (getClass(selectedClass).skillId === 'impact_core') rogueImpactReady = true;
     if (runUpgrades.phase) {

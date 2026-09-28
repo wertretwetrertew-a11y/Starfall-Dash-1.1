@@ -161,6 +161,7 @@ var rogueSingularities = [];
 var rogueLastBossState = 'none';
 var rogueNativeBoost = 0;
 var rogueNativeTriggered = false;
+var rogueImpactReady = false;
 var rogueMovementSpeed = 0;
 var roguePrevPlayerX = 0;
 var roguePrevPlayerY = 0;
@@ -340,6 +341,7 @@ reset = function reset() {
     rogueLastBossState = 'none';
     rogueNativeBoost = 0;
     rogueNativeTriggered = false;
+    rogueImpactReady = false;
     rogueMovementSpeed = 0;
     roguePrevPlayerX = player.x;
     roguePrevPlayerY = player.y;
@@ -416,7 +418,9 @@ function nativeContactDamage() {
         return Math.max(1, Math.floor(1 + lvl * 0.25 + speedFactor * 0.18));
     }
     if (cls.skillId === 'impact_core') {
-        return Math.max(1, Math.floor(1 + lvl * 0.45 + rogueNativeBoost));
+        var base = 1 + lvl * 0.28;
+        if (rogueImpactReady) base += 3 + lvl * 0.55;
+        return Math.max(1, Math.floor(base));
     }
     if (cls.skillId === 'pulse_mark') {
         return 1 + Math.floor(lvl * 0.25);
@@ -470,6 +474,7 @@ function playerTakeDamage() {
 
     if (runUpgrades.blood) rogueBloodCharges = Math.min(3, rogueBloodCharges + runUpgrades.blood);
     if (runUpgrades.counter) rogueCounterTimer = 90;
+    if (getClass(selectedClass).skillId === 'impact_core') rogueImpactReady = true;
     if (runUpgrades.phase) {
         roguePhaseTimer = 45 + runUpgrades.phase * 15;
         roguePhaseReady = true;
@@ -814,6 +819,11 @@ function rogueDetectContact() {
             var heal=4+lvl;
             rogueHP=Math.min(rogueMaxHP,rogueHP+heal);
             addFloatingText(px,py,'+'+heal+' HP','#ff5c7a',14);
+        }
+        if(cls.skillId==='impact_core' && rogueImpactReady){
+            rogueImpactReady=false;
+            addParticles(px,py,'#4fc3f7',14,9);
+            screenShake=Math.max(screenShake,7);
         }
 
         // Blood and Counter add damage to the same contact.

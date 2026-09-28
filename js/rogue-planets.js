@@ -131,14 +131,14 @@ function roguePlanetStartBoss() {
     roguePlanetState.hazards=[];
     currentWaveModifier={};
     showToast(p.icon+' '+p.name+' завершена. ХРАНИТЕЛЬ ПЛАНЕТЫ!', 'legendary');
+}
 
-    // Boss spawning is explicitly controlled here; old level-based spawns are blocked below.
-    setTimeout(function(){
-        if(currentMode==='rogue' && !gameOver){
-            roguePlanetManualBossSpawn=true;
-            try { spawnBoss(p.boss); } finally { roguePlanetManualBossSpawn=false; }
-        }
-    }, 650);
+function roguePlanetSpawnPendingBoss(){
+    if(!roguePlanetState.bossPending || gameOver || currentMode!=='rogue') return;
+    var p=roguePlanetCurrentPlanet();
+    if(!p) return;
+    roguePlanetManualBossSpawn=true;
+    try { spawnBoss(p.boss); } finally { roguePlanetManualBossSpawn=false; }
 }
 
 function roguePlanetCompleteStage() {
@@ -149,6 +149,13 @@ function roguePlanetCompleteStage() {
 
     if(isBossStage){
         roguePlanetStartBoss();
+        level++;
+        levelStats={coinsThisLevel:0,livesLostThisLevel:0,levelStartTime:performance.now()};
+        showLevelToast(level,0,'',getCoinMultiplier());
+        addParticles(canvas.width/2,canvas.height/2,'#9c6bff',24,12);
+        playSFX('level');
+        // The player gets one final build choice before every planetary boss.
+        showUpgradeChoice();
         return;
     }
 
@@ -506,3 +513,12 @@ finishRun=function(){
 };
 
 console.log('✅ Planet System: 3 planets / 12 stages / 3 bosses / no XP progression');
+
+
+var _planetOriginalCloseUpgradeModal=closeUpgradeModal;
+closeUpgradeModal=function(){
+    _planetOriginalCloseUpgradeModal.apply(this,arguments);
+    if(currentMode==='rogue' && roguePlanetState.bossPending && !bossState){
+        setTimeout(roguePlanetSpawnPendingBoss,450);
+    }
+};

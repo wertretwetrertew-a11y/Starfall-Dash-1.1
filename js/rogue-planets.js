@@ -137,21 +137,23 @@ function roguePlanetInjectUI(){
     if(!document.getElementById('rogue-stage-objective')){
         var stageObjective=document.createElement('div');
         stageObjective.id='rogue-stage-objective';
-        stageObjective.style.cssText=
-            'position:fixed;display:none;z-index:14;pointer-events:none;' +
-            'width:min(370px,calc(100vw - 24px));padding:9px 14px;' +
-            'box-sizing:border-box;border:1px solid rgba(130,170,255,.22);' +
-            'border-radius:13px;background:rgba(7,12,29,.9);' +
-            'box-shadow:0 8px 24px rgba(0,0,0,.28);' +
-            'backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);';
+        stageObjective.className='rogue-top-hud';
         stageObjective.innerHTML=
-            '<div id="rogue-stage-objective-title" style="font:800 11px system-ui,sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>' +
-            '<div style="display:flex;align-items:center;gap:10px;margin-top:6px;">' +
-                '<div id="rogue-stage-objective-text" style="font:600 9px system-ui,sans-serif;color:rgba(255,255,255,.68);white-space:nowrap;"></div>' +
-                '<div style="flex:1;height:5px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;">' +
-                    '<div id="rogue-stage-objective-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#78c8ff,#9c6bff);border-radius:5px;transition:width .15s linear;"></div>' +
+            '<div class="rogue-task-card">' +
+                '<div class="rogue-task-kicker">✦ ТЕКУЩИЙ ЭТАП</div>' +
+                '<div id="rogue-stage-objective-title" class="rogue-task-title"></div>' +
+                '<div class="rogue-task-row">' +
+                    '<div id="rogue-stage-objective-text" class="rogue-task-text"></div>' +
+                    '<div class="rogue-task-progress"><div id="rogue-stage-objective-fill"></div></div>' +
+                    '<div id="rogue-stage-objective-time" class="rogue-task-time"></div>' +
                 '</div>' +
-                '<div id="rogue-stage-objective-time" style="font:500 8px system-ui,sans-serif;color:rgba(255,255,255,.48);white-space:nowrap;"></div>' +
+            '</div>' +
+            '<div class="rogue-hp-card">' +
+                '<div class="rogue-hp-head">' +
+                    '<span>❤ ЗДОРОВЬЕ</span>' +
+                    '<b id="rogue-hp-text">100 / 100</b>' +
+                '</div>' +
+                '<div class="rogue-hp-bar"><div id="rogue-hp-fill"></div></div>' +
             '</div>';
         document.body.appendChild(stageObjective);
     }
@@ -376,35 +378,35 @@ function roguePlanetRenderStageObjective(){
     document.getElementById('rogue-stage-objective-fill').style.width=(ratio*100)+'%';
     document.getElementById('rogue-stage-objective-time').textContent=remaining;
 
+    var hp=Math.max(0,Math.min(rogueMaxHP,Number(rogueHP)||0));
+    var hpRatio=rogueMaxHP>0 ? hp/rogueMaxHP : 0;
+    var hpFill=document.getElementById('rogue-hp-fill');
+    var hpText=document.getElementById('rogue-hp-text');
+    if(hpFill) hpFill.style.width=(hpRatio*100)+'%';
+    if(hpText) hpText.textContent=Math.ceil(hp)+' / '+Math.ceil(rogueMaxHP);
+
     var rect=canvasEl.getBoundingClientRect();
-    var panelHeight=46;
-    var gap=8;
-    var top=rect.bottom+gap;
+    var panelHeight=78;
+    var gap=9;
 
-    /* Keep the panel outside the canvas. If the viewport is tight,
-       prefer the area above the canvas; never draw it into the playfield. */
-    if(top+panelHeight>window.innerHeight-8){
-        top=rect.top-panelHeight-gap;
-    }
-
+    /* The run HUD always prefers the area ABOVE the canvas.
+       It never sits over the playfield. */
+    var top=rect.top-panelHeight-gap;
     if(top<8){
-        /* Very small viewports: dock it below the game canvas' visual area
-           only when there is actual space; otherwise keep it hidden rather
-           than covering gameplay. */
-        if(rect.bottom+panelHeight+gap<=window.innerHeight){
-            top=rect.bottom+gap;
-        }else{
-            panel.style.display='none';
-            return;
-        }
+        top=rect.bottom+gap;
     }
 
-    var width=Math.min(370,window.innerWidth-24);
+    if(top<8 || top+panelHeight>window.innerHeight-8){
+        panel.style.display='none';
+        return;
+    }
+
+    var width=Math.min(560,window.innerWidth-24);
     var left=Math.max(12,Math.min(window.innerWidth-width-12,rect.left+(rect.width-width)/2));
     panel.style.width=width+'px';
     panel.style.left=left+'px';
     panel.style.top=Math.round(top)+'px';
-    panel.style.display='block';
+    panel.style.display='grid';
 }
 
 function roguePlanetShowStageComplete(){

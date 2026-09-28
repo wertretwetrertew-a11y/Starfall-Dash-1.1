@@ -1721,8 +1721,12 @@ function update() {
             bossAnnouncement = '';
             updateBossDuelHUD();
             levelTimer = LEVEL_DURATION;
-            levelUp();
-            if (isChoosingUpgrade || !running) return;
+            // Roguelike progression is driven only by collected falling XP.
+            // Boss victory advances the planet route; it must not create a free level.
+            if (currentMode !== 'rogue') {
+                levelUp();
+                if (isChoosingUpgrade || !running) return;
+            }
         }
         if (bossState === 'lost') return;
     }

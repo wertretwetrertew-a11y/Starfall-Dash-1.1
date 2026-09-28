@@ -4,6 +4,14 @@
 //   ⚠️ ВСЕ ФИКСЫ БАГОВ ВНЕДРЕНЫ
 // ==========================================================
 
+// ===== BOSS DUEL STATE =====
+// Declared explicitly so the Roguelike layer and gameplay always share one global state.
+var bossState = 'none';
+var bossStateTimer = 0;
+var bossAnnouncement = '';
+var bossAnnouncementTimer = 0;
+var bossDuelId = null;
+
 // ===== ИГРОК =====
 var player = {
     x: 285, y: 340, size: 30, speed: 7, frozen: 0, inWeb: false,

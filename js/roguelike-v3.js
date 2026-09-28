@@ -604,7 +604,7 @@ function rogueRegisterKill(enemy) {
     }
 
     // Propagation is a death-triggered mechanic: poisoned enemies infect nearby enemies.
-    if (runUpgrades.propagation && enemy._poisonTimer > 0) {
+    if (runUpgrades.propagation && enemy._rogueWasPoisoned) {
         var spreadRadius = 55 + runUpgrades.propagation * 12 + (runSynergies.plague ? 25 : 0);
         var spreadTime = 90 + runUpgrades.propagation * 35 + (runSynergies.plague ? 35 : 0);
         var ex0 = enemy.x + enemy.size/2, ey0 = enemy.y + enemy.size/2;
@@ -816,6 +816,7 @@ function rogueDetectContact() {
 
         // Poison.
         if(runUpgrades.poison){
+            hitEnemy._rogueWasPoisoned=true;
             hitEnemy._poisonTimer=Math.max(hitEnemy._poisonTimer||0,90+runUpgrades.poison*45);
         }
     }

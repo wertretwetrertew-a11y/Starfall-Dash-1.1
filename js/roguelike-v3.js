@@ -433,16 +433,8 @@ function playerTakeDamage() {
 }
 
 /* Preserve old damage function for non-rogue modes. */
-var _rogueOriginalPlayerTakeDamage = null;
-(function captureOldDamage(){
-    // The original function is no longer directly reachable after the override,
-    // so non-Roguelike modes use a compact compatible implementation.
-    _rogueOriginalPlayerTakeDamage = function(){
-        if (playerShields > 0) { playerShields--; return; }
-        lives--;
-        if (lives <= 0) { gameOver=true; running=false; finishRun(); }
-    };
-})();
+var _rogueOriginalPlayerTakeDamage = rogueLegacyPlayerTakeDamage;
+/* Legacy handler is preserved from gameplay.js. */
 
 /* ---------- APPLY RUN SKILLS ---------- */
 function applyUpgrade(upgradeId) {
@@ -920,3 +912,18 @@ function clearRogueRunState() {
 
 /* Ensure old reset cannot carry old upgrade data into the new run. */
 ensureRogueV3Save();
+
+
+/* Medkits heal HP in the new Roguelike instead of creating lives. */
+var _rogueOldApplyDrop = applyDrop;
+function applyDrop(type,x,y){
+    if(currentMode==='rogue' && type==='medkit'){
+        var heal=20;
+        rogueHP=Math.min(rogueMaxHP,rogueHP+heal);
+        addFloatingText(player.x+player.size/2,player.y-10,'+'+heal+' HP','#7cffb2',16);
+        addParticles(player.x+player.size/2,player.y+player.size/2,'#7cffb2',12,7);
+        updateHUD();
+        return;
+    }
+    return _rogueOldApplyDrop(type,x,y);
+}

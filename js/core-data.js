@@ -768,6 +768,7 @@ function makeDefaultSave() {
             synergiesActivated: 0, maxRelicsInRun: 0,
             bestLevel: 0, runsPlayed: 0
         },
+        rogueProgress: { planetIndex: 0, stageIndex: 0, bossUnlocked: false },
         lastMode: 'rogue',
         lastDailyCrystals: null
     };

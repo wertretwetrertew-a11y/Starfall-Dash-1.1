@@ -1379,7 +1379,7 @@ function levelUp() {
     checkAchievements();
 }
 
-function playerTakeDamage() {
+function rogueLegacyPlayerTakeDamage() {
     if (dodgeChance > 0 && Math.random() < dodgeChance) {
         addFloatingText(player.x + player.size/2, player.y - 10, 'MISS', '#7cffb2', 22);
         return;

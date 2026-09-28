@@ -661,8 +661,10 @@ draw=function(){
     roguePlanetOriginalDraw();
     roguePlanetDrawLayer();
 
+    /* Keep the objective HUD synchronized even when a stage/map closes. */
+    roguePlanetRenderStageObjective();
+
     if(currentMode==='rogue' && roguePlanetState.active && roguePlanetState.stageStarted){
-        roguePlanetRenderStageObjective();
 
         if(roguePlanetState.stageBannerTimer>0){
             roguePlanetState.stageBannerTimer--;

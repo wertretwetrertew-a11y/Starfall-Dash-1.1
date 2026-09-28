@@ -336,7 +336,10 @@ function roguePlanetRenderStageObjective(){
     var canvasEl=(typeof canvas!=='undefined') ? canvas : document.getElementById('game');
     if(!panel || !canvasEl) return;
 
-    if(currentMode!=='rogue' || !roguePlanetState.active || !roguePlanetState.stageStarted || gameOver){
+    /* This is gameplay-only HUD. Never allow it to survive into
+       menus, profile screens, results or any non-playing state. */
+    if(currentMode!=='rogue' || !roguePlanetState.active || !roguePlanetState.stageStarted ||
+       gameOver || !running || !document.body.classList.contains('playing')){
         panel.style.display='none';
         return;
     }

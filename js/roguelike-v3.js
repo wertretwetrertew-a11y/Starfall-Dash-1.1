@@ -161,6 +161,10 @@ var rogueSingularities = [];
 var rogueLastBossState = 'none';
 var rogueNativeBoost = 0;
 var rogueNativeTriggered = false;
+var rogueMovementSpeed = 0;
+var roguePrevPlayerX = 0;
+var roguePrevPlayerY = 0;
+var rogueKillChainTimer = 0;
 
 var _rogueSaveReady = false;
 var _rogueSaveProfileRef = null;
@@ -316,6 +320,10 @@ reset = function reset() {
     rogueLastBossState = 'none';
     rogueNativeBoost = 0;
     rogueNativeTriggered = false;
+    rogueMovementSpeed = 0;
+    roguePrevPlayerX = player.x;
+    roguePrevPlayerY = player.y;
+    rogueKillChainTimer = 0;
 
     // lives остаётся техническим флагом совместимости со старым кодом,
     // но больше не является здоровьем Roguelike.
@@ -382,12 +390,10 @@ function applyNativeClassSkill() {
 function nativeContactDamage() {
     var cls = getClass(selectedClass);
     var lvl = getClassSkillLevel(selectedClass);
-    var speedFactor = Math.hypot(player.lastDirX || 0, player.lastDirY || 0);
+    var speedFactor = Math.max(0, rogueMovementSpeed);
 
     if (cls.skillId === 'kinetic_drive') {
-        // lastDir is direction, therefore use actual configured movement speed
-        // through the class multiplier without creating ranged attacks.
-        return Math.max(1, Math.floor(1 + lvl * 0.25 + Math.abs(player.speed || 0) * 0.06));
+        return Math.max(1, Math.floor(1 + lvl * 0.25 + speedFactor * 0.18));
     }
     if (cls.skillId === 'impact_core') {
         return Math.max(1, Math.floor(1 + lvl * 0.45 + rogueNativeBoost));
@@ -415,10 +421,18 @@ function playerTakeDamage() {
 
     if (playerShields > 0) {
         playerShields--;
-        addParticles(player.x + player.size/2, player.y + player.size/2, '#4fc3f7', 15, 10);
-        addFloatingText(player.x + player.size/2, player.y - 10, '🛡', '#4fc3f7', 24);
-        if (runUpgrades.blood) rogueBloodCharges = Math.min(3, rogueBloodCharges + runUpgrades.blood);
-        if (runUpgrades.counter) rogueCounterTimer = 90;
+        var sx = player.x + player.size/2, sy = player.y + player.size/2;
+        var shieldPower = 2 + Math.max(1, maxShields || 1);
+        enemies.forEach(function(e){
+            var d = Math.hypot((e.x+e.size/2)-sx, (e.y+e.size/2)-sy);
+            if(d < 55){
+                e.hp = Math.max(0, e.hp - shieldPower);
+                e.hitFlash = 8;
+            }
+        });
+        addParticles(sx, sy, '#4fc3f7', 22, 12);
+        addFloatingText(sx, player.y - 10, '🛡 ИМПУЛЬС', '#4fc3f7', 16);
+        screenShake = 8;
         return;
     }
 
@@ -569,17 +583,38 @@ function rogueRegisterKill(enemy) {
 
     // Kills never grant XP. XP is a separate resource that falls from the sky.
     // Kills only charge build mechanics; planet stages track their own objectives.
+    var rapidKill = rogueKillChainTimer > 0;
+    rogueKillChainTimer = 90;
+
     if (runUpgrades.overload) {
         rogueOverload = Math.min(100, rogueOverload + 12 * runUpgrades.overload);
     }
     if (runUpgrades.overheat) {
-        rogueHeat = Math.min(100, rogueHeat + 7 * runUpgrades.overheat);
+        var heatGain = (rapidKill ? 10 : 4) * runUpgrades.overheat;
+        if (runSynergies.kinetic_engine && rogueMovementSpeed >= 4.5) {
+            heatGain += Math.floor(rogueMovementSpeed - 3) * runUpgrades.overheat;
+        }
+        rogueHeat = Math.min(100, rogueHeat + heatGain);
     }
     if (runUpgrades.singularity) {
-        rogueSingularities.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:240,power:runUpgrades.singularity});
+        rogueSingularities.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:240,power:runUpgrades.singularity,empoweredTimer:0});
     }
     if (runUpgrades.echo) {
         rogueEchoes.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:180,power:runUpgrades.echo});
+    }
+
+    // Propagation is a death-triggered mechanic: poisoned enemies infect nearby enemies.
+    if (runUpgrades.propagation && enemy._poisonTimer > 0) {
+        var spreadRadius = 55 + runUpgrades.propagation * 12 + (runSynergies.plague ? 25 : 0);
+        var spreadTime = 90 + runUpgrades.propagation * 35 + (runSynergies.plague ? 35 : 0);
+        var ex0 = enemy.x + enemy.size/2, ey0 = enemy.y + enemy.size/2;
+        enemies.forEach(function(other){
+            if(other===enemy) return;
+            var d = Math.hypot((other.x+other.size/2)-ex0,(other.y+other.size/2)-ey0);
+            if(d < spreadRadius){
+                other._poisonTimer = Math.max(other._poisonTimer || 0, spreadTime);
+            }
+        });
     }
 }
 /* ---------- RUN SYSTEM TICK ---------- */
@@ -587,6 +622,7 @@ function rogueTickSystems() {
     if (currentMode !== 'rogue' || !running || gameOver) return;
 
     if (rogueCounterTimer > 0) rogueCounterTimer--;
+    if (rogueKillChainTimer > 0) rogueKillChainTimer--;
     if (roguePhaseTimer > 0) {
         roguePhaseTimer--;
         if (roguePhaseTimer <= 0) roguePhaseReady = false;
@@ -606,20 +642,46 @@ function rogueTickSystems() {
     // Singularity
     rogueSingularities.forEach(function(g){
         g.life--;
-        var radius=85+g.power*15;
+        if(g.empoweredTimer>0) g.empoweredTimer--;
+        var effectivePower = g.power * (g.empoweredTimer>0 ? 1.8 : 1);
+        var radius=85+effectivePower*15;
         enemies.forEach(function(e){
             var ex=e.x+e.size/2, ey=e.y+e.size/2;
             var dx=g.x-ex, dy=g.y-ey, d=Math.hypot(dx,dy);
             if(d>2 && d<radius){
-                var force=(g.power/25)*(1-d/radius);
+                var force=(effectivePower/25)*(1-d/radius);
                 e.x += dx*force; e.y += dy*force;
             }
         });
     });
     rogueSingularities=rogueSingularities.filter(function(g){return g.life>0;});
 
-    // Echo visuals/effects
-    rogueEchoes.forEach(function(e){e.life--;});
+    // Echo: the next enemy that physically touches the Echo is hit and consumes it.
+    for(var eci=rogueEchoes.length-1; eci>=0; eci--){
+        var echo=rogueEchoes[eci];
+        var consumed=false;
+        for(var eji=0; eji<enemies.length; eji++){
+            var enemy= enemies[eji];
+            var ed=Math.hypot(echo.x-(enemy.x+enemy.size/2),echo.y-(enemy.y+enemy.size/2));
+            if(ed < enemy.size/2 + 18){
+                var echoDamage=2+echo.power;
+                enemy.hp=Math.max(0,enemy.hp-echoDamage);
+                enemy.hitFlash=8;
+                addParticles(enemy.x+enemy.size/2,enemy.y+enemy.size/2,'#b388ff',10,8);
+                if(runSynergies.phase_break){
+                    enemies.forEach(function(other){
+                        if(other===enemy) return;
+                        var od=Math.hypot((other.x+other.size/2)-(enemy.x+enemy.size/2),(other.y+other.size/2)-(enemy.y+enemy.size/2));
+                        if(od<45) other.hp=Math.max(0,other.hp-2);
+                    });
+                }
+                rogueEchoes.splice(eci,1);
+                consumed=true;
+                break;
+            }
+        }
+        if(!consumed) echo.life--;
+    }
     rogueEchoes=rogueEchoes.filter(function(e){return e.life>0;});
 
     // Heat decays slowly.
@@ -628,6 +690,9 @@ function rogueTickSystems() {
     // Overload pulse.
     if (rogueOverload >= 100) {
         rogueOverload = 0;
+        if(runSynergies.gravity_well){
+            rogueSingularities.forEach(function(g){ g.empoweredTimer = 120; });
+        }
         var radius = 80 + (runUpgrades.overload||1)*15;
         enemies.forEach(function(e){
             var d=Math.hypot((e.x+e.size/2)-(player.x+player.size/2),(e.y+e.size/2)-(player.y+player.size/2));
@@ -666,8 +731,14 @@ function rogueTickSystems() {
     // Heat risk.
     if(runUpgrades.overheat && rogueHeat>=100 && frame%90===0){
         rogueHP=Math.max(0,rogueHP-3);
+        player.damageFlash=10;
         addFloatingText(player.x+player.size/2,player.y-10,'OVERHEAT -3','#ff5722',14);
-        if(rogueHP<=0) playerTakeDamage();
+        if(rogueHP<=0){
+            gameOver=true;
+            running=false;
+            resetFrameClock();
+            finishRun();
+        }
     }
 }
 
@@ -676,90 +747,77 @@ function rogueDetectContact() {
     if(currentMode!=='rogue' || !running || gameOver) return;
 
     var px=player.x+player.size/2, py=player.y+player.size/2;
-    var hitEnemy=null;
-    for(var i=0;i<enemies.length;i++){
-        var e=enemies[i];
-        if(e.x<player.x+player.size && e.x+e.size>player.x &&
-           e.y<player.y+player.size && e.y+e.size>player.y){
-            hitEnemy=e; break;
-        }
-    }
-
-    if(!hitEnemy) return;
-    if(rogueContactTimer>0) return;
-    rogueContactTimer=8;
-
     var cls=getClass(selectedClass), lvl=getClassSkillLevel(selectedClass);
 
-    // Native Mage: mark on first contact, detonate on the next.
-    if(cls.skillId==='pulse_mark'){
-        var key=hitEnemy._rogueId || (hitEnemy._rogueId='e'+Math.random());
-        if(roguePulseMarks[key]){
-            roguePulseMarks[key]=false;
-            var radius=45+lvl*5;
-            enemies.forEach(function(e){
-                var d=Math.hypot((e.x+e.size/2)-px,(e.y+e.size/2)-py);
-                if(d<radius) e.hp-=1+Math.floor(lvl/2);
-            });
-            addParticles(px,py,'#e040fb',20,12);
-        }else{
-            roguePulseMarks[key]=true;
-        }
-    }
+    for(var i=0;i<enemies.length;i++){
+        var hitEnemy=enemies[i];
+        if(!hitEnemy || hitEnemy.hp<=0) continue;
+        if(hitEnemy.rogueContactCooldown>0) continue;
 
-    // Native Blood class heals when the charged hit lands.
-    if(cls.skillId==='blood_rush' && rogueBloodCharges>0){
-        rogueBloodCharges--;
-        var heal=4+lvl;
-        rogueHP=Math.min(rogueMaxHP,rogueHP+heal);
-        addFloatingText(px,py,'+'+heal+' HP','#ff5c7a',14);
-    }
+        var collides = hitEnemy.x<player.x+player.size && hitEnemy.x+hitEnemy.size>player.x &&
+                       hitEnemy.y<player.y+player.size && hitEnemy.y+hitEnemy.size>player.y;
+        if(!collides) continue;
+        if(hitEnemy.t && hitEnemy.t.shape==='ghost' && hitEnemy.ghostAlpha<0.5) continue;
 
-    // Generic Blood / Counter.
-    if(runUpgrades.blood && rogueBloodCharges>0){
-        rogueBloodCharges=Math.max(0,rogueBloodCharges-1);
-        hitEnemy.hp-=runUpgrades.blood*2;
-    }
-    if(runUpgrades.counter && rogueCounterTimer>0){
-        hitEnemy.hp-=2+runUpgrades.counter*2;
-        rogueCounterTimer=0;
-    }
+        // One contact is one hit. Staying inside an enemy cannot melt it in a few frames.
+        hitEnemy.rogueContactCooldown=12;
 
-    // Phase Rift.
-    if(runUpgrades.phase && roguePhaseReady && roguePhaseTimer>0){
-        roguePhaseReady=false;
-        var pr=45+runUpgrades.phase*10;
-        enemies.forEach(function(e){
-            var d=Math.hypot((e.x+e.size/2)-px,(e.y+e.size/2)-py);
-            if(d<pr) e.hp-=2+runUpgrades.phase;
-        });
-        addParticles(px,py,'#7c4dff',18,10);
-    }
+        var contactDamage=Math.max(1, Math.floor(playerDamage||1));
+        hitEnemy.hp=Math.max(0,hitEnemy.hp-contactDamage);
+        hitEnemy.hitFlash=8;
+        addParticles(hitEnemy.x+hitEnemy.size/2,hitEnemy.y+hitEnemy.size/2,'#ffffff',4,5);
 
-    // Poison.
-    if(runUpgrades.poison){
-        hitEnemy._poisonTimer=Math.max(hitEnemy._poisonTimer||0,90+runUpgrades.poison*45);
-    }
-
-    // Echo consumes on contact.
-    if(runUpgrades.echo){
-        for(var ei=0;ei<rogueEchoes.length;ei++){
-            var ec=rogueEchoes[ei];
-            if(Math.hypot(ec.x-(hitEnemy.x+hitEnemy.size/2),ec.y-(hitEnemy.y+hitEnemy.size/2))<30){
-                hitEnemy.hp-=2+ec.power;
-                rogueEchoes.splice(ei,1);
-                break;
+        // Native Pulsar: first contact marks, second contact detonates.
+        if(cls.skillId==='pulse_mark'){
+            var key=hitEnemy._rogueId || (hitEnemy._rogueId='e'+Math.random());
+            if(roguePulseMarks[key]){
+                roguePulseMarks[key]=false;
+                var radius=45+lvl*5;
+                enemies.forEach(function(e){
+                    if(e===hitEnemy || e.hp<=0) return;
+                    var d=Math.hypot((e.x+e.size/2)-px,(e.y+e.size/2)-py);
+                    if(d<radius) e.hp=Math.max(0,e.hp-(1+Math.floor(lvl/2)));
+                });
+                addParticles(px,py,'#e040fb',20,12);
+            }else{
+                roguePulseMarks[key]=true;
             }
         }
-    }
 
-    // Plague propagation.
-    if(runSynergies.plague && hitEnemy._poisonTimer>0 && Math.random()<0.18){
-        enemies.forEach(function(e){
-            if(e===hitEnemy) return;
-            var d=Math.hypot((e.x+e.size/2)-(hitEnemy.x+hitEnemy.size/2),(e.y+e.size/2)-(hitEnemy.y+hitEnemy.size/2));
-            if(d<55) e._poisonTimer=Math.max(e._poisonTimer||0,80);
-        });
+        // Native Blood Hunter: charged contact heals and consumes one charge.
+        if(cls.skillId==='blood_rush' && rogueBloodCharges>0){
+            rogueBloodCharges--;
+            var heal=4+lvl;
+            rogueHP=Math.min(rogueMaxHP,rogueHP+heal);
+            addFloatingText(px,py,'+'+heal+' HP','#ff5c7a',14);
+        }
+
+        // Blood and Counter add damage to the same contact.
+        if(runUpgrades.blood && rogueBloodCharges>0){
+            rogueBloodCharges=Math.max(0,rogueBloodCharges-1);
+            hitEnemy.hp=Math.max(0,hitEnemy.hp-runUpgrades.blood*2);
+        }
+        if(runUpgrades.counter && rogueCounterTimer>0){
+            hitEnemy.hp=Math.max(0,hitEnemy.hp-(2+runUpgrades.counter*2));
+            rogueCounterTimer=0;
+        }
+
+        // Phase Rift. Phase Break makes the rift larger and stronger.
+        if(runUpgrades.phase && roguePhaseReady && roguePhaseTimer>0){
+            roguePhaseReady=false;
+            var pr=45+runUpgrades.phase*10+(runSynergies.phase_break?25:0);
+            var phaseDamage=2+runUpgrades.phase+(runSynergies.phase_break?2:0);
+            enemies.forEach(function(e){
+                var d=Math.hypot((e.x+e.size/2)-px,(e.y+e.size/2)-py);
+                if(d<pr) e.hp=Math.max(0,e.hp-phaseDamage);
+            });
+            addParticles(px,py,'#7c4dff',18,10);
+        }
+
+        // Poison.
+        if(runUpgrades.poison){
+            hitEnemy._poisonTimer=Math.max(hitEnemy._poisonTimer||0,90+runUpgrades.poison*45);
+        }
     }
 }
 
@@ -768,6 +826,9 @@ var _rogueOldUpdate = update;
 update = function update() {
     if(currentMode==='rogue'){
         ensureFiniteRoguePlayerState();
+        rogueMovementSpeed=Math.hypot(player.x-roguePrevPlayerX,player.y-roguePrevPlayerY);
+        roguePrevPlayerX=player.x;
+        roguePrevPlayerY=player.y;
         if(rogueContactTimer>0) rogueContactTimer--;
         applyNativeClassSkill();
 
@@ -782,7 +843,7 @@ update = function update() {
         }
 
         if(runUpgrades.impact){
-            playerDamage += Math.floor(runUpgrades.impact * Math.min(3, (player.speed||7)/7));
+            playerDamage += Math.floor(runUpgrades.impact * Math.min(3, rogueMovementSpeed/3.5));
         }
         if(runUpgrades.overheat){
             playerDamage += Math.floor(rogueHeat/35) * runUpgrades.overheat;
@@ -958,3 +1019,29 @@ applyDrop = function applyDrop(type,x,y){
     }
     return _rogueOldApplyDrop(type,x,y);
 }
+
+
+function rogueDrawEnemyHealthBars(){
+    if(currentMode!=='rogue' || !running || !enemies.length) return;
+    ctx.save();
+    enemies.forEach(function(e){
+        if(!e || e.hp<=0 || !e.maxHp) return;
+        var w=Math.max(22,Math.min(44,e.size*1.25));
+        var h=4;
+        var x=e.x+e.size/2-w/2;
+        var y=e.y-8;
+        var ratio=Math.max(0,Math.min(1,e.hp/e.maxHp));
+        ctx.globalAlpha=.9;
+        ctx.fillStyle='rgba(0,0,0,.65)';
+        ctx.fillRect(x,y,w,h);
+        ctx.fillStyle=ratio>.5?'#7cffb2':(ratio>.25?'#ffd93d':'#ff5c7a');
+        ctx.fillRect(x,y,w*ratio,h);
+    });
+    ctx.restore();
+}
+
+var _rogueV3OldDraw=draw;
+draw=function(){
+    _rogueV3OldDraw();
+    rogueDrawEnemyHealthBars();
+};

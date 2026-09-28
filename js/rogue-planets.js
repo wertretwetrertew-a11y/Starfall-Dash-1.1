@@ -79,6 +79,21 @@ function roguePlanetCurrentStage(){
     var p=roguePlanetCurrentPlanet();
     return p && p.stages[roguePlanetState.stageIndex] ? p.stages[roguePlanetState.stageIndex] : null;
 }
+
+/* Stage kill tracking is installed once. Re-opening the map must not
+   wrap rogueRegisterKill again, otherwise one kill would count multiple times. */
+var roguePlanetKillWrapperInstalled=false;
+if(typeof rogueRegisterKill==='function' && !roguePlanetKillWrapperInstalled){
+    var roguePlanetOriginalRegisterKill=rogueRegisterKill;
+    rogueRegisterKill=function(enemy){
+        roguePlanetOriginalRegisterKill(enemy);
+        if(currentMode!=='rogue' || !roguePlanetState.active || !roguePlanetState.stageStarted || !enemy) return;
+        roguePlanetState.stageKills++;
+        var strong = enemy.type==='miniboss' || (enemy.maxHp||enemy.hp||0) >= 6;
+        if(strong) roguePlanetState.stageStrongKills++;
+    };
+    roguePlanetKillWrapperInstalled=true;
+}
 function roguePlanetBossState(){
     return typeof bossState === 'undefined' ? 'none' : bossState;
 }
@@ -152,19 +167,7 @@ function roguePlanetInjectUI(){
 }
 
 function roguePlanetOpenMap(){
-    /* ---- Stage kill tracking ---- */
-var roguePlanetOriginalRegisterKill = (typeof rogueRegisterKill === 'function') ? rogueRegisterKill : null;
-if(roguePlanetOriginalRegisterKill){
-    rogueRegisterKill=function(enemy){
-        roguePlanetOriginalRegisterKill(enemy);
-        if(currentMode!=='rogue' || !roguePlanetState.active || !roguePlanetState.stageStarted || !enemy) return;
-        roguePlanetState.stageKills++;
-        var strong = enemy.type==='miniboss' || (enemy.maxHp||enemy.hp||0) >= 3;
-        if(strong) roguePlanetState.stageStrongKills++;
-    };
-}
-
-roguePlanetInjectUI();
+    roguePlanetInjectUI();
     roguePlanetState.mapOpen=true;
     roguePlanetRenderMap();
     document.getElementById('rogue-planet-map').classList.add('open');

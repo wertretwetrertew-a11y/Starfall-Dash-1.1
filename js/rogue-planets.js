@@ -204,7 +204,12 @@ function roguePlanetRenderMap(){
         map.appendChild(boss);
     }
 
-    status.textContent=roguePlanetState.bossUnlocked?'Все этапы пройдены. Босс ждёт тебя.':'Выбери подсвеченный этап.';
+    var xpInfo=(typeof rogueXP!=='undefined' && typeof rogueXPNext!=='undefined')
+        ? ' • Уровень '+level+' • XP '+rogueXP+' / '+rogueXPNext
+        : '';
+    status.textContent=(roguePlanetState.bossUnlocked
+        ? 'Все этапы пройдены. Босс ждёт тебя.'
+        : 'Выбери подсвеченный этап.')+xpInfo;
 }
 
 function roguePlanetPrepareRun(){

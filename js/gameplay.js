@@ -1647,12 +1647,18 @@ function update() {
             return;
         }
     } else {
-        levelTimer--;
-        if (levelTimer <= 0) {
+        // Roguelike levels are earned from enemy-kill XP only.
+        // The legacy global timer must never grant a free level in a run.
+        if (currentMode === 'rogue') {
             levelTimer = LEVEL_DURATION;
-            levelUp();
-            // 🔧 Если открылась модалка/волна — прерываем update
-            if (isChoosingUpgrade || !running) return;
+        } else {
+            levelTimer--;
+            if (levelTimer <= 0) {
+                levelTimer = LEVEL_DURATION;
+                levelUp();
+                // 🔧 Если открылась модалка/волна — прерываем update
+                if (isChoosingUpgrade || !running) return;
+            }
         }
     }
 

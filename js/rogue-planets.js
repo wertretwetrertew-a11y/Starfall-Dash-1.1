@@ -116,6 +116,31 @@ function roguePlanetInjectUI(){
         '</div>';
     document.body.appendChild(overlay);
 
+    /* Stage objective is a HUD element, not part of the playfield.
+       It is positioned dynamically just outside the canvas so gameplay
+       remains completely unobstructed. */
+    if(!document.getElementById('rogue-stage-objective')){
+        var stageObjective=document.createElement('div');
+        stageObjective.id='rogue-stage-objective';
+        stageObjective.style.cssText=
+            'position:fixed;display:none;z-index:14;pointer-events:none;' +
+            'width:min(370px,calc(100vw - 24px));padding:9px 14px;' +
+            'box-sizing:border-box;border:1px solid rgba(130,170,255,.22);' +
+            'border-radius:13px;background:rgba(7,12,29,.9);' +
+            'box-shadow:0 8px 24px rgba(0,0,0,.28);' +
+            'backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);';
+        stageObjective.innerHTML=
+            '<div id="rogue-stage-objective-title" style="font:800 11px system-ui,sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>' +
+            '<div style="display:flex;align-items:center;gap:10px;margin-top:6px;">' +
+                '<div id="rogue-stage-objective-text" style="font:600 9px system-ui,sans-serif;color:rgba(255,255,255,.68);white-space:nowrap;"></div>' +
+                '<div style="flex:1;height:5px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;">' +
+                    '<div id="rogue-stage-objective-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#78c8ff,#9c6bff);border-radius:5px;transition:width .15s linear;"></div>' +
+                '</div>' +
+                '<div id="rogue-stage-objective-time" style="font:500 8px system-ui,sans-serif;color:rgba(255,255,255,.48);white-space:nowrap;"></div>' +
+            '</div>';
+        document.body.appendChild(stageObjective);
+    }
+
     overlay.addEventListener('click',function(e){
         if(e.target===overlay && !roguePlanetState.stageStarted && !roguePlanetState.bossActive){
             roguePlanetCloseMap();
@@ -304,6 +329,71 @@ function roguePlanetObjectiveText(){
     else if(o.kind==='kills') value=roguePlanetState.stageKills;
     else if(o.kind==='strongKills') value=roguePlanetState.stageStrongKills;
     return o.label+': '+Math.min(value,o.target)+' / '+o.target+(o.unit?' '+o.unit:'');
+}
+
+function roguePlanetRenderStageObjective(){
+    var panel=document.getElementById('rogue-stage-objective');
+    var canvasEl=(typeof canvas!=='undefined') ? canvas : document.getElementById('game');
+    if(!panel || !canvasEl) return;
+
+    if(currentMode!=='rogue' || !roguePlanetState.active || !roguePlanetState.stageStarted || gameOver){
+        panel.style.display='none';
+        return;
+    }
+
+    var st=roguePlanetCurrentStage(), o=st && st.objective;
+    if(!st || !o){
+        panel.style.display='none';
+        return;
+    }
+
+    var value=0;
+    if(o.kind==='distance') value=Math.floor(roguePlanetState.stageDistance);
+    else if(o.kind==='time') value=Math.floor(roguePlanetState.stageTimer/60);
+    else if(o.kind==='kills') value=roguePlanetState.stageKills;
+    else if(o.kind==='strongKills') value=roguePlanetState.stageStrongKills;
+
+    var ratio=Math.max(0,Math.min(1,value/o.target));
+    var label=o.kind==='distance'?'ПУТЬ':(o.kind==='time'?'ВРЕМЯ':o.label.toUpperCase());
+    var text=label+'  '+Math.min(value,o.target)+' / '+o.target+(o.unit?' '+o.unit:'');
+    var remaining=roguePlanetState.stageTimer<roguePlanetState.stageMinDuration
+        ? 'Минимум: '+Math.ceil((roguePlanetState.stageMinDuration-roguePlanetState.stageTimer)/60)+' сек'
+        : 'Цель выполнена';
+
+    document.getElementById('rogue-stage-objective-title').textContent=st.name;
+    document.getElementById('rogue-stage-objective-text').textContent=text;
+    document.getElementById('rogue-stage-objective-fill').style.width=(ratio*100)+'%';
+    document.getElementById('rogue-stage-objective-time').textContent=remaining;
+
+    var rect=canvasEl.getBoundingClientRect();
+    var panelHeight=46;
+    var gap=8;
+    var top=rect.bottom+gap;
+
+    /* Keep the panel outside the canvas. If the viewport is tight,
+       prefer the area above the canvas; never draw it into the playfield. */
+    if(top+panelHeight>window.innerHeight-8){
+        top=rect.top-panelHeight-gap;
+    }
+
+    if(top<8){
+        /* Very small viewports: dock it below the game canvas' visual area
+           only when there is actual space; otherwise keep it hidden rather
+           than covering gameplay. */
+        if(rect.bottom+panelHeight+gap<=window.innerHeight){
+            top=rect.bottom+gap;
+        }else{
+            panel.style.display='none';
+            return;
+        }
+    }
+
+    var width=Math.min(370,window.innerWidth-24);
+    var left=Math.max(12,Math.min(window.innerWidth-width-12,rect.left+(rect.width-width)/2));
+    panel.style.width=width+'px';
+    panel.style.left=left+'px';
+    panel.style.top=Math.round(top)+'px';
+    panel.style.display='block';
 }
 
 function roguePlanetShowStageComplete(){
@@ -572,34 +662,8 @@ draw=function(){
     roguePlanetDrawLayer();
 
     if(currentMode==='rogue' && roguePlanetState.active && roguePlanetState.stageStarted){
-        var st=roguePlanetCurrentStage(), o=st && st.objective;
-        if(o && typeof ctx!=='undefined'){
-            var value=0;
-            if(o.kind==='distance') value=Math.floor(roguePlanetState.stageDistance);
-            else if(o.kind==='time') value=Math.floor(roguePlanetState.stageTimer/60);
-            else if(o.kind==='kills') value=roguePlanetState.stageKills;
-            else if(o.kind==='strongKills') value=roguePlanetState.stageStrongKills;
-            var ratio=Math.min(1,value/o.target);
-            var w=Math.min(370,canvas.width-24), x=(canvas.width-w)/2, y=52;
-            ctx.save();
-            ctx.fillStyle='rgba(4,9,25,.82)';
-            ctx.strokeStyle='rgba(255,255,255,.16)';
-            ctx.lineWidth=1;
-            ctx.beginPath(); ctx.roundRect(x,y,w,48,12); ctx.fill(); ctx.stroke();
-            ctx.textAlign='left';
-            ctx.font='800 11px system-ui'; ctx.fillStyle='#fff';
-            ctx.fillText(st.name,x+14,y+17);
-            ctx.font='600 10px system-ui'; ctx.fillStyle='rgba(255,255,255,.72)';
-            var label=o.kind==='distance'?'ПУТЬ':(o.kind==='time'?'ВРЕМЯ':o.label.toUpperCase());
-            ctx.fillText(label+'  '+Math.min(value,o.target)+' / '+o.target+(o.unit?' '+o.unit:''),x+14,y+34);
-            ctx.fillStyle='rgba(255,255,255,.12)'; ctx.fillRect(x+w-112,y+17,96,6);
-            ctx.fillStyle='rgba(120,200,255,.9)'; ctx.fillRect(x+w-112,y+17,96*ratio,6);
-            if(roguePlanetState.stageTimer<roguePlanetState.stageMinDuration){
-                ctx.font='500 9px system-ui'; ctx.fillStyle='rgba(255,255,255,.55)';
-                ctx.fillText('Минимум этапа: '+Math.ceil((roguePlanetState.stageMinDuration-roguePlanetState.stageTimer)/60)+' сек',x+w-112,y+36);
-            }
-            ctx.restore();
-        }
+        roguePlanetRenderStageObjective();
+
         if(roguePlanetState.stageBannerTimer>0){
             roguePlanetState.stageBannerTimer--;
             ctx.save();

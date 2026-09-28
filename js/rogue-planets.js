@@ -274,7 +274,9 @@ function roguePlanetPrepareRun(){
     roguePlanetState.bossActive=false;
     roguePlanetState.bossHandled=false;
     roguePlanetState.awaitingMap=false;
-    roguePlanetShowBanner('ПЛАНЕТА I','🔥 АРДЕН • ПЕПЕЛЬНЫЙ МИР');
+    roguePlanetState.transitionToken++;
+    var resumePlanet=roguePlanetCurrentPlanet();
+    roguePlanetShowBanner('ПЛАНЕТА '+(roguePlanetState.planetIndex+1), resumePlanet ? resumePlanet.icon+' '+resumePlanet.name : 'РОГУЭЛИК');
 }
 
 function roguePlanetShowBanner(title,subtitle){

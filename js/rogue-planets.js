@@ -560,6 +560,14 @@ var roguePlanetOriginalReset=reset;
 reset=function(){
     var result=roguePlanetOriginalReset.apply(this,arguments);
     if(currentMode==='rogue'){
+        // Invalidate any delayed stage/boss transition scheduled before reset.
+        // The next Roguelike start reconstructs this route from the persistent checkpoint.
+        roguePlanetState.active=false;
+        roguePlanetState.stageStarted=false;
+        roguePlanetState.bossActive=false;
+        roguePlanetState.bossHandled=false;
+        roguePlanetState.mapOpen=false;
+        roguePlanetState.awaitingMap=false;
         running=false;
         resetFrameClock();
     }

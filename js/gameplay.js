@@ -2102,7 +2102,10 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
                 playSFX('upgrade');
                 return false;
             }
-            return fragment.y < canvas.height + 30;
+            // Осколки ядра не должны теряться за нижней границей:
+            // если игрок не успел подобрать, они остаются у края поля.
+            fragment.y = Math.min(canvas.height - fragment.size - 2, fragment.y);
+            return true;
         });
     }
 

@@ -70,7 +70,8 @@ var roguePlanetState = {
     mapOpen:false,
     bannerTimer:0,
     bannerTitle:'',
-    bannerSubtitle:''
+    bannerSubtitle:'',
+    transitionToken:0
 };
 
 function roguePlanetCurrentPlanet(){

@@ -315,10 +315,24 @@ function spawnDrop(type, x, y) {
     });
 }
 
+function getRogueStageEnemyConfig(){
+    if(currentMode!=='rogue' || typeof roguePlanetState==='undefined' || !roguePlanetState.active) return null;
+    var cfg=null;
+    try{
+        var p=ROGUE_PLANETS[roguePlanetKeys[roguePlanetState.planetIndex]];
+        var st=p && p.stages[roguePlanetState.stageIndex];
+        cfg=st && st.enemyConfig ? st.enemyConfig : null;
+    }catch(e){ cfg=null; }
+    return cfg;
+}
+
 function pickMonsterType() {
-    var avail = Object.keys(MONSTER_TYPES).filter(function(k) {
-        return MONSTER_TYPES[k].unlock <= level;
-    });
+    var rogueCfg = getRogueStageEnemyConfig();
+    var avail = rogueCfg && rogueCfg.pool && rogueCfg.pool.length
+        ? rogueCfg.pool.filter(function(k){ return !!MONSTER_TYPES[k]; })
+        : Object.keys(MONSTER_TYPES).filter(function(k) {
+            return MONSTER_TYPES[k].unlock <= level;
+        });
     var weights = avail.map(function(k) {
         if (k === 'normal') return Math.max(1, 6 - level * 0.5);
         if (k === 'miniboss') return 0.3;
@@ -337,6 +351,7 @@ function pickMonsterType() {
 }
 
 function spawnEnemy(forcedType) {
+    var rogueCfg = getRogueStageEnemyConfig();
     var typeKey = forcedType || pickMonsterType();
     var t = MONSTER_TYPES[typeKey];
     var speedBonus = (level - 1) * 0.4;
@@ -386,6 +401,16 @@ function spawnEnemy(forcedType) {
         }
     }
     if (enemySlowMult < 1) e.speed *= enemySlowMult;
+
+    /* Roguelike stages own their enemy roster and difficulty curve. Forced
+       minibosses are kept outside this scaling so stage trials stay readable. */
+    if (currentMode === 'rogue' && rogueCfg && !forcedType) {
+        if (rogueCfg.speedMult) e.speed *= rogueCfg.speedMult;
+        if (rogueCfg.hpMult) {
+            e.hp = Math.max(1, Math.round(e.hp * rogueCfg.hpMult));
+            e.maxHp = e.hp;
+        }
+    }
 
     enemies.push(e);
 }
@@ -828,7 +853,9 @@ function startEliteWave() {
     noHitWaveActive = !!mod.noHitChallenge;
     noHitWaveDamage = 0;
 
-    if (mod.spawnMiniboss) {
+    /* Stage roster controls miniboss timing. The random elite-wave
+       modifier must not leak a miniboss into early stages. */
+    if (mod.spawnMiniboss && currentMode !== 'rogue') {
         spawnEnemy('miniboss');
     }
 

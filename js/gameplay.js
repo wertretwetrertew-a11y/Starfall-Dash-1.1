@@ -14,6 +14,9 @@ var bossDuelId = null;
 
 // Roguelike enemy telegraphs / area attacks. Kept separate from planet hazards.
 var rogueEnemyHazards = [];
+// Roguelike Stage 1: fragments of the Cosmic Core fall from some defeated enemies.
+var rogueCoreFragments = [];
+var rogueCoreFragmentMisses = 0;
 
 // ===== ИГРОК =====
 var player = {
@@ -430,6 +433,8 @@ function spawnBoss(bossId) {
     webs = [];
     drops = [];
     meteors = [];
+    rogueCoreFragments = [];
+    rogueCoreFragmentMisses = 0;
     bossState = 'intro';
     bossStateTimer = 120;
     bossAnnouncement = '⚠ BOSS INCOMING ⚠';
@@ -468,6 +473,40 @@ function spawnEnemyBullet(x, y, vx, vy, opts) {
 
 function spawnWeb(x, y) {
     webs.push({ x: x, y: y, size: 60 + Math.random() * 20, life: 300 });
+}
+
+function spawnRogueCoreFragmentFromEnemy(enemy) {
+    if (currentMode !== 'rogue' || typeof roguePlanetState === 'undefined' || !roguePlanetState.active || !roguePlanetState.stageStarted) return;
+    var st = typeof roguePlanetCurrentStage === 'function' ? roguePlanetCurrentStage() : null;
+    if (!st || !st.objective || st.objective.kind !== 'coreFragments') return;
+
+    // The fragment is a chance drop, not a guaranteed reward from every kill.
+    // Around one third of kills produce one, tuned so the first stage usually
+    // resolves after roughly a minute of active play without using a timer.
+    var chance = 0.38;
+    if (enemy && enemy.type === 'miniboss') chance = 0.55;
+    if (rogueCoreFragmentMisses >= 10) chance = 0.52;
+    if (Math.random() >= chance) {
+        rogueCoreFragmentMisses++;
+        return;
+    }
+
+    rogueCoreFragmentMisses = 0;
+    var size = 20;
+    rogueCoreFragments.push({
+        x: Math.max(2, Math.min(canvas.width - size - 2, (enemy.x || 0) + (enemy.size || size) / 2 - size / 2)),
+        y: Math.max(0, (enemy.y || 0) + (enemy.size || size) / 2 - size / 2),
+        size: size,
+        vx: (Math.random() - 0.5) * 1.2,
+        vy: 0.8 + Math.random() * 0.8,
+        rotation: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.08,
+        phase: Math.random() * Math.PI * 2,
+        life: 1
+    });
+    addParticles(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2, '#80deea', 14, 7);
+    addFloatingText(enemy.x + enemy.size / 2, enemy.y, '💠 ОСКОЛОК', '#80deea', 14);
+    playSFX('upgrade');
 }
 
 function spawnRogueEnemyHazard(x, y, radius, life, color, kind) {
@@ -2019,6 +2058,49 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         });
     }
 
+    // Осколки космического ядра: они выпадают из убитых врагов и падают
+    // с места смерти. Их можно подобрать магнитом или обычным движением.
+    if (currentMode === 'rogue') {
+        var coreMagnetRadius = (getSave().magnetRadius || 0) + coreBonusCache.magnet;
+        if (runUpgrades.magnet) coreMagnetRadius += runUpgrades.magnet * 40;
+        if (buff.magnet > 0) coreMagnetRadius = Math.max(coreMagnetRadius, 250);
+
+        rogueCoreFragments.forEach(function(fragment) {
+            fragment.phase += 0.12;
+            fragment.rotation += fragment.spin;
+            fragment.vy = Math.min(5, fragment.vy + 0.035);
+            fragment.x += fragment.vx;
+            fragment.y += fragment.vy;
+            if (fragment.x <= 0 || fragment.x + fragment.size >= canvas.width) fragment.vx *= -0.75;
+
+            if (coreMagnetRadius > 0 || buff.magnet > 0) {
+                var fcx = fragment.x + fragment.size / 2;
+                var fcy = fragment.y + fragment.size / 2;
+                var pfx = player.x + player.size / 2;
+                var pfy = player.y + player.size / 2;
+                var fdx = pfx - fcx;
+                var fdy = pfy - fcy;
+                var fd = Math.hypot(fdx, fdy);
+                if (fd < coreMagnetRadius && fd > 0) {
+                    var fpull = buff.magnet > 0 ? 0.3 : 0.18;
+                    fragment.x += fdx * fpull;
+                    fragment.y += fdy * fpull;
+                }
+            }
+        });
+
+        rogueCoreFragments = rogueCoreFragments.filter(function(fragment) {
+            if (rectsCollide(player, fragment)) {
+                roguePlanetState.stageCoreFragments = (roguePlanetState.stageCoreFragments || 0) + 1;
+                addParticles(fragment.x + fragment.size / 2, fragment.y + fragment.size / 2, '#80deea', 18, 8);
+                addFloatingText(fragment.x + fragment.size / 2, fragment.y, 'ОСКОЛОК ЯДРА  +1', '#80deea', 15);
+                playSFX('upgrade');
+                return false;
+            }
+            return fragment.y < canvas.height + 30;
+        });
+    }
+
     // Дропы
     drops.forEach(function(d) {
         d.y += d.vy;
@@ -2262,7 +2344,11 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
 
     // Уборка врагов
     enemies = enemies.filter(function(en) {
-        if (en.hp <= 0) { if (typeof rogueRegisterKill === "function") rogueRegisterKill(en); return false; }
+        if (en.hp <= 0) {
+            spawnRogueCoreFragmentFromEnemy(en);
+            if (typeof rogueRegisterKill === "function") rogueRegisterKill(en);
+            return false;
+        }
         // Враг никогда не рисуется за боковыми границами поля.
         en.x = Math.max(0, Math.min(canvas.width - en.size, en.x));
         // Верхняя граница также безопасна: враг может войти только через неё.
@@ -2770,6 +2856,38 @@ function drawDrop(d) {
     ctx.restore();
 }
 
+function drawRogueCoreFragments() {
+    if (currentMode !== 'rogue') return;
+    var now = performance.now();
+    for (var i = 0; i < rogueCoreFragments.length; i++) {
+        var fragment = rogueCoreFragments[i];
+        var pulse = 1 + Math.sin(now / 120 + fragment.phase) * 0.08;
+        ctx.save();
+        ctx.translate(fragment.x + fragment.size / 2, fragment.y + fragment.size / 2);
+        ctx.rotate(fragment.rotation);
+        ctx.scale(pulse, pulse);
+        ctx.shadowColor = '#80deea';
+        ctx.shadowBlur = 22;
+        var g = ctx.createLinearGradient(-fragment.size / 2, -fragment.size / 2, fragment.size / 2, fragment.size / 2);
+        g.addColorStop(0, '#e0f7fa');
+        g.addColorStop(0.45, '#80deea');
+        g.addColorStop(1, '#00838f');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(0, -fragment.size / 2);
+        ctx.lineTo(fragment.size * 0.32, -fragment.size * 0.12);
+        ctx.lineTo(fragment.size * 0.22, fragment.size / 2);
+        ctx.lineTo(-fragment.size * 0.30, fragment.size * 0.30);
+        ctx.lineTo(-fragment.size / 2, -fragment.size * 0.18);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,255,255,.8)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
 function drawRogueEnemyHazards() {
     if (currentMode !== 'rogue') return;
     var now = performance.now();
@@ -3070,6 +3188,7 @@ function draw() {
     drawOrbitals();
     drawCoins();
     if (currentMode === 'rogue') drawRogueXP();
+    if (currentMode === 'rogue') drawRogueCoreFragments();
     for (var di = 0; di < drops.length; di++) drawDrop(drops[di]);
     for (var ei = 0; ei < enemies.length; ei++) drawMonster(enemies[ei]);
     for (var bi = 0; bi < bosses.length; bi++) drawBoss(bosses[bi]);

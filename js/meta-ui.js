@@ -340,14 +340,6 @@ tilePlay.addEventListener('click', function() {
     updateModeBests();
 });
 
-tileQuick.addEventListener('click', function() {
-    currentMode = 'rogue';
-    startScreen.classList.add('hidden');
-    modeScreen.classList.add('hidden');
-    classScreen.classList.remove('hidden');
-    renderClassScreen();
-});
-
 modeBack.addEventListener('click', function() {
     modeScreen.classList.add('hidden');
     startScreen.classList.remove('hidden');

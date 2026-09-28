@@ -382,7 +382,7 @@ function roguePlanetRenderStageObjective(){
     var hpRatio=rogueMaxHP>0 ? hp/rogueMaxHP : 0;
     var hpFill=document.getElementById('rogue-hp-fill');
     var hpText=document.getElementById('rogue-hp-text');
-    if(hpFill) hpFill.style.width=(hpRatio*100)+'%';
+    if(hpFill){ hpFill.style.width=(hpRatio*100)+'%'; hpFill.classList.toggle('critical',hpRatio<=0.3); }
     if(hpText) hpText.textContent=Math.ceil(hp)+' / '+Math.ceil(rogueMaxHP);
 
     var rect=canvasEl.getBoundingClientRect();

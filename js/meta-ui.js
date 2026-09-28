@@ -2019,10 +2019,16 @@ window.addEventListener('mouseup', joyEnd);
 
 var btnRestart = document.getElementById('btn-restart');
 if (btnRestart) {
-    btnRestart.addEventListener('click', function() { if (typeof reset === 'function' && !isChoosingUpgrade) reset(); });
+    btnRestart.addEventListener('click', function() {
+        if (isChoosingUpgrade) return;
+        if (currentMode === 'rogue' && typeof startRoguelikeRun === 'function') startRoguelikeRun();
+        else if (typeof reset === 'function') reset();
+    });
     btnRestart.addEventListener('touchstart', function(e) {
         e.preventDefault();
-        if (typeof reset === 'function' && !isChoosingUpgrade) reset();
+        if (isChoosingUpgrade) return;
+        if (currentMode === 'rogue' && typeof startRoguelikeRun === 'function') startRoguelikeRun();
+        else if (typeof reset === 'function') reset();
     });
 }
 
@@ -2057,7 +2063,13 @@ if (goRestart) {
         running = false;
         isChoosingUpgrade = false;
         _finishRunCalled = false;
-        setTimeout(function() { reset(); }, 0);
+        setTimeout(function() {
+            if (currentMode === 'rogue' && typeof startRoguelikeRun === 'function') {
+                startRoguelikeRun();
+            } else {
+                reset();
+            }
+        }, 0);
     });
 }
 

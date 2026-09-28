@@ -2059,7 +2059,7 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
 
     // Уборка врагов
     enemies = enemies.filter(function(en) {
-        if (en.hp <= 0) return false;
+        if (en.hp <= 0) { if (typeof rogueRegisterKill === "function") rogueRegisterKill(en); return false; }
         if (en.y >= canvas.height + 30) {
     // 🔧 ФИКС: не даём бомберу убить игрока после его смерти
     if (en.t.explodes && lives > 0 && !gameOver) explodeBomber(en, true);

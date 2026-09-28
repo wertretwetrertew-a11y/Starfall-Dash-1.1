@@ -562,14 +562,13 @@ function pickRandomUpgrades(count, exclude) {
     return picks;
 }
 
-/* ---------- XP BY KILLS ---------- */
+/* ---------- STAGE KILLS / RUN SYSTEM ---------- */
 function rogueRegisterKill(enemy) {
     if (currentMode !== 'rogue' || !enemy || enemy._rogueXPAwarded) return;
     enemy._rogueXPAwarded = true;
 
-    // XP is no longer awarded for kills.
-    // Kills still charge build mechanics such as Overload/Heat and create
-    // Singularity/Echo effects. The actual XP resource falls from above.
+    // Kills never grant XP. XP is a separate resource that falls from the sky.
+    // Kills only charge build mechanics; planet stages track their own objectives.
     if (runUpgrades.overload) {
         rogueOverload = Math.min(100, rogueOverload + 12 * runUpgrades.overload);
     }
@@ -891,6 +890,17 @@ function renderUpgradeCards() {
     });
 }
 
+function rogueProcessPendingXPLevel() {
+    if(currentMode!=='rogue' || isChoosingUpgrade || !running) return;
+    while(rogueXP >= rogueXPNext && !isChoosingUpgrade && running && !gameOver){
+        rogueXP -= rogueXPNext;
+        rogueXPNext = Math.floor(rogueXPNext * 1.32 + 3);
+        levelUp();
+        if(isChoosingUpgrade || !running) break;
+    }
+    updateHUD();
+}
+
 function closeUpgradeModal() {
     upgradeModal.classList.remove('open');
     isChoosingUpgrade=false;
@@ -898,6 +908,10 @@ function closeUpgradeModal() {
     pendingUpgradeChoices=[];
     resetFrameClock();
     updateHUD();
+
+    // If one pickup contained enough XP for another level, finish the
+    // queued level-up now instead of waiting for another orb.
+    rogueProcessPendingXPLevel();
 }
 
 /* ---------- RUN RESULT ---------- */

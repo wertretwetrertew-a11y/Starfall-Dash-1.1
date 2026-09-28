@@ -2217,6 +2217,12 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
                 }
             }
         } else if (et.shape === 'crystal') {
+            // Кристалл не должен зависать у верхней границы после спавна.
+            // Он медленно входит в поле, а затем продолжает двигаться вниз.
+            e.y += e.speed * 0.7;
+            e.x += Math.sin(e.wobble * 0.45) * 0.7;
+            e.x = Math.max(0, Math.min(canvas.width - e.size, e.x));
+
             e.shootTimer--;
             if (e.shootTimer <= 0 && e.y > 20) {
                 e.shootTimer = et.shootsEvery || 120;

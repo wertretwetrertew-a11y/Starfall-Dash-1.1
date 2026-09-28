@@ -12,6 +12,7 @@ var ROGUE_V3 = true;
 CHARACTER_CLASSES = {
     scout: {
         id:'scout', name:'Разведчик', icon:'🏃',
+        speed:1, startHp:100,
         desc:'Разгоняется и превращает скорость в силу удара.',
         color:'#7cffb2', unlocked:true, unlockText:'Доступен сразу',
         skillId:'kinetic_drive', skillName:'Кинетический разгон',
@@ -20,6 +21,7 @@ CHARACTER_CLASSES = {
     },
     tank: {
         id:'tank', name:'Таран', icon:'🛡',
+        speed:1, startHp:100,
         desc:'Выдерживает удар и отвечает мощным столкновением.',
         color:'#4fc3f7', unlocked:false, unlockAchievement:'survivor',
         unlockText:'Продержись 2 минуты в Выживании',
@@ -29,6 +31,7 @@ CHARACTER_CLASSES = {
     },
     mage: {
         id:'mage', name:'Пульсар', icon:'🔮',
+        speed:1, startHp:100,
         desc:'Помечает врагов и превращает повторные столкновения в импульс.',
         color:'#e040fb', unlocked:false, unlockAchievement:'warrior',
         unlockText:'Дойди до 5 уровня',
@@ -38,6 +41,7 @@ CHARACTER_CLASSES = {
     },
     rogue: {
         id:'rogue', name:'Кровавый охотник', icon:'🩸',
+        speed:1, startHp:100,
         desc:'Превращает полученный урон в возможность для ответного удара.',
         color:'#ffd93d', unlocked:false, unlockAchievement:'collector',
         unlockText:'Собери 1000 монет',
@@ -336,6 +340,25 @@ reset = function reset() {
 }
 
 /* ---------- NATIVE CLASS SKILLS ---------- */
+function ensureFiniteRoguePlayerState() {
+    if (currentMode !== 'rogue') return;
+    var valid = Number.isFinite(player.x) && Number.isFinite(player.y) &&
+                Number.isFinite(player.size) && player.size > 0 &&
+                Number.isFinite(player.speed) && player.speed > 0;
+    if (!valid) {
+        console.warn('⚠ Rogue player state became non-finite; restoring player state');
+        player.size = 30;
+        player.speed = 7;
+        player.x = canvas.width / 2 - player.size / 2;
+        player.y = canvas.height - 60;
+        player.lastDirX = 0;
+        player.lastDirY = 1;
+        player.frozen = 0;
+        player.inWeb = false;
+        player.tilt = 0;
+    }
+}
+
 function applyNativeClassSkill() {
     var cls = getClass(selectedClass);
     var lvl = getClassSkillLevel(selectedClass);
@@ -751,6 +774,7 @@ function rogueDetectContact() {
 var _rogueOldUpdate = update;
 update = function update() {
     if(currentMode==='rogue'){
+        ensureFiniteRoguePlayerState();
         if(rogueContactTimer>0) rogueContactTimer--;
         applyNativeClassSkill();
 
@@ -782,7 +806,9 @@ update = function update() {
         rogueTickSystems();
         rogueDetectContact();
     }
+    ensureFiniteRoguePlayerState();
     _rogueOldUpdate();
+    ensureFiniteRoguePlayerState();
 
     if(currentMode==='rogue'){
         // Boss victory grants a meaningful XP burst without creating a second level system.

@@ -87,7 +87,9 @@ var roguePlanetKillWrapperInstalled=false;
 if(typeof rogueRegisterKill==='function' && !roguePlanetKillWrapperInstalled){
     var roguePlanetOriginalRegisterKill=rogueRegisterKill;
     rogueRegisterKill=function(enemy){
+        var alreadyRegistered = !!enemy._rogueXPAwarded;
         roguePlanetOriginalRegisterKill(enemy);
+        if(alreadyRegistered) return;
         if(currentMode!=='rogue' || !roguePlanetState.active || !roguePlanetState.stageStarted || !enemy) return;
         roguePlanetState.stageKills++;
         var strong = enemy.type==='miniboss' || (enemy.maxHp||enemy.hp||0) >= 6;

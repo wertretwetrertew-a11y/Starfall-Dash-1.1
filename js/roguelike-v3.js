@@ -146,7 +146,8 @@ var ROGUE_SYNERGIES = {
 var rogueHP = 100;
 var rogueMaxHP = 100;
 var rogueXP = 0;
-var rogueXPNext = 12;
+var rogueXPNext = 8;
+var rogueXPOrbs = [];
 var rogueHeat = 0;
 var rogueOverload = 0;
 var rogueBloodCharges = 0;
@@ -300,7 +301,8 @@ reset = function reset() {
     ensureRogueV3Save();
     rogueHP = rogueMaxHP = 100;
     rogueXP = 0;
-    rogueXPNext = 12;
+    rogueXPNext = 8;
+    rogueXPOrbs = [];
     rogueHeat = 0;
     rogueOverload = 0;
     rogueBloodCharges = 0;
@@ -565,10 +567,9 @@ function rogueRegisterKill(enemy) {
     if (currentMode !== 'rogue' || !enemy || enemy._rogueXPAwarded) return;
     enemy._rogueXPAwarded = true;
 
-    var xp = enemy.type && enemy.type.shape === 'boss' ? 10 : (enemy.t && enemy.t.hp > 1 ? 2 : 1);
-    rogueXP += xp;
-    addFloatingText(enemy.x + enemy.size/2, enemy.y - 8, '+' + xp + ' XP', '#9c6bff', 13);
-
+    // XP is no longer awarded for kills.
+    // Kills still charge build mechanics such as Overload/Heat and create
+    // Singularity/Echo effects. The actual XP resource falls from above.
     if (runUpgrades.overload) {
         rogueOverload = Math.min(100, rogueOverload + 12 * runUpgrades.overload);
     }
@@ -581,14 +582,7 @@ function rogueRegisterKill(enemy) {
     if (runUpgrades.echo) {
         rogueEchoes.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:180,power:runUpgrades.echo});
     }
-
-    while (rogueXP >= rogueXPNext) {
-        rogueXP -= rogueXPNext;
-        rogueXPNext = Math.floor(rogueXPNext * 1.32 + 3);
-        if (typeof _rogueOldLevelUp === 'function') _rogueOldLevelUp();
-    }
 }
-
 /* ---------- RUN SYSTEM TICK ---------- */
 function rogueTickSystems() {
     if (currentMode !== 'rogue' || !running || gameOver) return;
@@ -811,16 +805,6 @@ update = function update() {
     ensureFiniteRoguePlayerState();
 
     if(currentMode==='rogue'){
-        // Boss victory grants a meaningful XP burst without creating a second level system.
-        if(rogueLastBossState!=='victory' && bossState==='victory'){
-            rogueLastBossState='victory';
-            rogueXP += 8;
-            if(rogueXP>=rogueXPNext && typeof _rogueOldLevelUp==='function'){
-                rogueXP-=rogueXPNext;
-                rogueXPNext=Math.floor(rogueXPNext*1.32+3);
-                _rogueOldLevelUp();
-            }
-        }
         if(bossState!=='victory') rogueLastBossState=bossState;
     }
 }
@@ -935,6 +919,7 @@ function clearRogueRunState() {
     runSynergies={};
     runRelics=[];
     rogueXP=0;
+    rogueXPOrbs=[];
     rogueHeat=0;
     rogueOverload=0;
     rogueBloodCharges=0;

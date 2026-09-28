@@ -15,30 +15,30 @@ var ROGUE_PLANETS = {
         id:'arden', name:'АРДЕН', subtitle:'ПЕПЕЛЬНЫЙ МИР', icon:'🔥', color:'#ff7043', boss:'dragon',
         description:'Пепел, метеориты и огненные разломы.',
         stages:[
-            {name:'Пепельное поле', type:'combat', icon:'⚔️', desc:'Базовая боевая зона.'},
-            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Уклоняйся от падающих метеоритов.'},
-            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Опасные зоны появляются на арене.'},
-            {name:'Охота', type:'elite', icon:'☠️', desc:'Усиленные враги готовят тебя к боссу.'}
+            {name:'Пепельное поле', type:'distance', icon:'⚔️', desc:'Пройди 1400 единиц пути.', objective:{kind:'distance',target:1400,label:'Путь',unit:'м'}},
+            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 30 секунд под метеорами.', objective:{kind:'time',target:30,label:'Время',unit:'с'}},
+            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 8 врагов в огненной зоне.', objective:{kind:'kills',target:8,label:'Враги',unit:''}},
+            {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 2 усиленных врага.', objective:{kind:'strongKills',target:2,label:'Сильные',unit:''}}
         ]
     },
     nivara: {
         id:'nivara', name:'НИВАРА', subtitle:'МЁРТВЫЙ ЛЁД', icon:'❄️', color:'#4fc3f7', boss:'titan',
         description:'Лёд меняет движение, а пространство сжимается.',
         stages:[
-            {name:'Ледяное поле', type:'ice', icon:'❄️', desc:'Движение становится инерционным.'},
-            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Враги появляются ближе и быстрее окружают.'},
-            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Морозная буря меняет условия боя.'},
-            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Безопасная область постепенно сужается.'}
+            {name:'Ледяное поле', type:'ice', icon:'❄️', desc:'Пройди 1800 единиц пути по льду.', objective:{kind:'distance',target:1800,label:'Путь',unit:'м'}},
+            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Победи 10 врагов в ближней засаде.', objective:{kind:'kills',target:10,label:'Враги',unit:''}},
+            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Продержись 32 секунды в буре.', objective:{kind:'time',target:32,label:'Время',unit:'с'}},
+            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Победи 3 усиленных врага в сужающейся зоне.', objective:{kind:'strongKills',target:3,label:'Сильные',unit:''}}
         ]
     },
     exor: {
         id:'exor', name:'ЭКЗОР', subtitle:'МЁРТВАЯ ЗВЕЗДА', icon:'🌌', color:'#9c6bff', boss:'devourer',
         description:'Разломы и гравитация разрушают пространство.',
         stages:[
-            {name:'Разлом', type:'rift', icon:'🌀', desc:'Пространственные разломы создают опасные зоны.'},
-            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Гравитационные поля притягивают куб.'},
-            {name:'Крах', type:'collapse', icon:'💠', desc:'Безопасная область постоянно меняется.'},
-            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Последнее испытание перед Пожирателем.'}
+            {name:'Разлом', type:'rift', icon:'🌀', desc:'Пройди 2000 единиц пути через разломы.', objective:{kind:'distance',target:2000,label:'Путь',unit:'м'}},
+            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Победи 12 врагов в гравитационных полях.', objective:{kind:'kills',target:12,label:'Враги',unit:''}},
+            {name:'Крах', type:'collapse', icon:'💠', desc:'Победи 2 усиленных врага до полного коллапса.', objective:{kind:'strongKills',target:2,label:'Сильные',unit:''}},
+            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Продержись 35 секунд перед Пожирателем.', objective:{kind:'time',target:35,label:'Время',unit:'с'}}
         ]
     }
 };
@@ -51,7 +51,12 @@ var roguePlanetState = {
     stageIndex:0,
     stageStarted:false,
     stageTimer:0,
-    stageDuration:22*60,
+    stageDistance:0,
+    stageKills:0,
+    stageStrongKills:0,
+    stageLastX:0,
+    stageLastY:0,
+    stageDuration:35*60,
     hazardTimer:0,
     hazards:[],
     bossUnlocked:false,
@@ -119,7 +124,19 @@ function roguePlanetInjectUI(){
 }
 
 function roguePlanetOpenMap(){
-    roguePlanetInjectUI();
+    /* ---- Stage kill tracking ---- */
+var roguePlanetOriginalRegisterKill = (typeof rogueRegisterKill === 'function') ? rogueRegisterKill : null;
+if(roguePlanetOriginalRegisterKill){
+    rogueRegisterKill=function(enemy){
+        roguePlanetOriginalRegisterKill(enemy);
+        if(currentMode!=='rogue' || !roguePlanetState.active || !roguePlanetState.stageStarted || !enemy) return;
+        roguePlanetState.stageKills++;
+        var strong = enemy.type==='miniboss' || (enemy.maxHp||enemy.hp||0) >= 3;
+        if(strong) roguePlanetState.stageStrongKills++;
+    };
+}
+
+roguePlanetInjectUI();
     roguePlanetState.mapOpen=true;
     roguePlanetRenderMap();
     document.getElementById('rogue-planet-map').classList.add('open');
@@ -163,11 +180,17 @@ function roguePlanetRenderMap(){
         var current=i===roguePlanetState.stageIndex && !roguePlanetState.bossUnlocked;
         var available=current && !roguePlanetState.stageStarted;
         var cls='rpm-node '+(done?'done ':'')+(current?'current ':'')+(available?'available ':'locked ');
-        var text=done?'✓ ПРОЙДЕНО':(current?'ТЕКУЩИЙ ЭТАП':'ЗАБЛОКИРОВАН');
+        var statusText=done?'✓ ПРОЙДЕНО':(current?'ТЕКУЩИЙ ЭТАП':'ЗАБЛОКИРОВАН');
+        var objective=st.objective || {kind:'time',target:30,label:'Время',unit:'с'};
+        var objectiveText=objective.kind==='distance'
+            ? 'Цель: '+objective.target+' '+objective.unit+' пути'
+            : (objective.kind==='time'
+                ? 'Цель: '+objective.target+' '+objective.unit
+                : 'Цель: '+objective.target+' '+objective.label.toLowerCase());
         var node=document.createElement('button');
         node.className=cls;
         node.style.setProperty('--planet-color',p.color);
-        node.innerHTML='<div class="n-num">'+(i+1)+' / '+p.stages.length+' • '+text+'</div><div class="n-icon">'+st.icon+'</div><div class="n-name">'+st.name+'</div><div class="n-desc">'+st.desc+'</div>';
+        node.innerHTML='<div class="n-num">'+(i+1)+' / '+p.stages.length+' • '+statusText+'</div><div class="n-icon">'+st.icon+'</div><div class="n-name">'+st.name+'</div><div class="n-desc">'+st.desc+'</div><div style="font-size:9px;opacity:.72;margin-top:7px;">'+objectiveText+'</div>';
         if(available) node.addEventListener('click',function(){roguePlanetStartStage(i);});
         map.appendChild(node);
     });
@@ -190,6 +213,11 @@ function roguePlanetPrepareRun(){
     roguePlanetState.stageIndex=0;
     roguePlanetState.stageStarted=false;
     roguePlanetState.stageTimer=0;
+    roguePlanetState.stageDistance=0;
+    roguePlanetState.stageKills=0;
+    roguePlanetState.stageStrongKills=0;
+    roguePlanetState.stageLastX=0;
+    roguePlanetState.stageLastY=0;
     roguePlanetState.hazardTimer=0;
     roguePlanetState.hazards=[];
     roguePlanetState.bossUnlocked=false;
@@ -224,10 +252,15 @@ function roguePlanetStartStage(index){
     if(!roguePlanetState.active || roguePlanetState.stageStarted || roguePlanetState.bossUnlocked) return;
     if(index!==roguePlanetState.stageIndex) return;
     roguePlanetState.stageStarted=true;
-    level = roguePlanetState.planetIndex * 4 + index + 1;
+    // Player level is a separate XP progression. A new stage never changes it.
     levelStats={coinsThisLevel:0,livesLostThisLevel:0,levelStartTime:performance.now()};
     if(typeof updateHUD==='function') updateHUD();
     roguePlanetState.stageTimer=0;
+    roguePlanetState.stageDistance=0;
+    roguePlanetState.stageKills=0;
+    roguePlanetState.stageStrongKills=0;
+    roguePlanetState.stageLastX=player.x;
+    roguePlanetState.stageLastY=player.y;
     roguePlanetState.hazardTimer=0;
     roguePlanetState.hazards=[];
     roguePlanetApplyStage();
@@ -241,30 +274,43 @@ function roguePlanetStartStage(index){
     roguePlanetShowBanner('ЭТАП '+(index+1),roguePlanetCurrentStage().name);
 }
 
+function roguePlanetStageObjectiveMet(){
+    var st=roguePlanetCurrentStage();
+    if(!st || !st.objective) return false;
+    var o=st.objective;
+    if(o.kind==='distance') return roguePlanetState.stageDistance>=o.target;
+    if(o.kind==='time') return roguePlanetState.stageTimer>=o.target*60;
+    if(o.kind==='kills') return roguePlanetState.stageKills>=o.target;
+    if(o.kind==='strongKills') return roguePlanetState.stageStrongKills>=o.target;
+    return false;
+}
+
+function roguePlanetObjectiveText(){
+    var st=roguePlanetCurrentStage();
+    if(!st || !st.objective) return '';
+    var o=st.objective, value=0;
+    if(o.kind==='distance') value=Math.floor(roguePlanetState.stageDistance);
+    else if(o.kind==='time') value=Math.floor(roguePlanetState.stageTimer/60);
+    else if(o.kind==='kills') value=roguePlanetState.stageKills;
+    else if(o.kind==='strongKills') value=roguePlanetState.stageStrongKills;
+    return o.label+': '+Math.min(value,o.target)+' / '+o.target+(o.unit?' '+o.unit:'');
+}
+
 function roguePlanetCompleteStage(){
     if(!roguePlanetState.active || !roguePlanetState.stageStarted || roguePlanetState.bossActive || gameOver) return;
     roguePlanetState.stageStarted=false;
     running=false;
     resetFrameClock();
+    roguePlanetState.awaitingMap=false;
 
     if(roguePlanetState.stageIndex>=3){
         roguePlanetState.bossUnlocked=true;
-        roguePlanetState.awaitingMap=true;
-        showUpgradeChoice();
-        return;
+    }else{
+        roguePlanetState.stageIndex++;
     }
 
-    roguePlanetState.stageIndex++;
-    roguePlanetState.awaitingMap=true;
-    showUpgradeChoice();
-}
-
-function roguePlanetAfterUpgrade(){
-    if(!roguePlanetState.awaitingMap) return;
-    roguePlanetState.awaitingMap=false;
-    setTimeout(function(){
-        if(currentMode==='rogue' && !gameOver) roguePlanetOpenMap();
-    },120);
+    roguePlanetRenderMap();
+    roguePlanetOpenMap();
 }
 
 function roguePlanetStartBoss(){
@@ -297,6 +343,11 @@ function roguePlanetAdvanceAfterBoss(){
     roguePlanetState.stageIndex=0;
     roguePlanetState.stageStarted=false;
     roguePlanetState.stageTimer=0;
+    roguePlanetState.stageDistance=0;
+    roguePlanetState.stageKills=0;
+    roguePlanetState.stageStrongKills=0;
+    roguePlanetState.stageLastX=0;
+    roguePlanetState.stageLastY=0;
     roguePlanetState.hazardTimer=0;
     roguePlanetState.hazards=[];
     roguePlanetState.bossUnlocked=false;
@@ -320,9 +371,10 @@ spawnBoss=function(id){
     return roguePlanetOriginalSpawnBoss(id);
 };
 
-/* XP progression is retired in the new map-based Roguelike. */
+/* XP is a separate falling resource. It is intentionally NOT tied to kills. */
 if(typeof spawnRogueXP==='function'){
-    spawnRogueXP=function(){};
+    // gameplay.js already owns the spawn implementation.
+    // Do not overwrite it here: XP must keep falling from the top during stages.
 }
 
 /* ---- Start flow: class -> map -> selected stage -> gameplay. ---- */
@@ -347,15 +399,31 @@ reset=function(){
     return result;
 };
 
-/* ---- Stage timer + boss victory watcher. ---- */
+/* ---- Stage objectives + boss victory watcher. ---- */
 var roguePlanetOriginalUpdate=update;
 update=function(){
-    if(currentMode==='rogue' && roguePlanetState.active && roguePlanetState.stageStarted && running && !gameOver){
+    var wasStageRunning = currentMode==='rogue' && roguePlanetState.active &&
+        roguePlanetState.stageStarted && running && !gameOver && !isChoosingUpgrade;
+
+    if(wasStageRunning){
         roguePlanetState.stageTimer++;
         roguePlanetState.hazardTimer++;
         roguePlanetTickHazards();
-        if(roguePlanetState.stageTimer>=roguePlanetState.stageDuration){
+    }
+
+    // Core gameplay runs first so movement and kills from this frame are counted.
+    roguePlanetOriginalUpdate();
+
+    if(currentMode==='rogue' && roguePlanetState.active && roguePlanetState.stageStarted && running && !gameOver && !isChoosingUpgrade){
+        var dx=player.x-roguePlanetState.stageLastX;
+        var dy=player.y-roguePlanetState.stageLastY;
+        roguePlanetState.stageDistance += Math.hypot(dx,dy);
+        roguePlanetState.stageLastX=player.x;
+        roguePlanetState.stageLastY=player.y;
+
+        if(roguePlanetStageObjectiveMet()){
             roguePlanetCompleteStage();
+            return;
         }
     }
 
@@ -367,8 +435,6 @@ update=function(){
             setTimeout(roguePlanetAdvanceAfterBoss,650);
         }
     }
-
-    roguePlanetOriginalUpdate();
 };
 
 function roguePlanetSpawnMeteor(){
@@ -471,11 +537,6 @@ draw=function(){
     roguePlanetDrawLayer();
 };
 
-/* ---- The upgrade modal returns to the map after a stage reward. ---- */
-var roguePlanetOriginalCloseUpgrade=closeUpgradeModal;
-closeUpgradeModal=function(){
-    roguePlanetOriginalCloseUpgrade.apply(this,arguments);
-    roguePlanetAfterUpgrade();
-};
-
+/* Upgrade choices belong to XP level-ups only.
+   Closing the modal resumes the same stage; it never advances the planet map. */
 roguePlanetInjectUI();

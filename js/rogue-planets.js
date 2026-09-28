@@ -224,6 +224,9 @@ function roguePlanetStartStage(index){
     if(!roguePlanetState.active || roguePlanetState.stageStarted || roguePlanetState.bossUnlocked) return;
     if(index!==roguePlanetState.stageIndex) return;
     roguePlanetState.stageStarted=true;
+    level = roguePlanetState.planetIndex * 4 + index + 1;
+    levelStats={coinsThisLevel:0,livesLostThisLevel:0,levelStartTime:performance.now()};
+    if(typeof updateHUD==='function') updateHUD();
     roguePlanetState.stageTimer=0;
     roguePlanetState.hazardTimer=0;
     roguePlanetState.hazards=[];

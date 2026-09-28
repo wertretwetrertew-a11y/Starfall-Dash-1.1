@@ -3968,3 +3968,163 @@ canvas {
     font-size:9px;
     font-weight:700;
 }
+
+
+/* ==========================================================
+   ROGUELIKE RUN HUD — TASK + HP ABOVE THE PLAYFIELD
+   ========================================================== */
+#rogue-stage-objective.rogue-top-hud{
+    position:fixed;
+    display:none;
+    z-index:14;
+    pointer-events:none;
+    box-sizing:border-box;
+    grid-template-columns:minmax(0,1.45fr) minmax(170px,.75fr);
+    align-items:center;
+    gap:10px;
+    padding:7px;
+    border:1px solid rgba(138,180,255,.18);
+    border-radius:17px;
+    background:linear-gradient(135deg,rgba(8,14,34,.92),rgba(7,10,26,.88));
+    box-shadow:0 12px 30px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.055),0 0 24px rgba(79,195,247,.045);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+}
+.rogue-task-card,
+.rogue-hp-card{
+    min-width:0;
+    box-sizing:border-box;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:12px;
+    background:rgba(255,255,255,.025);
+    box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+.rogue-task-card{
+    padding:7px 10px 8px;
+}
+.rogue-task-kicker{
+    color:#7183a4;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+}
+.rogue-task-title{
+    margin-top:2px;
+    color:#fff;
+    font-size:12px;
+    line-height:1.1;
+    font-weight:900;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    text-shadow:0 0 12px rgba(156,107,255,.28);
+}
+.rogue-task-row{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    margin-top:5px;
+}
+.rogue-task-text{
+    flex:0 0 auto;
+    color:#b9c6df;
+    font-size:8px;
+    font-weight:800;
+    white-space:nowrap;
+}
+.rogue-task-progress{
+    flex:1;
+    min-width:35px;
+    height:4px;
+    overflow:hidden;
+    border-radius:99px;
+    background:rgba(255,255,255,.08);
+}
+#rogue-stage-objective-fill{
+    width:0;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#4fc3f7,#9c6bff);
+    box-shadow:0 0 10px rgba(79,195,247,.35);
+    transition:width .15s linear;
+}
+.rogue-task-time{
+    flex:0 0 auto;
+    color:#7183a4;
+    font-size:8px;
+    font-weight:700;
+    white-space:nowrap;
+}
+.rogue-hp-card{
+    padding:8px 10px 9px;
+}
+.rogue-hp-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    color:#ff9aae;
+    font-size:8px;
+    font-weight:900;
+    letter-spacing:1px;
+}
+.rogue-hp-head b{
+    color:#fff;
+    font-size:10px;
+    letter-spacing:.2px;
+    font-variant-numeric:tabular-nums;
+}
+.rogue-hp-bar{
+    height:8px;
+    margin-top:6px;
+    overflow:hidden;
+    border:1px solid rgba(255,92,122,.18);
+    border-radius:99px;
+    background:rgba(0,0,0,.35);
+    box-shadow:inset 0 1px rgba(255,255,255,.035);
+}
+#rogue-hp-fill{
+    width:100%;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#7cffb2,#4fc3f7);
+    box-shadow:0 0 12px rgba(124,255,178,.35);
+    transition:width .18s ease,background .18s ease,box-shadow .18s ease;
+}
+#rogue-hp-fill.critical{
+    background:linear-gradient(90deg,#ff5c7a,#ff9b70);
+    box-shadow:0 0 13px rgba(255,92,122,.55);
+    animation:rogueHpPulse .7s ease-in-out infinite alternate;
+}
+@keyframes rogueHpPulse{
+    from{filter:brightness(.9)}
+    to{filter:brightness(1.18)}
+}
+@media(max-width:700px){
+    #rogue-stage-objective.rogue-top-hud{
+        grid-template-columns:minmax(0,1.25fr) minmax(145px,.7fr);
+        gap:6px;
+        padding:6px;
+        border-radius:15px;
+    }
+    .rogue-task-card,.rogue-hp-card{border-radius:10px}
+    .rogue-task-card{padding:6px 8px 7px}
+    .rogue-hp-card{padding:7px 8px 8px}
+    .rogue-task-title{font-size:11px}
+    .rogue-task-text,.rogue-task-time{font-size:7px}
+    .rogue-hp-head{font-size:7px}
+    .rogue-hp-head b{font-size:9px}
+    .rogue-hp-bar{height:7px}
+}
+@media(max-width:460px){
+    #rogue-stage-objective.rogue-top-hud{
+        grid-template-columns:1fr;
+        gap:5px;
+    }
+    .rogue-hp-card{display:grid;grid-template-columns:auto minmax(80px,1fr);align-items:center;gap:8px}
+    .rogue-hp-bar{margin-top:0}
+}
+@media(prefers-reduced-motion:reduce){
+    #rogue-hp-fill.critical{animation:none}
+}

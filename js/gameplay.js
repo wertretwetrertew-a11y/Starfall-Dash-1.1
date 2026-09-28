@@ -1735,7 +1735,7 @@ function update() {
     if (bossState === 'none' && frame % 40 === 0) spawnCoin();
 
     // Roguelike XP падает сверху независимо от убийств и заметно реже золота.
-    if (bossState === 'none' && currentMode === 'rogue' && frame % 180 === 0) spawnRogueXP();
+    if (bossState === 'none' && currentMode === 'rogue' && frame % 75 === 0) spawnRogueXP();
 
     // Спавн врагов
     var baseInterval;

@@ -296,9 +296,23 @@ function toRoman(n) {
 var _rogueOldUpdateHUD = updateHUD;
 updateHUD = function updateHUD() {
     _rogueOldUpdateHUD();
-    if (currentMode === 'rogue' && hudLives) {
-        hudLives.textContent = Math.max(0, Math.ceil(rogueHP)) + ' / ' + rogueMaxHP;
-        hudLives.title = 'Здоровье';
+    if (currentMode === 'rogue') {
+        if (hudLives) {
+            hudLives.textContent = Math.max(0, Math.ceil(rogueHP)) + ' / ' + rogueMaxHP;
+            hudLives.title = 'Здоровье';
+        }
+
+        // Roguelike: the existing top progress strip becomes the live XP-to-level bar.
+        var xpBar = document.getElementById('hud-progress-fill');
+        var xpTrack = document.getElementById('hud-progress');
+        if (xpBar && xpTrack) {
+            var need = Math.max(1, Number(rogueXPNext) || 1);
+            var current = Math.max(0, Number(rogueXP) || 0);
+            var ratio = Math.max(0, Math.min(1, current / need));
+            xpBar.style.width = (ratio * 100) + '%';
+            xpTrack.title = 'Опыт: ' + current + ' / ' + need + ' XP';
+            xpTrack.setAttribute('aria-label', 'Опыт до следующего уровня: ' + current + ' из ' + need);
+        }
     }
 }
 

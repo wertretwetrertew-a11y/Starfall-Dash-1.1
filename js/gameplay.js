@@ -2256,10 +2256,20 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         }
     }
 
+    // Финальная граница игрового поля: враги и их силы не могут вытолкнуть игрока наружу.
+    player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+    player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
+
     // Уборка врагов
     enemies = enemies.filter(function(en) {
         if (en.hp <= 0) { if (typeof rogueRegisterKill === "function") rogueRegisterKill(en); return false; }
-        if (en.y >= canvas.height + 30) {
+        // Враг никогда не рисуется за боковыми границами поля.
+        en.x = Math.max(0, Math.min(canvas.width - en.size, en.x));
+        // Верхняя граница также безопасна: враг может войти только через неё.
+        if (en.y < 0) en.y = 0;
+        // Нижняя граница — край поля: удаляем врага сразу при достижении края,
+        // вместо того чтобы позволять ему вылететь за пределы canvas.
+        if (en.y + en.size >= canvas.height) {
     // 🔧 ФИКС: не даём бомберу убить игрока после его смерти
     if (en.t.explodes && lives > 0 && !gameOver) explodeBomber(en, true);
             var luckBonus = coreBonusCache.luck;
@@ -2361,6 +2371,8 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         if (boss.id === 'dragon') {
             boss.x = canvas.width / 2 - boss.size / 2 + Math.sin(boss.wobble * 0.5) * 150;
             boss.y = 60 + Math.sin(boss.wobble * 0.3) * 20;
+            boss.x = Math.max(0, Math.min(canvas.width - boss.size, boss.x));
+            boss.y = Math.max(0, Math.min(canvas.height - boss.size, boss.y));
             if (boss.fireNow) {
                 var dbx = boss.x + boss.size / 2, dby = boss.y + boss.size / 2;
                 for (var d2 = -boss.phase; d2 <= boss.phase; d2++) {

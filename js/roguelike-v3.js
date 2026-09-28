@@ -601,8 +601,12 @@ function rogueRegisterKill(enemy) {
     if (currentMode !== 'rogue' || !enemy || enemy._rogueXPAwarded) return;
     enemy._rogueXPAwarded = true;
 
-    // Kills never grant XP. XP is a separate resource that falls from the sky.
-    // Kills only charge build mechanics; planet stages track their own objectives.
+    // Every defeated enemy now creates the XP pickup that drives level-ups.
+    // Strong enemies are worth more XP; the pickup can still be collected by movement or Magnetism.
+    if (typeof spawnRogueXP === 'function') {
+        spawnRogueXP(enemy.x + enemy.size / 2, enemy.y + enemy.size / 2, enemy);
+    }
+
     var rapidKill = rogueKillChainTimer > 0;
     rogueKillChainTimer = 90;
 
@@ -890,7 +894,7 @@ update = function update() {
     }
 }
 
-/* ---------- LEVEL UP: XP ONLY ---------- */
+/* ---------- LEVEL UP: KILL-DROPPED XP ---------- */
 var _rogueOldLevelUp = levelUp;
 levelUp = function levelUp() {
     if(currentMode!=='rogue') return _rogueOldLevelUp();
@@ -991,8 +995,8 @@ function closeUpgradeModal() {
     resetFrameClock();
     updateHUD();
 
-    // If one pickup contained enough XP for another level, finish the
-    // queued level-up now instead of waiting for another orb.
+    // If one pickup crossed multiple thresholds, finish the queued
+    // level-up sequence after the current choice is closed.
     rogueProcessPendingXPLevel();
 }
 

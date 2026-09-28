@@ -296,16 +296,22 @@ function spawnCoin() {
     });
 }
 
-// Roguelike XP is an independent falling resource, not a kill reward.
-function spawnRogueXP() {
+// Roguelike XP drops from defeated enemies.
+function spawnRogueXP(x, y, enemy) {
     if (currentMode !== 'rogue') return;
-    var roll = Math.random();
-    var value = roll < 0.76 ? 1 : (roll < 0.96 ? 2 : 3);
+    var strong = enemy && (
+        enemy.type === 'miniboss' ||
+        (enemy.t && enemy.t.hp >= 6) ||
+        (enemy.maxHp || 0) >= 6
+    );
+    var value = strong ? 2 : 1;
+    if (enemy && enemy.type === 'miniboss') value = 4;
+
     rogueXPOrbs.push({
-        x: 20 + Math.random() * (canvas.width - 40),
-        y: -18,
+        x: Math.max(10, Math.min(canvas.width - 28, Number(x) || canvas.width / 2)),
+        y: Math.max(10, Math.min(canvas.height - 28, Number(y) || canvas.height / 2)),
         size: 18,
-        speed: 3.0 + Math.random() * 1.2,
+        speed: 0.8 + Math.random() * 0.45,
         phase: Math.random() * Math.PI * 2,
         value: value,
         life: 1
@@ -1854,8 +1860,7 @@ function update() {
     // Спавн монет
     if (bossState === 'none' && frame % 40 === 0) spawnCoin();
 
-    // Roguelike XP падает сверху независимо от убийств и заметно реже золота.
-    if (bossState === 'none' && currentMode === 'rogue' && frame % 75 === 0) spawnRogueXP();
+    // Roguelike XP теперь появляется только из поверженных врагов.
 
     // Спавн врагов
     var baseInterval;

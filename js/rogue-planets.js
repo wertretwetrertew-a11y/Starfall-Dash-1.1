@@ -452,6 +452,14 @@ function roguePlanetCompleteStage(){
     resetFrameClock();
     roguePlanetState.awaitingMap=false;
 
+    // A completed stage is a hard boundary. Do not carry old enemies,
+    // bullets or hazards into the next stage/map screen.
+    if (typeof enemies !== 'undefined') enemies = [];
+    if (typeof enemyBullets !== 'undefined') enemyBullets = [];
+    if (typeof rogueEnemyHazards !== 'undefined') rogueEnemyHazards.length = 0;
+    if (typeof rogueCoreFragments !== 'undefined') rogueCoreFragments.length = 0;
+    roguePlanetState.hazards = [];
+
     if(roguePlanetState.stageIndex>=3){
         roguePlanetState.bossUnlocked=true;
     }else{

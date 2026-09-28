@@ -157,15 +157,21 @@ var rogueLastBossState = 'none';
 var rogueNativeBoost = 0;
 var rogueNativeTriggered = false;
 
+var _rogueSaveReady = false;
+var _rogueSaveProfileRef = null;
 function ensureRogueV3Save() {
-    var s = getSave();
-    if (!s.classSkillLevels) {
-        s.classSkillLevels = {};
-        persist();
+    var profileRef = (typeof currentProfile !== 'undefined') ? currentProfile : null;
+    if (_rogueSaveReady && _rogueSaveProfileRef === profileRef && profileRef && profileRef.data) {
+        return profileRef.data;
     }
+    var s = (profileRef && profileRef.data) ? profileRef.data : getSave();
+    if (!s.classSkillLevels) s.classSkillLevels = {};
     Object.keys(CHARACTER_CLASSES).forEach(function(id) {
         if (typeof s.classSkillLevels[id] !== 'number') s.classSkillLevels[id] = 1;
     });
+    if (profileRef && profileRef.data === s) persist();
+    _rogueSaveProfileRef = profileRef;
+    _rogueSaveReady = true;
     return s;
 }
 
@@ -273,7 +279,7 @@ function toRoman(n) {
 
 /* ---------- HUD ---------- */
 var _rogueOldUpdateHUD = updateHUD;
-function updateHUD() {
+updateHUD = function updateHUD() {
     _rogueOldUpdateHUD();
     if (currentMode === 'rogue' && hudLives) {
         hudLives.textContent = Math.max(0, Math.ceil(rogueHP)) + ' / ' + rogueMaxHP;
@@ -283,7 +289,7 @@ function updateHUD() {
 
 /* ---------- RESET ---------- */
 var _rogueOldReset = reset;
-function reset() {
+reset = function reset() {
     _rogueOldReset();
     if (currentMode !== 'rogue') return;
 
@@ -743,7 +749,7 @@ function rogueDetectContact() {
 
 /* ---------- MAIN UPDATE WRAPPER ---------- */
 var _rogueOldUpdate = update;
-function update() {
+update = function update() {
     if(currentMode==='rogue'){
         if(rogueContactTimer>0) rogueContactTimer--;
         applyNativeClassSkill();
@@ -795,7 +801,7 @@ function update() {
 
 /* ---------- LEVEL UP: XP ONLY ---------- */
 var _rogueOldLevelUp = levelUp;
-function levelUp() {
+levelUp = function levelUp() {
     if(currentMode!=='rogue') return _rogueOldLevelUp();
 
     var s=getSave();
@@ -886,7 +892,7 @@ function closeUpgradeModal() {
 
 /* ---------- RUN RESULT ---------- */
 var _rogueOldFinishRun=finishRun;
-function finishRun() {
+finishRun = function finishRun() {
     if(currentMode==='rogue'){
         // Run-only state is intentionally discarded after result screen.
         var s=getSave();
@@ -916,7 +922,7 @@ ensureRogueV3Save();
 
 /* Medkits heal HP in the new Roguelike instead of creating lives. */
 var _rogueOldApplyDrop = applyDrop;
-function applyDrop(type,x,y){
+applyDrop = function applyDrop(type,x,y){
     if(currentMode==='rogue' && type==='medkit'){
         var heal=20;
         rogueHP=Math.min(rogueMaxHP,rogueHP+heal);

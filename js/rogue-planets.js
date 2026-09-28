@@ -15,30 +15,30 @@ var ROGUE_PLANETS = {
         id:'arden', name:'АРДЕН', subtitle:'ПЕПЕЛЬНЫЙ МИР', icon:'🔥', color:'#ff7043', boss:'dragon',
         description:'Пепел, метеориты и огненные разломы.',
         stages:[
-            {name:'Пепельное поле', type:'distance', icon:'⚔️', desc:'Пройди 1400 единиц пути.', objective:{kind:'distance',target:2800,label:'Путь',unit:'ед.'}},
-            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 30 секунд под метеорами.', objective:{kind:'time',target:60,label:'Время',unit:'с'}},
-            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 8 врагов в огненной зоне.', objective:{kind:'kills',target:15,label:'Враги',unit:''}},
-            {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 2 усиленных врага.', objective:{kind:'strongKills',target:4,label:'Сильные',unit:''}}
+            {name:'Пепельное поле', type:'distance', icon:'⚔️', desc:'Пройди 12000 единиц пути. Этап рассчитан примерно на 5–6 LVL.', objective:{kind:'distance',target:12000,label:'Путь',unit:'ед.'}},
+            {name:'Метеоритный дождь', type:'meteor', icon:'☄️', desc:'Продержись 150 секунд под метеорами. К завершению забега игрок обычно около 7 LVL.', objective:{kind:'time',target:150,label:'Время',unit:'с'}},
+            {name:'Огненные разломы', type:'hazard', icon:'🔥', desc:'Победи 25 врагов в огненной зоне, не торопясь: минимум этапа сохраняет нужный темп прокачки.', objective:{kind:'kills',target:25,label:'Враги',unit:''}},
+            {name:'Охота', type:'elite', icon:'☠️', desc:'Победи 6 усиленных врагов. К финалу планеты цель — подойти к 9–10 LVL.', objective:{kind:'strongKills',target:6,label:'Сильные',unit:''}}
         ]
     },
     nivara: {
         id:'nivara', name:'НИВАРА', subtitle:'МЁРТВЫЙ ЛЁД', icon:'❄️', color:'#4fc3f7', boss:'titan',
         description:'Лёд меняет движение, а пространство сжимается.',
         stages:[
-            {name:'Ледяное поле', type:'ice', icon:'❄️', desc:'Пройди 1800 единиц пути по льду.', objective:{kind:'distance',target:3200,label:'Путь',unit:'ед.'}},
-            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Победи 10 врагов в ближней засаде.', objective:{kind:'kills',target:18,label:'Враги',unit:''}},
-            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Продержись 32 секунды в буре.', objective:{kind:'time',target:70,label:'Время',unit:'с'}},
-            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Победи 3 усиленных врага в сужающейся зоне.', objective:{kind:'strongKills',target:5,label:'Сильные',unit:''}}
+            {name:'Ледяное поле', type:'ice', icon:'❄️', desc:'Пройди 15000 единиц пути по льду.', objective:{kind:'distance',target:15000,label:'Путь',unit:'ед.'}},
+            {name:'Засада', type:'ambush', icon:'⚠️', desc:'Победи 30 врагов в ближней засаде.', objective:{kind:'kills',target:30,label:'Враги',unit:''}},
+            {name:'Ледяная буря', type:'storm', icon:'🌨️', desc:'Продержись 150 секунд в буре.', objective:{kind:'time',target:150,label:'Время',unit:'с'}},
+            {name:'Замёрзшая арена', type:'shrink', icon:'🧊', desc:'Победи 7 усиленных врагов в сужающейся зоне.', objective:{kind:'strongKills',target:7,label:'Сильные',unit:''}}
         ]
     },
     exor: {
         id:'exor', name:'ЭКЗОР', subtitle:'МЁРТВАЯ ЗВЕЗДА', icon:'🌌', color:'#9c6bff', boss:'devourer',
         description:'Разломы и гравитация разрушают пространство.',
         stages:[
-            {name:'Разлом', type:'rift', icon:'🌀', desc:'Пройди 2000 единиц пути через разломы.', objective:{kind:'distance',target:3600,label:'Путь',unit:'ед.'}},
-            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Победи 12 врагов в гравитационных полях.', objective:{kind:'kills',target:22,label:'Враги',unit:''}},
-            {name:'Крах', type:'collapse', icon:'💠', desc:'Победи 2 усиленных врага до полного коллапса.', objective:{kind:'strongKills',target:4,label:'Сильные',unit:''}},
-            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Продержись 35 секунд перед Пожирателем.', objective:{kind:'time',target:80,label:'Время',unit:'с'}}
+            {name:'Разлом', type:'rift', icon:'🌀', desc:'Пройди 18000 единиц пути через разломы.', objective:{kind:'distance',target:18000,label:'Путь',unit:'ед.'}},
+            {name:'Гравитация', type:'gravity', icon:'🕳️', desc:'Победи 35 врагов в гравитационных полях.', objective:{kind:'kills',target:35,label:'Враги',unit:''}},
+            {name:'Крах', type:'collapse', icon:'💠', desc:'Победи 7 усиленных врагов до полного коллапса.', objective:{kind:'strongKills',target:7,label:'Сильные',unit:''}},
+            {name:'Последний рубеж', type:'finaltrial', icon:'⚡', desc:'Продержись 150 секунд перед Пожирателем. Финальная цель — выйти к 10 LVL.', objective:{kind:'time',target:150,label:'Время',unit:'с'}}
         ]
     }
 };
@@ -56,10 +56,10 @@ var roguePlanetState = {
     stageStrongKills:0,
     stageLastX:0,
     stageLastY:0,
-    stageMinDuration:45*60,
+    stageMinDuration:150*60,
     stageBanner:'',
     stageBannerTimer:0,
-    stageDuration:90*60,
+    stageDuration:180*60,
     hazardTimer:0,
     hazards:[],
     bossUnlocked:false,

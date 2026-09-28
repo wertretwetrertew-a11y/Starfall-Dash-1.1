@@ -1913,7 +1913,8 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
                 while (rogueXP >= rogueXPNext) {
                     rogueXP -= rogueXPNext;
                     rogueXPNext = Math.floor(rogueXPNext * 1.32 + 3);
-                    if (typeof _rogueOldLevelUp === 'function') _rogueOldLevelUp();
+                    // Call the active levelUp wrapper so Roguelike uses XP progression.
+                    if (typeof levelUp === 'function') levelUp();
                     if (isChoosingUpgrade || !running) break;
                 }
                 updateHUD();

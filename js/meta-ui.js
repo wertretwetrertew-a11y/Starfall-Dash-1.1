@@ -601,7 +601,6 @@ var SHOP_CATEGORIES = {
         { tab: 'themes', label: '🌌 Темы' }
     ],
     effects: [
-        { tab: 'items', label: '⚡ Улучшения' },
         { tab: 'boosts', label: '🛍 Бусты' },
         { tab: 'sound', label: '🔊 Звуки' },
         { tab: 'music', label: '🎵 Музыка' }

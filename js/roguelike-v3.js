@@ -178,6 +178,12 @@ function ensureRogueV3Save() {
     Object.keys(CHARACTER_CLASSES).forEach(function(id) {
         if (typeof s.classSkillLevels[id] !== 'number') s.classSkillLevels[id] = 1;
     });
+    if (!s.rogueProgress || typeof s.rogueProgress !== 'object') {
+        s.rogueProgress = { planetIndex:0, stageIndex:0, bossUnlocked:false };
+    }
+    s.rogueProgress.planetIndex = Math.max(0, Math.min(2, Number(s.rogueProgress.planetIndex)||0));
+    s.rogueProgress.stageIndex = Math.max(0, Math.min(3, Number(s.rogueProgress.stageIndex)||0));
+    s.rogueProgress.bossUnlocked = !!s.rogueProgress.bossUnlocked;
     if (profileRef && profileRef.data === s) persist();
     _rogueSaveProfileRef = profileRef;
     _rogueSaveReady = true;
@@ -980,7 +986,7 @@ function closeUpgradeModal() {
 var _rogueOldFinishRun=finishRun;
 finishRun = function finishRun() {
     if(currentMode==='rogue'){
-        // Run-only state is intentionally discarded after result screen.
+        // Stage/planet checkpoint is persistent. Run-only upgrades still reset on death.
         var s=getSave();
         s.lastRogueClass=selectedClass;
         s.lastRogueClassSkillLevel=getClassSkillLevel(selectedClass);

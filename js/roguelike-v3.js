@@ -333,6 +333,8 @@ reset = function reset() {
     rogueBloodCharges = 0;
     rogueCounterTimer = 0;
     roguePhaseTimer = 0;
+    playerShields = 0;
+    maxShields = 0;
     roguePhaseReady = false;
     rogueContactTimer = 0;
     roguePulseMarks = {};
@@ -473,6 +475,7 @@ function playerTakeDamage() {
     resetCombo();
 
     if (runUpgrades.blood) rogueBloodCharges = Math.min(3, rogueBloodCharges + runUpgrades.blood);
+    if (runUpgrades.shield) rogueGrantShields(runUpgrades.shield);
     if (runUpgrades.counter) rogueCounterTimer = 90;
     if (getClass(selectedClass).skillId === 'impact_core') rogueImpactReady = true;
     if (runUpgrades.phase) {
@@ -646,9 +649,29 @@ function rogueRegisterKill(enemy) {
         });
     }
 }
+function rogueGrantShields(stacks) {
+    stacks = Math.max(0, Number(stacks) || 0);
+    maxShields = stacks;
+    playerShields = Math.min(maxShields, playerShields + stacks);
+    if (stacks > 0) {
+        addFloatingText(player.x + player.size/2, player.y - 18, '🛡 +' + stacks, '#4fc3f7', 15);
+        addParticles(player.x + player.size/2, player.y + player.size/2, '#4fc3f7', 10, 7);
+    }
+}
+function rogueEnsureShieldCapacity() {
+    if (!runUpgrades.shield) {
+        playerShields = 0;
+        maxShields = 0;
+        return;
+    }
+    maxShields = Math.max(1, runUpgrades.shield);
+    playerShields = Math.min(playerShields, maxShields);
+}
+
 /* ---------- RUN SYSTEM TICK ---------- */
 function rogueTickSystems() {
     if (currentMode !== 'rogue' || !running || gameOver) return;
+    rogueEnsureShieldCapacity();
 
     if (rogueCounterTimer > 0) rogueCounterTimer--;
     if (rogueKillChainTimer > 0) rogueKillChainTimer--;

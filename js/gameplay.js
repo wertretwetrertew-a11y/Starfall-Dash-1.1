@@ -12,6 +12,9 @@ var bossAnnouncement = '';
 var bossAnnouncementTimer = 0;
 var bossDuelId = null;
 
+// Roguelike enemy telegraphs / area attacks. Kept separate from planet hazards.
+var rogueEnemyHazards = [];
+
 // ===== ИГРОК =====
 var player = {
     x: 285, y: 340, size: 30, speed: 7, frozen: 0, inWeb: false,
@@ -422,6 +425,7 @@ function spawnBoss(bossId) {
     // Босс всегда выходит один на один: очищаем обычных врагов и их снаряды.
     enemies = [];
     enemyBullets = [];
+    rogueEnemyHazards = [];
     coins = [];
     webs = [];
     drops = [];
@@ -464,6 +468,46 @@ function spawnEnemyBullet(x, y, vx, vy, opts) {
 
 function spawnWeb(x, y) {
     webs.push({ x: x, y: y, size: 60 + Math.random() * 20, life: 300 });
+}
+
+function spawnRogueEnemyHazard(x, y, radius, life, color, kind) {
+    if (currentMode !== 'rogue') return;
+    rogueEnemyHazards.push({
+        x:x, y:y, radius:radius, life:life, maxLife:life,
+        color:color || '#ff5c7a', kind:kind || 'blast',
+        hitCooldown:0, warning:Math.min(35, Math.floor(life * 0.45))
+    });
+    if (rogueEnemyHazards.length > 12) rogueEnemyHazards.shift();
+}
+
+function updateRogueEnemyHazards() {
+    if (currentMode !== 'rogue') {
+        rogueEnemyHazards.length = 0;
+        return;
+    }
+    var px = player.x + player.size / 2;
+    var py = player.y + player.size / 2;
+    for (var i = rogueEnemyHazards.length - 1; i >= 0; i--) {
+        var h = rogueEnemyHazards[i];
+        h.life--;
+        if (h.hitCooldown > 0) h.hitCooldown--;
+        if (h.warning > 0) h.warning--;
+
+        if (h.life <= 0) {
+            rogueEnemyHazards.splice(i, 1);
+            continue;
+        }
+
+        if (h.warning <= 0 && h.hitCooldown <= 0 && buff.phantom <= 0 &&
+            Math.hypot(px - h.x, py - h.y) < h.radius + player.size * 0.35) {
+            if (h.kind === 'freeze') {
+                player.frozen = Math.max(player.frozen, 45);
+                showToast('🧊 ЗОНА ЛЬДА!', 'info');
+            }
+            playerTakeDamage();
+            h.hitCooldown = h.kind === 'freeze' ? 55 : 45;
+        }
+    }
 }
 
 // ==========================================================
@@ -1361,9 +1405,18 @@ function explodeBomber(e, offscreen) {
     }
     if (!offscreen) {
         screenShake = 16;
+        if (currentMode === 'rogue') {
+            // Взрыв — настоящая радиусная атака с коротким визуальным следом.
+            spawnRogueEnemyHazard(cx, cy, e.t.blastRadius || 95, 16, '#ff5722', 'blast');
+            var pxc = player.x + player.size/2, pyc = player.y + player.size/2;
+            if (Math.hypot(pxc - cx, pyc - cy) < (e.t.blastRadius || 95) &&
+                buff.phantom <= 0 && player.damageFlash <= 0) {
+                playerTakeDamage();
+            }
+        }
     } else {
         var pxc = player.x + player.size/2, pyc = player.y + player.size/2;
-        if (Math.hypot(pxc - cx, pyc - cy) < 100 && buff.phantom <= 0 && player.damageFlash <= 0) {
+        if (Math.hypot(pxc - cx, pyc - cy) < (e.t.blastRadius || 100) && buff.phantom <= 0 && player.damageFlash <= 0) {
             playerTakeDamage();
         }
     }
@@ -1776,9 +1829,23 @@ function update() {
     }
 
     if (bossState === 'none') {
-        if (frame % Math.max(8, Math.floor(baseInterval / enemyMult)) === 0) spawnEnemy();
-        if (level >= 3 && frame % Math.max(15, Math.floor(baseInterval * 2 / enemyMult)) === 0) spawnEnemy();
-        if (level >= 6 && frame % Math.max(30, Math.floor(baseInterval * 4 / enemyMult)) === 0) spawnEnemy();
+        if (currentMode === 'rogue' && typeof getRogueStageEnemyConfig === 'function') {
+            var rogueSpawnCfg = getRogueStageEnemyConfig();
+            if (rogueSpawnCfg) {
+                var rogueInterval = Math.max(55, rogueSpawnCfg.spawnInterval || 90);
+                var rogueMaxAlive = Math.max(3, rogueSpawnCfg.maxAlive || 5);
+                if (currentWaveModifier && currentWaveModifier.enemyMult) {
+                    rogueInterval = Math.max(55, Math.floor(rogueInterval / currentWaveModifier.enemyMult));
+                }
+                if (enemies.length < rogueMaxAlive && frame % rogueInterval === 0) {
+                    spawnEnemy();
+                }
+            }
+        } else {
+            if (frame % Math.max(8, Math.floor(baseInterval / enemyMult)) === 0) spawnEnemy();
+            if (level >= 3 && frame % Math.max(15, Math.floor(baseInterval * 2 / enemyMult)) === 0) spawnEnemy();
+            if (level >= 6 && frame % Math.max(30, Math.floor(baseInterval * 4 / enemyMult)) === 0) spawnEnemy();
+        }
     }
 
     // Боссы
@@ -1969,6 +2036,9 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
     var py = player.y + player.size / 2;
     var frozen = buff.freeze > 0;
 
+    // Вражеские радиусные атаки обновляются отдельно от столкновений.
+    updateRogueEnemyHazards();
+
     // ВРАГИ
     for (var ei = 0; ei < enemies.length; ei++) {
         var e = enemies[ei];
@@ -1990,6 +2060,17 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
                 e.y += e.speed * 4;
             } else {
                 e.y += e.speed * 2.2;
+            }
+            // Дистанционная атака: летун держит темп и периодически стреляет в куб.
+            e.shootTimer--;
+            if (e.shootTimer <= 0 && e.y > 25 && e.y < canvas.height - 40) {
+                e.shootTimer = et.shootsEvery || 150;
+                var fcx = e.x + e.size / 2, fcy = e.y + e.size / 2;
+                var fa = Math.atan2(py - fcy, px - fcx);
+                spawnEnemyBullet(fcx, fcy,
+                    Math.cos(fa) * (et.projectileSpeed || 3.2),
+                    Math.sin(fa) * (et.projectileSpeed || 3.2),
+                    {color:'#42a5f5', size:6, life:150});
             }
         } else if (et.shape === 'diamond' || et.shape === 'snake') {
             e.y += e.speed;
@@ -2016,6 +2097,16 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
         } else if (et.shape === 'ice') {
             e.y += e.speed;
             e.x += Math.sin(e.wobble) * 0.8;
+            // Ледяная зона появляется рядом с игроком, но сначала предупреждает.
+            e.shootTimer--;
+            if (e.shootTimer <= 0 && e.y > 20 && e.y < canvas.height - 40) {
+                e.shootTimer = et.zoneEvery || 150;
+                spawnRogueEnemyHazard(
+                    px + (Math.random() - 0.5) * 90,
+                    py + (Math.random() - 0.5) * 90,
+                    et.zoneRadius || 58, 80, '#00e5ff', 'freeze'
+                );
+            }
         } else if (et.shape === 'star') {
             e.y += e.speed * 0.6;
             e.x += Math.sin(e.wobble * 0.4) * 1.0;
@@ -2048,9 +2139,9 @@ if (level === BOSS_TYPES.devourer.level && !bosses.some(function(b){ return b.id
             if (e.shootTimer <= 0 && e.y > 20) {
                 e.shootTimer = et.shootsEvery || 120;
                 var ccx = e.x + e.size / 2, ccy = e.y + e.size / 2;
-                for (var cc = 0; cc < (et.shootsCount || 8); cc++) {
-                    var ca = (cc / 8) * Math.PI * 2 + e.wobble * 0.1;
-                    spawnEnemyBullet(ccx, ccy, Math.cos(ca) * 2.8, Math.sin(ca) * 2.8,
+                for (var cc = 0; cc < (et.shootsCount || 5); cc++) {
+                    var ca = (cc / (et.shootsCount || 5)) * Math.PI * 2 + e.wobble * 0.1;
+                    spawnEnemyBullet(ccx, ccy, Math.cos(ca) * 2.6, Math.sin(ca) * 2.6,
                         { color: '#00e5ff', size: 6 });
                 }
             }
@@ -2524,6 +2615,22 @@ function drawPlayer() {
     ctx.roundRect(0, 0, player.size, player.size, 8);
     ctx.fill();
 
+    // Предупреждение лазера: сначала игрок видит линию, потом получает урон.
+    if (t.shape === 'laser' && e.laserCharging) {
+        ctx.save();
+        var lcx = e.x + e.size / 2;
+        ctx.globalAlpha = 0.22 + 0.18 * Math.sin(performance.now() / 70);
+        ctx.strokeStyle = '#ff1744';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = '#ff1744';
+        ctx.shadowBlur = 16;
+        ctx.beginPath();
+        ctx.moveTo(lcx, 0);
+        ctx.lineTo(lcx, e.y + e.size);
+        ctx.stroke();
+        ctx.restore();
+    }
+
     // Глаза
     ctx.shadowBlur = 0;
     var eyeY = player.size * 0.38;
@@ -2649,6 +2756,40 @@ function drawDrop(d) {
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(style.emoji, 0, 1);
     ctx.restore();
+}
+
+function drawRogueEnemyHazards() {
+    if (currentMode !== 'rogue') return;
+    var now = performance.now();
+    for (var i = 0; i < rogueEnemyHazards.length; i++) {
+        var h = rogueEnemyHazards[i];
+        var warning = h.warning > 0;
+        var pulse = 1 + Math.sin(now / 90) * 0.06;
+        ctx.save();
+        ctx.globalAlpha = warning ? 0.18 : 0.12;
+        ctx.fillStyle = h.color;
+        ctx.shadowColor = h.color;
+        ctx.shadowBlur = warning ? 10 : 18;
+        ctx.beginPath();
+        ctx.arc(h.x, h.y, h.radius * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = warning ? 0.85 : 0.55;
+        ctx.strokeStyle = h.color;
+        ctx.lineWidth = warning ? 2.5 : 1.5;
+        ctx.beginPath();
+        ctx.arc(h.x, h.y, h.radius * pulse, 0, Math.PI * 2);
+        ctx.stroke();
+
+        if (warning) {
+            ctx.globalAlpha = 0.9;
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 10px Segoe UI, Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚠', h.x, h.y + 4);
+        }
+        ctx.restore();
+    }
 }
 
 function drawEnemyBullet(b) {
@@ -2867,6 +3008,7 @@ function draw() {
     ctx.globalAlpha = 1;
 
     drawWeather();
+    drawRogueEnemyHazards();
 
     // Метеоры
     for (var mi = 0; mi < meteors.length; mi++) {

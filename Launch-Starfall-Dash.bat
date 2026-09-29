@@ -20,11 +20,34 @@ if errorlevel 1 (
 )
 
 if not exist ".git\HEAD" (
-  echo ERROR: This folder is not a Git repository.
-  echo Clone the repository first:
-  echo https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1
-  pause
-  exit /b 1
+  echo This folder is not a Git repository yet.
+  echo Connecting this game folder to GitHub main...
+  git init
+  if errorlevel 1 (
+    echo ERROR: Could not initialize Git.
+    pause
+    exit /b 1
+  )
+  git remote get-url origin >nul 2>&1
+  if errorlevel 1 git remote add origin https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git
+  if errorlevel 1 (
+    echo ERROR: Could not add the GitHub remote.
+    pause
+    exit /b 1
+  )
+  git fetch origin main --quiet
+  if errorlevel 1 (
+    echo ERROR: Could not download main from GitHub.
+    pause
+    exit /b 1
+  )
+  git reset --hard origin/main
+  if errorlevel 1 (
+    echo ERROR: Could not synchronize the game folder.
+    pause
+    exit /b 1
+  )
+  echo Game folder connected to GitHub main.
 )
 
 git fetch origin main --quiet

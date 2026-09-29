@@ -3,13 +3,13 @@ import fs from "node:fs";
 import path from "node:path";
 import {execFileSync} from "node:child_process";
 import {randomBytes} from "node:crypto";
-const ROOT=process.cwd(), CONFIG=path.join(ROOT,"config","roguelike-balance.json"), RUNTIME=path.join(ROOT,"js","balance-config.js");
+const ROOT=process.cwd(), CONFIG=path.join(ROOT,"config","roguelike-balance.json"), RUNTIME=path.join(ROOT,"src","data","roguelike-balance.js");
 const PORT=Number(process.env.STARFALL_BALANCE_PORT||4179), TOKEN=randomBytes(18).toString("hex");
 const PAGE=fs.readFileSync(path.join(ROOT,"tools","balance-editor.html"),"utf8");
 function load(){return JSON.parse(fs.readFileSync(CONFIG,"utf8"))}
 function runtime(data){return "// AUTO-GENERATED FROM config/roguelike-balance.json\n// Edit the JSON with: node tools/balance-editor.mjs\nvar STARFALL_BALANCE = "+JSON.stringify(data,null,2)+";\nfunction sfBalance(){ return (typeof STARFALL_BALANCE==='object' && STARFALL_BALANCE) ? STARFALL_BALANCE : null; }\nfunction sfRogueBalance(){ var b=sfBalance(); return b && b.rogue ? b.rogue : null; }\nfunction sfRogueStageBalance(planetKey, stageIndex){ var b=sfRogueBalance(); var list=b && b.stages && b.stages[planetKey]; return list && list[stageIndex] ? list[stageIndex] : null; }\nfunction sfGetEnemyBalance(typeKey){ var b=sfRogueBalance(); return b&&b.enemies&&b.enemies[typeKey] ? b.enemies[typeKey] : null; }\nfunction sfGetBossBalance(bossKey){ var b=sfRogueBalance(); return b&&b.bosses&&b.bosses[bossKey] ? b.bosses[bossKey] : null; }\n"}
 function save(data){fs.writeFileSync(CONFIG,JSON.stringify(data,null,2)+"\n");fs.writeFileSync(RUNTIME,runtime(data))}
-function commit(){execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js"],{cwd:ROOT,stdio:"pipe"});return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"})}
+function commit(){execFileSync("git",["add","config/roguelike-balance.json","src/data/roguelike-balance.js"],{cwd:ROOT,stdio:"pipe"});return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"})}
 function push(){const branch=execFileSync("git",["rev-parse","--abbrev-ref","HEAD"],{cwd:ROOT,encoding:"utf8"}).trim();if(!branch||branch==="HEAD")throw new Error("Не удалось определить текущую Git-ветку.");return execFileSync("git",["push","origin",branch],{cwd:ROOT,encoding:"utf8",stdio:"pipe"})}
 function headSha(){return execFileSync("git",["rev-parse","HEAD"],{cwd:ROOT,encoding:"utf8"}).trim()}
 function send(res,status,type,body){res.writeHead(status,{"Content-Type":type,"Cache-Control":"no-store"});res.end(body)}

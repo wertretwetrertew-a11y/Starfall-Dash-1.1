@@ -176,7 +176,11 @@ function roguePlanetInjectUI(){
 
     overlay.addEventListener('click',function(e){
         if(e.target===overlay && !roguePlanetState.stageStarted && !roguePlanetState.bossActive){
-            roguePlanetCloseMap();
+            if(gameOver && typeof returnToMainMenu === 'function') {
+                returnToMainMenu();
+            } else {
+                roguePlanetCloseMap();
+            }
         }
     });
     document.getElementById('rpm-close').addEventListener('click',function(){

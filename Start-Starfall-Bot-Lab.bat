@@ -35,6 +35,23 @@ if errorlevel 1 (
   git remote set-url origin %REPO%
 )
 
+rem Make GitHub authentication happen in the visible launcher, not inside hidden Node.
+rem This prevents the /dev/tty credential-prompt error shown by Bot Lab.
+git credential-manager --version >nul 2>&1
+if not errorlevel 1 (
+  git credential-manager github list >nul 2>&1
+  if errorlevel 1 (
+    echo.
+    echo Требуется один раз войти в GitHub для сохранения изменений из Bot Lab.
+    echo Откроется окно/браузер GitHub. После входа вернись сюда.
+    git credential-manager github login
+    if errorlevel 1 (
+      echo Не удалось выполнить вход в GitHub. Bot Lab будет запущен без push.
+      goto startbot
+    )
+  )
+)
+
 git fetch origin main --quiet
 if errorlevel 1 (
   echo Не удалось проверить GitHub. Запускаю текущую версию Bot Lab.

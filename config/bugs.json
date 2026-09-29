@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "nextId": 6,
+  "bugs": [
+    {
+      "id": 5,
+      "title": "После смерти кнопки «Ещё раз» и «Закрыть карту» не возвращают в меню",
+      "priority": "high",
+      "status": "testing",
+      "createdAt": "2026-09-29",
+      "fixedAt": null,
+      "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
+      "description": "После смерти при нажатии «Ещё раз» или «Закрыть карту» игра не возвращается в главное меню и нужный экран перехода не срабатывает."
+    },
+    {
+      "id": 4,
+      "title": "Из основного меню игры пропала кнопка быстрого запуска режима «Рогалик»",
+      "priority": "medium",
+      "status": "testing",
+      "createdAt": "2026-09-29",
+      "fixedAt": null,
+      "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
+      "description": "В главном меню отсутствует кнопка, которая должна позволять быстро запустить режим Roguelike."
+    },
+    {
+      "id": 3,
+      "title": "В Рогалике не начисляется опыт (XP)",
+      "priority": "high",
+      "status": "testing",
+      "createdAt": "2026-09-29",
+      "fixedAt": null,
+      "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
+      "description": "За убийства врагов в режиме Roguelike игроку не начисляется опыт, поэтому прогресс уровня не увеличивается."
+    },
+    {
+      "id": 2,
+      "title": "Куча ошибок при открытии меню",
+      "priority": "high",
+      "status": "testing",
+      "createdAt": "2026-09-29",
+      "fixedAt": null,
+      "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
+      "description": "При открытии игрового меню в консоли появляется множество JavaScript-ошибок, в том числе ошибки чтения свойств null/undefined и addEventListener."
+    },
+    {
+      "id": 1,
+      "title": "Не отображается игровое меню",
+      "priority": "critical",
+      "status": "testing",
+      "createdAt": "2026-09-29",
+      "fixedAt": null,
+      "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
+      "description": "При запуске игры игровое меню не отображается; на странице остаются только заголовок и элемент «Кто играет?»."
+    }
+  ]
+}

@@ -1,5 +1,26 @@
 {
   "version": 1,
-  "nextId": 1,
-  "bugs": []
+  "nextId": 3,
+  "bugs": [
+    {
+      "id": 2,
+      "title": "Куча ошибок при открытии меню",
+      "priority": "high",
+      "status": "open",
+      "createdAt": "2026-09-29",
+      "fixedAt": null,
+      "commit": null,
+      "description": "При открытии игрового меню в консоли появляется множество JavaScript-ошибок, в том числе ошибки чтения свойств null/undefined и addEventListener."
+    },
+    {
+      "id": 1,
+      "title": "Не отображается игровое меню",
+      "priority": "critical",
+      "status": "open",
+      "createdAt": "2026-09-29",
+      "fixedAt": null,
+      "commit": null,
+      "description": "При запуске игры игровое меню не отображается; на странице остаются только заголовок и элемент «Кто играет?»."
+    }
+  ]
 }

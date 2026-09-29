@@ -21,10 +21,8 @@ function spawnCoin() {
 function spawnRogueXP() {
     if (currentMode !== 'rogue' || typeof rogueXPOrbs === 'undefined') return;
 
-    // XP is a rare field drop. It follows the exact same spawn pattern as gold:
-    // random horizontal position, starts above the field, then falls downward.
-    if (Math.random() >= 0.20) return;
-
+    // XP is a rare field drop independent of kills.
+    // The caller controls how often it is spawned, just like the gold timer.
     rogueXPOrbs.push({
         x: 20 + Math.random() * (canvas.width - 40),
         y: -20,

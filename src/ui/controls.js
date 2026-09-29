@@ -130,11 +130,15 @@ function returnToMainMenu() {
     if (typeof clearBossDuelPresentation === 'function') clearBossDuelPresentation();
     stopMusic();
     resetFrameClock();
-    startScreen.classList.remove('hidden');
-    modeScreen.classList.add('hidden');
-    classScreen.classList.add('hidden');
-    coreScreen.classList.add('hidden');
-    updateMainMenuStats();
+    if (typeof showStarfallMainMenu === 'function') {
+        showStarfallMainMenu();
+    } else {
+        startScreen.classList.remove('hidden');
+        modeScreen.classList.add('hidden');
+        classScreen.classList.add('hidden');
+        coreScreen.classList.add('hidden');
+        try { updateMainMenuStats(); } catch (e) { console.error('Menu refresh error:', e); }
+    }
 }
 
 if (goRestart) {

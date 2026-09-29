@@ -467,9 +467,15 @@ function roguePlanetShowStageComplete(){
     document.getElementById('rogue-stage-complete-name').textContent =
         roguePlanetState.stageIndex>=3 ? '🔥 БОСС ОТКРЫТ' : '✓ СЛЕДУЮЩИЙ ЭТАП ОТКРЫТ';
     el.style.display='flex';
+    var completeToken=roguePlanetState.transitionToken;
     setTimeout(function(){
+        // A finished run invalidates this callback. Never reopen the map over
+        // the main menu/game-over screen.
+        if (completeToken !== roguePlanetState.transitionToken) return;
         el.style.display='none';
-        if(currentMode==='rogue' && !gameOver) roguePlanetOpenMap();
+        if(currentMode==='rogue' && roguePlanetState.active && !gameOver) {
+            roguePlanetOpenMap();
+        }
     },1500);
 }
 

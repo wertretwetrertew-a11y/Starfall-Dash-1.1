@@ -21,6 +21,15 @@ function loadBugs(){
 }
 function saveBugs(data){
   data.bugs=Array.isArray(data.bugs)?data.bugs:[];
+  // Bot Lab uses exactly two statuses: open or fixed.
+  for(const bug of data.bugs){
+    bug.status=bug.status==="fixed"?"fixed":"open";
+    if(bug.status==="fixed"){
+      if(!bug.fixedAt) bug.fixedAt=new Date().toISOString().slice(0,10);
+    }else{
+      bug.fixedAt=null;
+    }
+  }
   data.bugs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))||Number(b.id)-Number(a.id));
   data.nextId=data.bugs.reduce((m,b)=>Math.max(m,Number(b.id)||0),0)+1;
   fs.writeFileSync(BUGS,JSON.stringify(data,null,2)+"\n");

@@ -1,0 +1,78 @@
+name: Auto mark bugs fixed
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  mark-fixed:
+    if: contains(github.event.head_commit.message, 'Fix bug #') || contains(github.event.head_commit.message, 'Fix bugs #')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Mark referenced bugs as fixed
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = 'config/bugs.json';
+          const data = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const message = process.env.COMMIT_MESSAGE || '';
+
+          // ChatGPT bug-fix commits must contain "Fix bug #N" or "Fix bugs #N #M".
+          const ids = [...message.matchAll(/Fix bugs? #([0-9]+)/gi)].map(m => Number(m[1]));
+          if (!ids.length) process.exit(0);
+
+          const today = new Date().toISOString().slice(0, 10);
+          let changed = false;
+
+          for (const id of ids) {
+            const bug = data.bugs.find(b => Number(b.id) === id);
+            if (!bug) continue;
+            if (bug.status !== 'fixed' || !bug.fixedAt) {
+              bug.status = 'fixed';
+              bug.fixedAt = today;
+              bug.commit = process.env.GITHUB_SHA;
+              changed = true;
+            }
+          }
+
+          // Enforce the two-state model everywhere.
+          for (const bug of data.bugs) {
+            if (bug.status !== 'fixed') {
+              if (bug.status !== 'open') {
+                bug.status = 'open';
+                changed = true;
+              }
+              if (bug.fixedAt) {
+                bug.fixedAt = null;
+                changed = true;
+              }
+            }
+          }
+
+          if (changed) {
+            fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');
+          }
+          NODE
+
+      - name: Commit status changes
+        run: |
+          if git diff --quiet -- config/bugs.json; then
+            echo "No bug status changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add config/bugs.json
+          git commit -m "Bot: mark fixed bugs automatically"
+          git push

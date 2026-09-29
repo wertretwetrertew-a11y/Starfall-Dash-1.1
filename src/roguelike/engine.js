@@ -616,14 +616,8 @@ function rogueRegisterKill(enemy) {
     if (currentMode !== 'rogue' || !enemy || enemy._rogueXPAwarded) return;
     enemy._rogueXPAwarded = true;
 
-    // Every defeated enemy now creates the XP pickup that drives level-ups.
-    // Strong enemies are worth more XP; the pickup can still be collected by movement or Magnetism.
-    if (typeof spawnRogueXP === 'function') {
-        // XP is a physical pickup in Roguelike. Every confirmed kill must
-        // create one before any other kill-side systems run.
-        spawnRogueXP();
-        if (typeof updateHUD === 'function') updateHUD();
-    }
+    // XP is a field drop, not a kill reward. It is spawned by the gameplay
+    // loop at a lower frequency than gold.
 
     var rapidKill = rogueKillChainTimer > 0;
     rogueKillChainTimer = 90;

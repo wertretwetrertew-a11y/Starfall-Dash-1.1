@@ -36,7 +36,7 @@ small{color:#8298ca}a{color:#8eb4ff}
 let bugData={version:1,nextId:1,bugs:[]};
 const bugPriority={critical:'🔴 Критический',high:'🟠 Высокий',medium:'🟡 Средний',low:'🟢 Низкий'};
 const bugStatus={open:'❌ Не исправлен',fixed:'✅ Исправлен'};
-async function loadBugs(){let r=await fetch('/api/bugs?token='+encodeURIComponent(t));bugData=await r.json();renderBugs()}
+async function loadBugs(){let r=await fetch('/api/bugs?token='+encodeURIComponent(t));bugData=await r.json();renderBugVersionFilter();renderBugs()}
 function versionParts(v){return String(v||'').replace(/^v/i,'').split('.').map(x=>{let n=Number(x);return Number.isFinite(n)?n:0})}
 function versionSort(a,b){let A=versionParts(a),B=versionParts(b);for(let i=0;i<3;i++){if((A[i]||0)!==(B[i]||0))return (B[i]||0)-(A[i]||0)}return String(b).localeCompare(String(a))}
 function renderBugVersionFilter(){let el=$('bugFilterVersion');if(!el)return;const current=el.value||'all';const versions=[...new Set(bugData.bugs.filter(b=>b.version).map(b=>String(b.version)))].sort(versionSort);el.innerHTML='<option value="all">Все версии</option>'+versions.map(v=>'<option value="'+esc(v)+'">v'+esc(v)+'</option>').join('');el.value=versions.includes(current)?current:'all'}

@@ -621,11 +621,7 @@ function rogueRegisterKill(enemy) {
     if (typeof spawnRogueXP === 'function') {
         // XP is a physical pickup in Roguelike. Every confirmed kill must
         // create one before any other kill-side systems run.
-        spawnRogueXP(
-            enemy.x + enemy.size / 2,
-            enemy.y + enemy.size / 2,
-            enemy
-        );
+        spawnRogueXP();
         if (typeof updateHUD === 'function') updateHUD();
     }
 

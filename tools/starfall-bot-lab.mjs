@@ -1,7 +1,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import {execFileSync} from "node:child_process";
+import {execFileSync,execFile} from "node:child_process";
 import {randomBytes} from "node:crypto";
 
 const ROOT=process.cwd();
@@ -222,4 +222,10 @@ const server=http.createServer(async(req,res)=>{
     return send(res,404,"application/json",JSON.stringify({error:"Not found"}));
   }catch(e){return send(res,500,"application/json",JSON.stringify({error:e.message}))}
 });
-server.listen(PORT,"127.0.0.1",()=>console.log("🤖 Starfall Dash Bot Lab: http://127.0.0.1:"+PORT+"/?token="+TOKEN));
+server.listen(PORT,"127.0.0.1",()=>{
+  const url="http://127.0.0.1:"+PORT+"/?token="+TOKEN;
+  console.log("🤖 Starfall Dash Bot Lab: "+url);
+  if(process.platform==="win32"){
+    execFile("cmd.exe",["/c","start","",url],()=>{});
+  }
+});

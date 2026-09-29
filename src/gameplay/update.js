@@ -242,7 +242,11 @@ function update() {
     // Спавн монет
     if (bossState === 'none' && frame % 40 === 0) spawnCoin();
 
-    // Roguelike XP теперь появляется только из поверженных врагов.
+    // Roguelike XP падает так же, как золото, но заметно реже.
+    // XP не привязан к убийствам врагов.
+    if (currentMode === 'rogue' && bossState === 'none' && frame % 120 === 0) {
+        if (typeof spawnRogueXP === 'function') spawnRogueXP();
+    }
 
     // Спавн врагов
     var baseInterval;

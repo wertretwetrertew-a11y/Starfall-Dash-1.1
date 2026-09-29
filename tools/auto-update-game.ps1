@@ -1,4 +1,4 @@
-# Starfall Dash — automatic local updater
+# Starfall Dash - automatic local updater
 # Run from the repository root. Checks GitHub and updates the local copy safely.
 
 $ErrorActionPreference = "Stop"
@@ -11,8 +11,8 @@ function Write-Status($text) {
 }
 
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-  Write-Host "Git не найден. Установи Git и запусти updater снова."
-  Read-Host "Enter для выхода"
+  Write-Host "Git not found. Install Git and run the updater again."
+  Read-Host "Press Enter to exit"
   exit 1
 }
 
@@ -20,14 +20,14 @@ $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $Root
 
 if (-not (Test-Path (Join-Path $Root ".git"))) {
-  Write-Host "Папка игры не является Git-репозиторием."
-  Write-Host "Ожидается: Starfall-Dash-1.1\"
-  Read-Host "Enter для выхода"
+  Write-Host "This game folder is not a Git repository."
+  Write-Host "Expected: Starfall-Dash-1.1\"
+  Read-Host "Press Enter to exit"
   exit 1
 }
 
-Write-Status "Starfall Dash auto-updater запущен."
-Write-Status "Проверка GitHub каждые $IntervalSeconds секунд."
+Write-Status "Starfall Dash auto-updater started."
+Write-Status "Checking GitHub every $IntervalSeconds seconds."
 
 while ($true) {
   try {
@@ -37,23 +37,23 @@ while ($true) {
     $remote = (git rev-parse "origin/$Branch").Trim()
 
     if ($local -eq $remote) {
-      Write-Status "Версия актуальна: $($local.Substring(0,7))"
+      Write-Status "Version is up to date: $($local.Substring(0,7))"
     } else {
       $status = git status --porcelain
       if ($status) {
-        Write-Status "Найдено локальное изменение — обновление пропущено, чтобы ничего не затереть."
+        Write-Status "Local changes detected - update skipped to avoid overwriting them."
       } else {
-        Write-Status "Найдена новая версия $($remote.Substring(0,7)). Обновляю игру..."
+        Write-Status "New version found: $($remote.Substring(0,7)). Updating game..."
         git pull --ff-only origin $Branch
         if ($LASTEXITCODE -eq 0) {
-          Write-Status "Игра обновлена до $($remote.Substring(0,7))."
+          Write-Status "Game updated to $($remote.Substring(0,7))."
         } else {
-          Write-Status "Git pull не выполнен. Проверь репозиторий."
+          Write-Status "Git pull failed. Check the repository."
         }
       }
     }
   } catch {
-    Write-Status "Ошибка проверки: $($_.Exception.Message)"
+    Write-Status "Update check error: $($_.Exception.Message)"
   }
 
   Start-Sleep -Seconds $IntervalSeconds

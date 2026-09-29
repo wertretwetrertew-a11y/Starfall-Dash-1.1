@@ -14,72 +14,60 @@ echo.
 where git >nul 2>&1
 if errorlevel 1 (
   echo ERROR: Git is not installed or not in PATH.
-  echo Install Git, then run this launcher again.
+  echo Install Git, then run this shortcut again.
   pause
   exit /b 1
 )
 
+rem First launch from a downloaded ZIP: create the local Git repository.
 if not exist ".git\HEAD" (
-  echo This folder is not a Git repository yet.
-  echo Connecting this game folder to GitHub main...
+  echo First launch: connecting this folder to GitHub main...
   git init
   if errorlevel 1 (
     echo ERROR: Could not initialize Git.
     pause
     exit /b 1
   )
-  git remote get-url origin >nul 2>&1
-  if errorlevel 1 git remote add origin https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git
-  if errorlevel 1 (
-    echo ERROR: Could not add the GitHub remote.
-    pause
-    exit /b 1
-  )
-  git fetch origin main --quiet
-  if errorlevel 1 (
-    echo ERROR: Could not download main from GitHub.
-    pause
-    exit /b 1
-  )
-  git reset --hard origin/main
-  if errorlevel 1 (
-    echo ERROR: Could not synchronize the game folder.
-    pause
-    exit /b 1
-  )
-  echo Game folder connected to GitHub main.
+)
+
+rem Make sure the GitHub remote is configured correctly.
+git remote get-url origin >nul 2>&1
+if errorlevel 1 (
+  git remote add origin https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git
+) else (
+  git remote set-url origin https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git
+)
+
+if errorlevel 1 (
+  echo ERROR: Could not configure the GitHub remote.
+  pause
+  exit /b 1
 )
 
 git fetch origin main --quiet
 if errorlevel 1 (
+  echo.
   echo WARNING: Could not check GitHub.
-  echo Starting the local version instead.
+  echo Starting the current local version.
   goto launch
 )
 
-for /f "delims=" %%A in ('git rev-parse HEAD') do set "LOCAL=%%A"
-for /f "delims=" %%A in ('git rev-parse origin/main') do set "REMOTE=%%A"
+for /f "delims=" %%A in ('git rev-parse HEAD 2^>nul') do set "LOCAL=%%A"
+for /f "delims=" %%A in ('git rev-parse origin/main 2^>nul') do set "REMOTE=%%A"
 
 if "%LOCAL%"=="%REMOTE%" (
   echo Your game is already up to date.
   goto launch
 )
 
+echo.
 echo New version found: %REMOTE:~0,7%
-echo Updating game...
+echo Replacing the local game with the latest main version...
+echo.
 
-git status --porcelain > "%TEMP%\starfall_status.txt"
-for %%A in ("%TEMP%\starfall_status.txt") do set "STATUS_SIZE=%%~zA"
-
-if not "%STATUS_SIZE%"=="0" (
-  echo.
-  echo WARNING: You have local changes.
-  echo The update was skipped to protect your files.
-  echo Starting your current local version.
-  goto launch
-)
-
-git pull --ff-only origin main
+rem Reset tracked files to the exact GitHub main version.
+rem This removes old tracked files that no longer exist in main.
+git reset --hard origin/main
 if errorlevel 1 (
   echo.
   echo WARNING: Update failed.
@@ -88,7 +76,10 @@ if errorlevel 1 (
 )
 
 echo.
+echo ==========================================
 echo Update complete.
+echo Old tracked version replaced by main.
+echo ==========================================
 goto launch
 
 :launch
@@ -106,6 +97,6 @@ if exist "Start-Game.bat" (
   exit /b %errorlevel%
 )
 
-echo ERROR: Could not find index.html or Start-Game.bat.
+echo ERROR: Could not find index.html.
 pause
 exit /b 1

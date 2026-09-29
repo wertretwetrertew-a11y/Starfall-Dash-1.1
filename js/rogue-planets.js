@@ -79,7 +79,19 @@ function roguePlanetCurrentPlanet(){
 }
 function roguePlanetCurrentStage(){
     var p=roguePlanetCurrentPlanet();
-    return p && p.stages[roguePlanetState.stageIndex] ? p.stages[roguePlanetState.stageIndex] : null;
+    var st=p && p.stages[roguePlanetState.stageIndex] ? p.stages[roguePlanetState.stageIndex] : null;
+    if(!st) return null;
+    if(typeof sfRogueStageBalance==='function'){
+        var override=sfRogueStageBalance(roguePlanetKeys[roguePlanetState.planetIndex],roguePlanetState.stageIndex);
+        if(override){
+            var merged=Object.assign({},st);
+            if(override.objective) merged.objective=Object.assign({},st.objective||{},override.objective);
+            if(override.pool) merged.enemyConfig=Object.assign({},st.enemyConfig||{},override);
+            else merged.enemyConfig=Object.assign({},st.enemyConfig||{},override);
+            return merged;
+        }
+    }
+    return st;
 }
 
 /* Stage kill tracking is installed once. Re-opening the map must not

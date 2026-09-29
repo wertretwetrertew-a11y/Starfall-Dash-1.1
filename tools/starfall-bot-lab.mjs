@@ -198,7 +198,8 @@ const server=http.createServer(async(req,res)=>{
   try{
     const u=new URL(req.url,"http://127.0.0.1");
     if(u.pathname==="/") return send(res,200,"text/html; charset=utf-8",PAGE);
-    if(u.searchParams.get("token")!==TOKEN) return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
+    const localRequest = req.socket.remoteAddress === "127.0.0.1" || req.socket.remoteAddress === "::1" || req.socket.remoteAddress === "::ffff:127.0.0.1";
+    if(!localRequest && u.searchParams.get("token")!==TOKEN) return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
     if(u.pathname==="/api/balance"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(load()));
     if(u.pathname==="/api/run"&&req.method==="POST"){
       let body="";for await(const chunk of req)body+=chunk;

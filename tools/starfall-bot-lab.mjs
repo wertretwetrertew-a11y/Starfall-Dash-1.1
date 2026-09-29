@@ -271,13 +271,5 @@ const server=http.createServer(async(req,res)=>{
 server.listen(PORT,"127.0.0.1",()=>{
   const url="http://127.0.0.1:"+PORT+"/?token="+TOKEN;
   console.log("🤖 Starfall Dash Bot Lab: "+url);
-  if(process.platform==="win32"){
-    execFile("powershell.exe",[
-      "-NoProfile",
-      "-WindowStyle","Hidden",
-      "-Command",
-      "Start-Process",
-      url
-    ],()=>{});
-  }
+  // Browser is opened by Start-Starfall-Bot-Lab.bat. Keep the server headless here to avoid duplicate tabs.
 });

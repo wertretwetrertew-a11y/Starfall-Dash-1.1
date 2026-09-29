@@ -17,21 +17,34 @@ function spawnCoin() {
 }
 
 // Roguelike XP drops from defeated enemies.
+// XP follows the same top-to-bottom fall as gold, but is intentionally rarer.
 function spawnRogueXP(x, y, enemy) {
-    if (currentMode !== 'rogue') return;
+    if (currentMode !== 'rogue' || typeof rogueXPOrbs === 'undefined') return;
+
     var strong = enemy && (
         enemy.type === 'miniboss' ||
         (enemy.t && enemy.t.hp >= 6) ||
         (enemy.maxHp || 0) >= 6
     );
+
+    // Normal enemies drop XP only sometimes so XP remains rarer than gold.
+    // Minibosses always leave a larger XP pickup.
+    var dropChance = strong ? 1 : 0.35;
+    if (Math.random() > dropChance) return;
+
     var value = strong ? 2 : 1;
     if (enemy && enemy.type === 'miniboss') value = 4;
 
+    var sourceX = Number(x);
+    if (!Number.isFinite(sourceX)) sourceX = canvas.width / 2;
+
     rogueXPOrbs.push({
-        x: Math.max(10, Math.min(canvas.width - 28, Number(x) || canvas.width / 2)),
-        y: Math.max(10, Math.min(canvas.height - 28, Number(y) || canvas.height / 2)),
+        // Keep the enemy's horizontal position, but start above the field,
+        // exactly like a regular coin drop.
+        x: Math.max(10, Math.min(canvas.width - 28, sourceX - 9)),
+        y: -20,
         size: 18,
-        speed: 0.18 + Math.random() * 0.12,
+        speed: 3.5 + Math.random() * 1.5,
         phase: Math.random() * Math.PI * 2,
         value: value,
         life: 1

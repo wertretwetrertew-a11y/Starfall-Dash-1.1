@@ -281,5 +281,5 @@ var STARFALL_BALANCE = {
 function sfBalance(){ return (typeof STARFALL_BALANCE==='object' && STARFALL_BALANCE) ? STARFALL_BALANCE : null; }
 function sfRogueBalance(){ var b=sfBalance(); return b && b.rogue ? b.rogue : null; }
 function sfRogueStageBalance(planetKey, stageIndex){ var b=sfRogueBalance(); var list=b && b.stages && b.stages[planetKey]; return list && list[stageIndex] ? list[stageIndex] : null; }
-function sfApplyEnemyBalance(){ var b=sfRogueBalance(); if(!b || !b.enemies || typeof MONSTER_TYPES==='undefined') return; Object.keys(b.enemies).forEach(function(k){ if(MONSTER_TYPES[k]) Object.assign(MONSTER_TYPES[k], b.enemies[k]); }); }
-function sfApplyBossBalance(){ var b=sfRogueBalance(); if(!b || !b.bosses || typeof BOSS_TYPES==='undefined') return; Object.keys(b.bosses).forEach(function(k){ if(BOSS_TYPES[k]) { var x=b.bosses[k]; if(Number.isFinite(x.hp)) BOSS_TYPES[k].hp=x.hp; if(Number.isFinite(x.size)) BOSS_TYPES[k].size=x.size; if(BOSS_TYPES[k].reward){ if(Number.isFinite(x.rewardGold)) BOSS_TYPES[k].reward.gold=x.rewardGold; if(Number.isFinite(x.rewardCrystals)) BOSS_TYPES[k].reward.crystals=x.rewardCrystals; } } }); }
+function sfGetEnemyBalance(typeKey){ var b=sfRogueBalance(); return b&&b.enemies&&b.enemies[typeKey] ? b.enemies[typeKey] : null; }
+function sfGetBossBalance(bossKey){ var b=sfRogueBalance(); return b&&b.bosses&&b.bosses[bossKey] ? b.bosses[bossKey] : null; }

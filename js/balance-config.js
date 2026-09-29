@@ -20,7 +20,11 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "coreFragments",
             "target": 3
-          }
+          },
+          "pool": [
+            "normal",
+            "flyer"
+          ]
         },
         {
           "spawnInterval": 78,
@@ -31,7 +35,11 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "time",
             "target": 90
-          }
+          },
+          "pool": [
+            "zigzag",
+            "ghost"
+          ]
         },
         {
           "spawnInterval": 72,
@@ -42,7 +50,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "kills",
             "target": 25
-          }
+          },
+          "pool": [
+            "hunter",
+            "bomber",
+            "crystal"
+          ]
         },
         {
           "spawnInterval": 68,
@@ -53,7 +66,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "strongKills",
             "target": 6
-          }
+          },
+          "pool": [
+            "snake",
+            "spider",
+            "barrier"
+          ]
         }
       ],
       "nivara": [
@@ -66,7 +84,11 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "distance",
             "target": 15000
-          }
+          },
+          "pool": [
+            "ice",
+            "hunter"
+          ]
         },
         {
           "spawnInterval": 70,
@@ -77,7 +99,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "kills",
             "target": 30
-          }
+          },
+          "pool": [
+            "snake",
+            "bomber",
+            "spider"
+          ]
         },
         {
           "spawnInterval": 68,
@@ -88,7 +115,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "time",
             "target": 90
-          }
+          },
+          "pool": [
+            "star",
+            "crystal",
+            "teleporter"
+          ]
         },
         {
           "spawnInterval": 65,
@@ -99,7 +131,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "strongKills",
             "target": 7
-          }
+          },
+          "pool": [
+            "magnet_enemy",
+            "doppel",
+            "barrier"
+          ]
         }
       ],
       "exor": [
@@ -112,7 +149,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "distance",
             "target": 18000
-          }
+          },
+          "pool": [
+            "crystal",
+            "teleporter",
+            "star"
+          ]
         },
         {
           "spawnInterval": 60,
@@ -123,7 +165,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "kills",
             "target": 35
-          }
+          },
+          "pool": [
+            "magnet_enemy",
+            "doppel",
+            "laser"
+          ]
         },
         {
           "spawnInterval": 58,
@@ -134,7 +181,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "strongKills",
             "target": 7
-          }
+          },
+          "pool": [
+            "barrier",
+            "laser",
+            "teleporter"
+          ]
         },
         {
           "spawnInterval": 55,
@@ -145,7 +197,12 @@ var STARFALL_BALANCE = {
           "objective": {
             "kind": "time",
             "target": 90
-          }
+          },
+          "pool": [
+            "doppel",
+            "laser",
+            "magnet_enemy"
+          ]
         }
       ]
     },
@@ -277,7 +334,7 @@ var STARFALL_BALANCE = {
     }
   }
 }
-
+;
 function sfBalance(){ return (typeof STARFALL_BALANCE==='object' && STARFALL_BALANCE) ? STARFALL_BALANCE : null; }
 function sfRogueBalance(){ var b=sfBalance(); return b && b.rogue ? b.rogue : null; }
 function sfRogueStageBalance(planetKey, stageIndex){ var b=sfRogueBalance(); var list=b && b.stages && b.stages[planetKey]; return list && list[stageIndex] ? list[stageIndex] : null; }

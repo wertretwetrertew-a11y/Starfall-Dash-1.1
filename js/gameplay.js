@@ -370,10 +370,11 @@ function pickMonsterType() {
 }
 
 function spawnEnemy(forcedType) {
-    if(typeof sfApplyEnemyBalance==='function') sfApplyEnemyBalance();
     var rogueCfg = getRogueStageEnemyConfig();
+    var balanceEnemy = (currentMode==='rogue' && typeof sfGetEnemyBalance==='function') ? sfGetEnemyBalance(forcedType || pickMonsterType()) : null;
     var typeKey = forcedType || pickMonsterType();
     var t = MONSTER_TYPES[typeKey];
+    balanceEnemy = (currentMode==='rogue' && typeof sfGetEnemyBalance==='function') ? sfGetEnemyBalance(typeKey) : null;
     var speedBonus = (level - 1) * 0.4;
     var speedMultiplier = (level <= 3) ? 0.7 : 1;
     var e = {
@@ -436,8 +437,8 @@ function spawnEnemy(forcedType) {
 }
 
 function spawnBoss(bossId) {
-    if(typeof sfApplyBossBalance==='function') sfApplyBossBalance();
     var b = BOSS_TYPES[bossId];
+    var balanceBoss = (currentMode==='rogue' && typeof sfGetBossBalance==='function') ? sfGetBossBalance(bossId) : null;
     if (!b) return;
 
     // Босс всегда выходит один на один: очищаем обычных врагов и их снаряды.
@@ -460,8 +461,8 @@ function spawnBoss(bossId) {
         id: bossId, type: b,
         x: canvas.width / 2 - b.size / 2,
         y: -b.size - 20,
-        size: b.size,
-        hp: b.hp, maxHp: b.hp,
+        size: balanceBoss && Number.isFinite(balanceBoss.size) ? balanceBoss.size : b.size,
+        hp: balanceBoss && Number.isFinite(balanceBoss.hp) ? balanceBoss.hp : b.hp, maxHp: balanceBoss && Number.isFinite(balanceBoss.hp) ? balanceBoss.hp : b.hp,
         phase: 1, wobble: 0, shootTimer: 60, specialTimer: 0,
         rotation: 0, hitFlash: 0, entering: true, defeatTimer: 0,
         telegraphTimer: 0, vulnerableTimer: 0, fireNow: false, contactCooldown: 0,

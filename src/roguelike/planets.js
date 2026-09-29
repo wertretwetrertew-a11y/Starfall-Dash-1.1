@@ -180,7 +180,12 @@ function roguePlanetInjectUI(){
         }
     });
     document.getElementById('rpm-close').addEventListener('click',function(){
-        if(!roguePlanetState.stageStarted && !roguePlanetState.bossActive) roguePlanetCloseMap();
+        if(roguePlanetState.stageStarted || roguePlanetState.bossActive) return;
+        if(gameOver && typeof returnToMainMenu === 'function') {
+            returnToMainMenu();
+            return;
+        }
+        roguePlanetCloseMap();
     });
 }
 

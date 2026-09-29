@@ -226,6 +226,12 @@ server.listen(PORT,"127.0.0.1",()=>{
   const url="http://127.0.0.1:"+PORT+"/?token="+TOKEN;
   console.log("🤖 Starfall Dash Bot Lab: "+url);
   if(process.platform==="win32"){
-    execFile("cmd.exe",["/c","start","",url],()=>{});
+    execFile("powershell.exe",[
+      "-NoProfile",
+      "-WindowStyle","Hidden",
+      "-Command",
+      "Start-Process",
+      url
+    ],()=>{});
   }
 });

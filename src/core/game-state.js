@@ -87,3 +87,40 @@ var coreBonusCache = {
 })();
 
 console.log('✓ Часть 2/4 загружена');
+
+
+// Runtime state moved from gameplay.js during modular migration.
+// ===== BOSS DUEL STATE =====
+// Declared explicitly so the Roguelike layer and gameplay always share one global state.
+var bossState = 'none';
+var bossStateTimer = 0;
+var bossAnnouncement = '';
+var bossAnnouncementTimer = 0;
+var bossDuelId = null;
+
+// Roguelike enemy telegraphs / area attacks. Kept separate from planet hazards.
+var rogueEnemyHazards = [];
+// Roguelike Stage 1: fragments of the Cosmic Core fall from some defeated enemies.
+var rogueCoreFragments = [];
+var rogueCoreFragmentMisses = 0;
+
+// ===== ИГРОК =====
+var player = {
+    x: 285, y: 340, size: 30, speed: 7, frozen: 0, inWeb: false,
+    breath: 0, tilt: 0, lastDirX: 0, lastDirY: 1,
+    damageFlash: 0, blinkTimer: 0, isBlinking: false
+};
+
+// ==========================================================
+//   КРИТИЧНЫЙ ФИКС: СБРОС НАКОПЛЕННОГО ВРЕМЕНИ
+//   Предотвращает "ускорение" и "фарм монет" после модалок
+// ==========================================================
+var lastTime = performance.now();
+var frameBudget = 1000 / 60;
+var accumulated = 0;
+
+function resetFrameClock() {
+    accumulated = 0;
+    lastTime = performance.now();
+}
+

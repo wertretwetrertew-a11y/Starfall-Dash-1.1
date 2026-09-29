@@ -95,9 +95,38 @@ pauseMenu.addEventListener('click', function() {
 });
 
 // 🔧 ФИКС: обработчики gameover-кнопок перенесены с защитой
+function closeRogueMapAfterRun() {
+    var map = document.getElementById('rogue-planet-map');
+    if (map) map.classList.remove('open');
+    if (typeof roguePlanetState !== 'undefined') {
+        roguePlanetState.mapOpen = false;
+        roguePlanetState.stageStarted = false;
+        roguePlanetState.awaitingMap = false;
+    }
+}
+
+function returnToMainMenu() {
+    gameoverModal.classList.remove('open');
+    closeRogueMapAfterRun();
+    document.body.classList.remove('playing');
+    running = false;
+    gameOver = false;
+    paused = false;
+    isChoosingUpgrade = false;
+    _finishRunCalled = false;
+    if (typeof clearBossDuelPresentation === 'function') clearBossDuelPresentation();
+    stopMusic();
+    startScreen.classList.remove('hidden');
+    modeScreen.classList.add('hidden');
+    classScreen.classList.add('hidden');
+    coreScreen.classList.add('hidden');
+    updateMainMenuStats();
+}
+
 if (goRestart) {
     goRestart.addEventListener('click', function() {
         gameoverModal.classList.remove('open');
+        closeRogueMapAfterRun();
         document.body.classList.add('playing');
         gameOver = false;
         paused = false;
@@ -116,17 +145,7 @@ if (goRestart) {
 
 if (goMenu) {
     goMenu.addEventListener('click', function() {
-        gameoverModal.classList.remove('open');
-        document.body.classList.remove('playing');
-        startScreen.classList.remove('hidden');
-        running = false;
-        gameOver = false;
-        paused = false;
-        isChoosingUpgrade = false;
-        _finishRunCalled = false;
-        stopMusic();
-        if (typeof clearBossDuelPresentation === 'function') clearBossDuelPresentation();
-        updateMainMenuStats();
+        returnToMainMenu();
     });
 }
 

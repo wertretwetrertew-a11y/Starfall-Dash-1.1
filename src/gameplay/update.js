@@ -392,8 +392,9 @@ function update() {
         if (buff.magnet > 0) xpMagnetRadius = Math.max(xpMagnetRadius, 250);
 
         rogueXPOrbs.forEach(function(xp) {
-            xp.y = Math.min(canvas.height - xp.size - 2, xp.y + xp.speed);
-            xp.x = Math.max(2, Math.min(canvas.width - xp.size - 2, xp.x));
+            // XP uses the same vertical fall as coins: no artificial floor.
+            // It must keep moving down and disappear after leaving the field.
+            xp.y += xp.speed;
             xp.phase += 0.14;
 
             if (xpMagnetRadius > 0 || buff.magnet > 0) {
@@ -430,7 +431,9 @@ function update() {
                 updateHUD();
                 return false;
             }
-            return xp.y < canvas.height + 30;
+            // Same lifetime rule as coins: once it leaves the bottom,
+            // it is gone instead of getting stuck on the edge.
+            return xp.y < canvas.height + 20;
         });
     }
 

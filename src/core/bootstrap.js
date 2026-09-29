@@ -12,6 +12,13 @@ function showStarfallMainMenu() {
     if (pauseModal) pauseModal.classList.remove('open');
     if (startScreen) startScreen.classList.remove('hidden');
 
+    // Keep the dedicated Roguelike quick-launch tile available in the main menu.
+    if (tileQuick) {
+        tileQuick.hidden = false;
+        tileQuick.removeAttribute('aria-hidden');
+        tileQuick.style.removeProperty('display');
+    }
+
     try {
         if (typeof updateMainMenuStats === 'function') updateMainMenuStats();
     } catch (e) {

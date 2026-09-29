@@ -333,7 +333,14 @@ function getRogueStageEnemyConfig(){
     try{
         var p=ROGUE_PLANETS[roguePlanetKeys[roguePlanetState.planetIndex]];
         var st=p && p.stages[roguePlanetState.stageIndex];
-        cfg=st && st.enemyConfig ? st.enemyConfig : null;
+        cfg=st && st.enemyConfig ? Object.assign({}, st.enemyConfig) : null;
+        if(cfg && typeof sfRogueStageBalance==='function'){
+            var override=sfRogueStageBalance(roguePlanetKeys[roguePlanetState.planetIndex],roguePlanetState.stageIndex);
+            if(override){
+                cfg=Object.assign(cfg,override);
+                if(override.objective && st.objective) cfg.objective=Object.assign({},st.objective,override.objective);
+            }
+        }
     }catch(e){ cfg=null; }
     return cfg;
 }
@@ -363,6 +370,7 @@ function pickMonsterType() {
 }
 
 function spawnEnemy(forcedType) {
+    if(typeof sfApplyEnemyBalance==='function') sfApplyEnemyBalance();
     var rogueCfg = getRogueStageEnemyConfig();
     var typeKey = forcedType || pickMonsterType();
     var t = MONSTER_TYPES[typeKey];
@@ -428,6 +436,7 @@ function spawnEnemy(forcedType) {
 }
 
 function spawnBoss(bossId) {
+    if(typeof sfApplyBossBalance==='function') sfApplyBossBalance();
     var b = BOSS_TYPES[bossId];
     if (!b) return;
 
@@ -1889,7 +1898,8 @@ function update() {
         if (currentMode === 'rogue' && typeof getRogueStageEnemyConfig === 'function') {
             var rogueSpawnCfg = getRogueStageEnemyConfig();
             if (rogueSpawnCfg) {
-                var rogueInterval = Math.max(55, rogueSpawnCfg.spawnInterval || 90);
+                var rogueMinInterval = (typeof sfRogueBalance==='function' && sfRogueBalance() && sfRogueBalance().spawn) ? sfRogueBalance().spawn.minIntervalFrames : 55;
+                var rogueInterval = Math.max(rogueMinInterval, rogueSpawnCfg.spawnInterval || 90);
                 var rogueMaxAlive = Math.max(3, rogueSpawnCfg.maxAlive || 5);
                 if (currentWaveModifier && currentWaveModifier.enemyMult) {
                     rogueInterval = Math.max(55, Math.floor(rogueInterval / currentWaveModifier.enemyMult));

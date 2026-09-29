@@ -36,7 +36,18 @@ function commit(){
   execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js"],{cwd:ROOT,stdio:"pipe"});
   return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"});
 }
-function push(){return execFileSync("git",["push","origin","main"],{cwd:ROOT,encoding:"utf8",stdio:"pipe"})}
+function ensureRemote(){
+  let remote="";
+  try{remote=execFileSync("git",["remote","get-url","origin"],{cwd:ROOT,encoding:"utf8",stdio:"pipe"}).trim()}catch{}
+  if(!remote){
+    execFileSync("git",["remote","add","origin","https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git"],{cwd:ROOT,stdio:"pipe"});
+  }
+}
+function push(){
+  ensureRemote();
+  try{execFileSync("git",["fetch","origin","main"],{cwd:ROOT,encoding:"utf8",stdio:"pipe"})}catch(e){}
+  return execFileSync("git",["push","origin","HEAD:main"],{cwd:ROOT,encoding:"utf8",stdio:"pipe"});
+}
 function commitBugs(){
   execFileSync("git",["add","config/bugs.json"],{cwd:ROOT,stdio:"pipe"});
   return execFileSync("git",["commit","-m","Dev: update bug registry"],{cwd:ROOT,encoding:"utf8"});
@@ -222,7 +233,8 @@ const server=http.createServer(async(req,res)=>{
     if(u.pathname==="/api/bugs"&&req.method==="POST"){
       let body="";for await(const chunk of req)body+=chunk;
       const data=JSON.parse(body);saveBugs(data);
-      try{commitBugs();}catch(e){if(!String(e.message).includes("nothing to commit")) throw e}
+      let commitSha=headSha();
+      try{commitBugs();commitSha=headSha();}catch(e){if(!String(e.message).includes("nothing to commit")) throw e}
       if(data.push){
         try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,bugs:data.bugs}))}
         catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Баги сохранены и закоммичены, но push не выполнен: "+e.message,bugs:data.bugs}))}
@@ -243,8 +255,13 @@ const server=http.createServer(async(req,res)=>{
         catch(e){if(!p.push)message+=" Git commit не создан: "+e.message;else if(!String(e.message).includes("nothing to commit"))throw e}
       }
       if(p.push){
-        try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,message:message+" Изменения отправлены в GitHub.",sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,data:p.data}))}
-        catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:message+" Commit создан, но push в GitHub не выполнен: "+e.message,data:p.data}))}
+        try{
+          push();
+          const sha=headSha();
+          return send(res,200,"application/json",JSON.stringify({success:true,message:message+" Изменения отправлены в GitHub.",sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,data:p.data}));
+        }catch(e){
+          return send(res,200,"application/json",JSON.stringify({success:false,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:p.data}));
+        }
       }
       return send(res,200,"application/json",JSON.stringify({message,data:p.data}));
     }

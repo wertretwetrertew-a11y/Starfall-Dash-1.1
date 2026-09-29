@@ -26,7 +26,7 @@
       "id": 3,
       "title": "В Рогалике не начисляется опыт (XP)",
       "priority": "high",
-      "status": "testing",
+      "status": "open",
       "createdAt": "2026-09-29",
       "fixedAt": null,
       "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",

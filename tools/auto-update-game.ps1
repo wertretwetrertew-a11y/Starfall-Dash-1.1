@@ -24,10 +24,13 @@ if (-not (Test-Path (Join-Path $Root ".git"))) {
   git init --quiet
   if ($LASTEXITCODE -ne 0) { throw "Could not initialize Git in the game folder." }
 
-  $remoteUrl = (git remote get-url origin 2>$null)
-  if (-not $remoteUrl) {
+  $remotes = @(git remote 2>$null)
+  if ($remotes -notcontains "origin") {
     git remote add origin $RepoUrl
     if ($LASTEXITCODE -ne 0) { throw "Could not add the GitHub remote." }
+  } else {
+    git remote set-url origin $RepoUrl
+    if ($LASTEXITCODE -ne 0) { throw "Could not configure the GitHub remote." }
   }
 
   git fetch origin $Branch --quiet

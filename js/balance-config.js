@@ -4,7 +4,7 @@ var STARFALL_BALANCE = {
   "notes": "Developer-only balance source for Roguelike. Edit through tools/balance-editor.mjs.",
   "rogue": {
     "spawn": {
-      "minIntervalFrames": 55,
+      "minIntervalFrames": 45,
       "pressureIntervalFrames": 45,
       "pressureMaxPerTick": 2
     },

@@ -4,6 +4,24 @@
 // ==========================================================
 
 // ===== КНОПКИ МЕНЮ =====
+// Быстрый запуск Roguelike из главного меню.
+if (tileQuick) {
+    tileQuick.addEventListener('click', function() {
+        running = false;
+        gameOver = false;
+        paused = false;
+        stopMusic();
+        startScreen.classList.add('hidden');
+        modeScreen.classList.add('hidden');
+        classScreen.classList.remove('hidden');
+        currentMode = 'rogue';
+        var s = getSave();
+        s.lastMode = 'rogue';
+        persist();
+        renderClassScreen();
+    });
+}
+
 tilePlay.addEventListener('click', function() {
     running = false;
     gameOver = false;

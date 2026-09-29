@@ -6,9 +6,9 @@
       "id": 5,
       "title": "После смерти кнопки «Ещё раз» и «Закрыть карту» не возвращают в меню",
       "priority": "high",
-      "status": "testing",
+      "status": "fixed",
       "createdAt": "2026-09-29",
-      "fixedAt": null,
+      "fixedAt": "2026-09-29",
       "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
       "description": "После смерти при нажатии «Ещё раз» или «Закрыть карту» игра не возвращается в главное меню и нужный экран перехода не срабатывает."
     },
@@ -16,9 +16,9 @@
       "id": 4,
       "title": "Из основного меню игры пропала кнопка быстрого запуска режима «Рогалик»",
       "priority": "medium",
-      "status": "testing",
+      "status": "fixed",
       "createdAt": "2026-09-29",
-      "fixedAt": null,
+      "fixedAt": "2026-09-29",
       "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
       "description": "В главном меню отсутствует кнопка, которая должна позволять быстро запустить режим Roguelike."
     },
@@ -36,9 +36,9 @@
       "id": 2,
       "title": "Куча ошибок при открытии меню",
       "priority": "high",
-      "status": "testing",
+      "status": "fixed",
       "createdAt": "2026-09-29",
-      "fixedAt": null,
+      "fixedAt": "2026-09-29",
       "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
       "description": "При открытии игрового меню в консоли появляется множество JavaScript-ошибок, в том числе ошибки чтения свойств null/undefined и addEventListener."
     },
@@ -46,11 +46,12 @@
       "id": 1,
       "title": "Не отображается игровое меню",
       "priority": "critical",
-      "status": "testing",
+      "status": "fixed",
       "createdAt": "2026-09-29",
-      "fixedAt": null,
+      "fixedAt": "2026-09-29",
       "commit": "e6fba0de3777a1f0fdd905112ae31966166825ee",
       "description": "При запуске игры игровое меню не отображается; на странице остаются только заголовок и элемент «Кто играет?»."
     }
-  ]
+  ],
+  "push": true
 }

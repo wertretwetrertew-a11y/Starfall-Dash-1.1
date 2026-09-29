@@ -371,7 +371,7 @@ function pickMonsterType() {
 
 function spawnEnemy(forcedType) {
     var rogueCfg = getRogueStageEnemyConfig();
-    var balanceEnemy = (currentMode==='rogue' && typeof sfGetEnemyBalance==='function') ? sfGetEnemyBalance(forcedType || pickMonsterType()) : null;
+    var balanceEnemy = null;
     var typeKey = forcedType || pickMonsterType();
     var t = MONSTER_TYPES[typeKey];
     balanceEnemy = (currentMode==='rogue' && typeof sfGetEnemyBalance==='function') ? sfGetEnemyBalance(typeKey) : null;
@@ -466,7 +466,11 @@ function spawnBoss(bossId) {
         phase: 1, wobble: 0, shootTimer: 60, specialTimer: 0,
         rotation: 0, hitFlash: 0, entering: true, defeatTimer: 0,
         telegraphTimer: 0, vulnerableTimer: 0, fireNow: false, contactCooldown: 0,
-        reward: b.reward
+        reward: {
+            gold: balanceBoss && Number.isFinite(balanceBoss.rewardGold) ? balanceBoss.rewardGold : b.reward.gold,
+            crystals: balanceBoss && Number.isFinite(balanceBoss.rewardCrystals) ? balanceBoss.rewardCrystals : b.reward.crystals,
+            skin: b.reward.skin
+        }
     };
     bosses.push(boss);
     showToast('⚠️ ' + b.icon + ' ' + b.name + ' выходит на дуэль!', 'legendary');

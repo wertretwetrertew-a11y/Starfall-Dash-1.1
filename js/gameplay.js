@@ -379,10 +379,10 @@ function spawnEnemy(forcedType) {
     var speedMultiplier = (level <= 3) ? 0.7 : 1;
     var e = {
         type: typeKey, t: t,
-        x: 20 + Math.random() * (canvas.width - t.size - 20),
-        y: -30, size: t.size,
-        speed: (t.speed + speedBonus) * speedMultiplier,
-        hp: t.hp, maxHp: t.hp,
+        x: 20 + Math.random() * (canvas.width - ((balanceEnemy && Number.isFinite(balanceEnemy.size)) ? balanceEnemy.size : t.size) - 20),
+        y: -30, size: (balanceEnemy && Number.isFinite(balanceEnemy.size)) ? balanceEnemy.size : t.size,
+        speed: (((balanceEnemy && Number.isFinite(balanceEnemy.speed)) ? balanceEnemy.speed : t.speed) + speedBonus) * speedMultiplier,
+        hp: (balanceEnemy && Number.isFinite(balanceEnemy.hp)) ? balanceEnemy.hp : t.hp, maxHp: (balanceEnemy && Number.isFinite(balanceEnemy.hp)) ? balanceEnemy.hp : t.hp,
         wobble: Math.random() * Math.PI * 2,
         zigzagPhase: Math.random() * Math.PI * 2,
         baseX: 0, hitFlash: 0,

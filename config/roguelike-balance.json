@@ -18,7 +18,11 @@
           "objective": {
             "kind": "coreFragments",
             "target": 3
-          }
+          },
+          "pool": [
+            "normal",
+            "flyer"
+          ]
         },
         {
           "spawnInterval": 78,
@@ -29,7 +33,11 @@
           "objective": {
             "kind": "time",
             "target": 90
-          }
+          },
+          "pool": [
+            "zigzag",
+            "ghost"
+          ]
         },
         {
           "spawnInterval": 72,
@@ -40,7 +48,12 @@
           "objective": {
             "kind": "kills",
             "target": 25
-          }
+          },
+          "pool": [
+            "hunter",
+            "bomber",
+            "crystal"
+          ]
         },
         {
           "spawnInterval": 68,
@@ -51,7 +64,12 @@
           "objective": {
             "kind": "strongKills",
             "target": 6
-          }
+          },
+          "pool": [
+            "snake",
+            "spider",
+            "barrier"
+          ]
         }
       ],
       "nivara": [
@@ -64,7 +82,11 @@
           "objective": {
             "kind": "distance",
             "target": 15000
-          }
+          },
+          "pool": [
+            "ice",
+            "hunter"
+          ]
         },
         {
           "spawnInterval": 70,
@@ -75,7 +97,12 @@
           "objective": {
             "kind": "kills",
             "target": 30
-          }
+          },
+          "pool": [
+            "snake",
+            "bomber",
+            "spider"
+          ]
         },
         {
           "spawnInterval": 68,
@@ -86,7 +113,12 @@
           "objective": {
             "kind": "time",
             "target": 90
-          }
+          },
+          "pool": [
+            "star",
+            "crystal",
+            "teleporter"
+          ]
         },
         {
           "spawnInterval": 65,
@@ -97,7 +129,12 @@
           "objective": {
             "kind": "strongKills",
             "target": 7
-          }
+          },
+          "pool": [
+            "magnet_enemy",
+            "doppel",
+            "barrier"
+          ]
         }
       ],
       "exor": [
@@ -110,7 +147,12 @@
           "objective": {
             "kind": "distance",
             "target": 18000
-          }
+          },
+          "pool": [
+            "crystal",
+            "teleporter",
+            "star"
+          ]
         },
         {
           "spawnInterval": 60,
@@ -121,7 +163,12 @@
           "objective": {
             "kind": "kills",
             "target": 35
-          }
+          },
+          "pool": [
+            "magnet_enemy",
+            "doppel",
+            "laser"
+          ]
         },
         {
           "spawnInterval": 58,
@@ -132,7 +179,12 @@
           "objective": {
             "kind": "strongKills",
             "target": 7
-          }
+          },
+          "pool": [
+            "barrier",
+            "laser",
+            "teleporter"
+          ]
         },
         {
           "spawnInterval": 55,
@@ -143,7 +195,12 @@
           "objective": {
             "kind": "time",
             "target": 90
-          }
+          },
+          "pool": [
+            "doppel",
+            "laser",
+            "magnet_enemy"
+          ]
         }
       ]
     },

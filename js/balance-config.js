@@ -1,0 +1,285 @@
+// AUTO-GENERATED FROM config/roguelike-balance.json
+// Edit the JSON with: node tools/balance-editor.mjs
+var STARFALL_BALANCE = {
+  "version": 1,
+  "notes": "Developer-only balance source for Roguelike. Edit through tools/balance-editor.mjs.",
+  "rogue": {
+    "spawn": {
+      "minIntervalFrames": 55,
+      "pressureIntervalFrames": 45,
+      "pressureMaxPerTick": 2
+    },
+    "stages": {
+      "arden": [
+        {
+          "spawnInterval": 82,
+          "maxAlive": 5,
+          "minAlive": 3,
+          "speedMult": 0.9,
+          "hpMult": 1,
+          "objective": {
+            "kind": "coreFragments",
+            "target": 3
+          }
+        },
+        {
+          "spawnInterval": 78,
+          "maxAlive": 5,
+          "minAlive": 3,
+          "speedMult": 0.98,
+          "hpMult": 1.02,
+          "objective": {
+            "kind": "time",
+            "target": 90
+          }
+        },
+        {
+          "spawnInterval": 72,
+          "maxAlive": 5,
+          "minAlive": 3,
+          "speedMult": 1.04,
+          "hpMult": 1.06,
+          "objective": {
+            "kind": "kills",
+            "target": 25
+          }
+        },
+        {
+          "spawnInterval": 68,
+          "maxAlive": 5,
+          "minAlive": 3,
+          "speedMult": 1.1,
+          "hpMult": 1.12,
+          "objective": {
+            "kind": "strongKills",
+            "target": 6
+          }
+        }
+      ],
+      "nivara": [
+        {
+          "spawnInterval": 76,
+          "maxAlive": 5,
+          "minAlive": 3,
+          "speedMult": 1.08,
+          "hpMult": 1.08,
+          "objective": {
+            "kind": "distance",
+            "target": 15000
+          }
+        },
+        {
+          "spawnInterval": 70,
+          "maxAlive": 5,
+          "minAlive": 3,
+          "speedMult": 1.12,
+          "hpMult": 1.12,
+          "objective": {
+            "kind": "kills",
+            "target": 30
+          }
+        },
+        {
+          "spawnInterval": 68,
+          "maxAlive": 5,
+          "minAlive": 3,
+          "speedMult": 1.16,
+          "hpMult": 1.16,
+          "objective": {
+            "kind": "time",
+            "target": 90
+          }
+        },
+        {
+          "spawnInterval": 65,
+          "maxAlive": 5,
+          "minAlive": 4,
+          "speedMult": 1.2,
+          "hpMult": 1.2,
+          "objective": {
+            "kind": "strongKills",
+            "target": 7
+          }
+        }
+      ],
+      "exor": [
+        {
+          "spawnInterval": 63,
+          "maxAlive": 5,
+          "minAlive": 4,
+          "speedMult": 1.22,
+          "hpMult": 1.2,
+          "objective": {
+            "kind": "distance",
+            "target": 18000
+          }
+        },
+        {
+          "spawnInterval": 60,
+          "maxAlive": 5,
+          "minAlive": 4,
+          "speedMult": 1.26,
+          "hpMult": 1.24,
+          "objective": {
+            "kind": "kills",
+            "target": 35
+          }
+        },
+        {
+          "spawnInterval": 58,
+          "maxAlive": 6,
+          "minAlive": 4,
+          "speedMult": 1.3,
+          "hpMult": 1.3,
+          "objective": {
+            "kind": "strongKills",
+            "target": 7
+          }
+        },
+        {
+          "spawnInterval": 55,
+          "maxAlive": 6,
+          "minAlive": 4,
+          "speedMult": 1.36,
+          "hpMult": 1.34,
+          "objective": {
+            "kind": "time",
+            "target": 90
+          }
+        }
+      ]
+    },
+    "enemies": {
+      "normal": {
+        "hp": 3,
+        "speed": 3.5,
+        "size": 25
+      },
+      "flyer": {
+        "hp": 3,
+        "speed": 3,
+        "size": 24
+      },
+      "zigzag": {
+        "hp": 3,
+        "speed": 4,
+        "size": 24
+      },
+      "ghost": {
+        "hp": 4,
+        "speed": 3.2,
+        "size": 26
+      },
+      "hunter": {
+        "hp": 4,
+        "speed": 3,
+        "size": 22
+      },
+      "snake": {
+        "hp": 4,
+        "speed": 3.8,
+        "size": 26
+      },
+      "bomber": {
+        "hp": 4,
+        "speed": 2.8,
+        "size": 28
+      },
+      "splitter": {
+        "hp": 5,
+        "speed": 2.6,
+        "size": 30
+      },
+      "spider": {
+        "hp": 5,
+        "speed": 2.4,
+        "size": 26
+      },
+      "ice": {
+        "hp": 4,
+        "speed": 3,
+        "size": 26
+      },
+      "star": {
+        "hp": 5,
+        "speed": 2.8,
+        "size": 26
+      },
+      "miniboss": {
+        "hp": 12,
+        "speed": 2,
+        "size": 44
+      },
+      "crystal": {
+        "hp": 6,
+        "speed": 0.6,
+        "size": 32
+      },
+      "barrier": {
+        "hp": 7,
+        "speed": 2.5,
+        "size": 24
+      },
+      "teleporter": {
+        "hp": 6,
+        "speed": 0.3,
+        "size": 26
+      },
+      "magnet_enemy": {
+        "hp": 6,
+        "speed": 2,
+        "size": 28
+      },
+      "doppel": {
+        "hp": 6,
+        "speed": 0,
+        "size": 26
+      },
+      "laser": {
+        "hp": 8,
+        "speed": 1.8,
+        "size": 32
+      }
+    },
+    "bosses": {
+      "dragon": {
+        "hp": 25,
+        "size": 80,
+        "rewardGold": 500,
+        "rewardCrystals": 5
+      },
+      "titan": {
+        "hp": 40,
+        "size": 90,
+        "rewardGold": 1000,
+        "rewardCrystals": 10
+      },
+      "devourer": {
+        "hp": 60,
+        "size": 100,
+        "rewardGold": 2000,
+        "rewardCrystals": 15
+      }
+    },
+    "modifiers": {
+      "elite": {
+        "hpMult": 1.35,
+        "speedMult": 1.12
+      },
+      "ambush": {
+        "hpMult": 1.12,
+        "speedMult": 1.16
+      },
+      "finaltrial": {
+        "hpMult": 1.28,
+        "speedMult": 1.18
+      }
+    }
+  }
+}
+
+function sfBalance(){ return (typeof STARFALL_BALANCE==='object' && STARFALL_BALANCE) ? STARFALL_BALANCE : null; }
+function sfRogueBalance(){ var b=sfBalance(); return b && b.rogue ? b.rogue : null; }
+function sfRogueStageBalance(planetKey, stageIndex){ var b=sfRogueBalance(); var list=b && b.stages && b.stages[planetKey]; return list && list[stageIndex] ? list[stageIndex] : null; }
+function sfApplyEnemyBalance(){ var b=sfRogueBalance(); if(!b || !b.enemies || typeof MONSTER_TYPES==='undefined') return; Object.keys(b.enemies).forEach(function(k){ if(MONSTER_TYPES[k]) Object.assign(MONSTER_TYPES[k], b.enemies[k]); }); }
+function sfApplyBossBalance(){ var b=sfRogueBalance(); if(!b || !b.bosses || typeof BOSS_TYPES==='undefined') return; Object.keys(b.bosses).forEach(function(k){ if(BOSS_TYPES[k]) { var x=b.bosses[k]; if(Number.isFinite(x.hp)) BOSS_TYPES[k].hp=x.hp; if(Number.isFinite(x.size)) BOSS_TYPES[k].size=x.size; if(BOSS_TYPES[k].reward){ if(Number.isFinite(x.rewardGold)) BOSS_TYPES[k].reward.gold=x.rewardGold; if(Number.isFinite(x.rewardCrystals)) BOSS_TYPES[k].reward.crystals=x.rewardCrystals; } } }); }

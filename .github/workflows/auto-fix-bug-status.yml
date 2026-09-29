@@ -18,19 +18,31 @@ jobs:
           fetch-depth: 2
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Mark referenced bugs as fixed
+      - name: Mark referenced bugs as fixed and create update version
         env:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           node <<'NODE'
           const fs = require('fs');
-          const path = 'config/bugs.json';
-          const data = JSON.parse(fs.readFileSync(path, 'utf8'));
+          const bugsPath = 'config/bugs.json';
+          const versionPath = 'config/version.json';
+          const data = JSON.parse(fs.readFileSync(bugsPath, 'utf8'));
           const message = process.env.COMMIT_MESSAGE || '';
 
-          // ChatGPT bug-fix commits must contain "Fix bug #N" or "Fix bugs #N #M".
+          // Fix commits must explicitly name the bug(s): "Fix bug #N" or "Fix bugs #N #M".
           const ids = [...message.matchAll(/Fix bugs? #([0-9]+)/gi)].map(m => Number(m[1]));
           if (!ids.length) process.exit(0);
+
+          let version = '1.1.0';
+          if (fs.existsSync(versionPath)) {
+            try { version = JSON.parse(fs.readFileSync(versionPath, 'utf8')).version || version; } catch {}
+          }
+
+          const parts = String(version).replace(/^v/i, '').split('.').map(Number);
+          while (parts.length < 3) parts.push(0);
+          parts[2] = (Number.isFinite(parts[2]) ? parts[2] : 0) + 1;
+          const nextVersion = parts.join('.');
+          fs.writeFileSync(versionPath, JSON.stringify({version: nextVersion}, null, 2) + '\n');
 
           const today = new Date().toISOString().slice(0, 10);
           let changed = false;
@@ -38,10 +50,11 @@ jobs:
           for (const id of ids) {
             const bug = data.bugs.find(b => Number(b.id) === id);
             if (!bug) continue;
-            if (bug.status !== 'fixed' || !bug.fixedAt) {
+            if (bug.status !== 'fixed' || !bug.fixedAt || bug.version !== nextVersion || bug.commit !== process.env.GITHUB_SHA) {
               bug.status = 'fixed';
               bug.fixedAt = today;
               bug.commit = process.env.GITHUB_SHA;
+              bug.version = nextVersion;
               changed = true;
             }
           }
@@ -57,12 +70,14 @@ jobs:
                 bug.fixedAt = null;
                 changed = true;
               }
+              if (bug.version) {
+                bug.version = null;
+                changed = true;
+              }
             }
           }
 
-          if (changed) {
-            fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');
-          }
+          if (changed) fs.writeFileSync(bugsPath, JSON.stringify(data, null, 2) + '\n');
           NODE
 
       - name: Commit status changes
@@ -73,6 +88,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add config/bugs.json
+          git add config/bugs.json config/version.json
           git commit -m "Bot: mark fixed bugs automatically"
           git push

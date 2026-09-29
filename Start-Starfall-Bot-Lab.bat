@@ -2,6 +2,11 @@
 setlocal
 cd /d "%~dp0"
 
+rem Stop an older Bot Lab server so the updated HTML is loaded on restart.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -match 'starfall-bot-lab\.mjs' }; foreach($x in $p){ Stop-Process -Id $x.ProcessId -Force -ErrorAction SilentlyContinue }"
+
+timeout /t 1 /nobreak >nul
+
 set "REPO=https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git"
 
 where git >nul 2>nul

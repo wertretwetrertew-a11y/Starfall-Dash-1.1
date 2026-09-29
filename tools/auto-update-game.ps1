@@ -20,10 +20,23 @@ $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $Root
 
 if (-not (Test-Path (Join-Path $Root ".git"))) {
-  Write-Host "This game folder is not a Git repository."
-  Write-Host "Expected: Starfall-Dash-1.1\"
-  Read-Host "Press Enter to exit"
-  exit 1
+  Write-Status "Git repository not found. Connecting this folder to the Starfall Dash GitHub repository..."
+  git init --quiet
+  if ($LASTEXITCODE -ne 0) { throw "Could not initialize Git in the game folder." }
+
+  $remoteUrl = (git remote get-url origin 2>$null)
+  if (-not $remoteUrl) {
+    git remote add origin $RepoUrl
+    if ($LASTEXITCODE -ne 0) { throw "Could not add the GitHub remote." }
+  }
+
+  git fetch origin $Branch --quiet
+  if ($LASTEXITCODE -ne 0) { throw "Could not download the current main branch from GitHub." }
+
+  git reset --hard "origin/$Branch" --quiet
+  if ($LASTEXITCODE -ne 0) { throw "Could not synchronize the game folder with main." }
+
+  Write-Status "Game folder connected to GitHub main."
 }
 
 Write-Status "Starfall Dash auto-updater started."

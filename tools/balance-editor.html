@@ -4,7 +4,7 @@ body{margin:0;background:#070b18;color:#eef;font:14px system-ui}main{max-width:1
 <div class="toolbar"><button class="primary" onclick="save(false)">💾 Сохранить</button><button onclick="save(true)">💾 Сохранить + Git commit</button><button onclick="location.reload()">↻ Перезагрузить</button></div>
 <div id="app"></div><div id="status" class="status"></div>
 <script>
-const TOKEN=location.hash.slice(1);let data;
+const TOKEN=new URLSearchParams(location.search).get("token")||location.hash.slice(1);let data;
 async function init(){data=await(await fetch("/api/balance?token="+encodeURIComponent(TOKEN))).json();render()}
 function inp(path,label,value,step="1"){return '<label class="field"><span>'+label+'</span><input data-path="'+path+'" data-kind="number" type="number" step="'+step+'" value="'+value+'"></label>'} function textInp(path,label,value){return '<label class="field"><span>'+label+'</span><input data-path="'+path+'" data-kind="text" type="text" value="'+(value||[]).join(", ")+'"></label>'}
 function render(){

@@ -2,8 +2,8 @@
 setlocal
 cd /d "%~dp0"
 
-rem Stop an older Bot Lab server so the updated HTML is loaded on restart.
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -match 'starfall-bot-lab\.mjs' }; foreach($x in $p){ Stop-Process -Id $x.ProcessId -Force -ErrorAction SilentlyContinue }"
+rem Stop any older Bot Lab server so the updated HTML/JS is loaded.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$p=Get-NetTCPConnection -LocalPort 4180 -State Listen -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; foreach($id in $p){ Stop-Process -Id $id -Force -ErrorAction SilentlyContinue }; $q=Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq 'node.exe' -and $_.CommandLine -match 'starfall-bot-lab\.mjs' }; foreach($x in $q){ Stop-Process -Id $x.ProcessId -Force -ErrorAction SilentlyContinue }"
 
 timeout /t 1 /nobreak >nul
 

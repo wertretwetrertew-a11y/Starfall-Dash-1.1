@@ -98,11 +98,24 @@ pauseMenu.addEventListener('click', function() {
 function closeRogueMapAfterRun() {
     var map = document.getElementById('rogue-planet-map');
     if (map) map.classList.remove('open');
+
+    // Invalidate every delayed Roguelike map/stage/boss callback from the
+    // finished run. Otherwise a stale timeout can reopen the map over menu.
     if (typeof roguePlanetState !== 'undefined') {
         roguePlanetState.mapOpen = false;
         roguePlanetState.stageStarted = false;
+        roguePlanetState.bossActive = false;
+        roguePlanetState.bossHandled = false;
         roguePlanetState.awaitingMap = false;
+        roguePlanetState.active = false;
+        roguePlanetState.transitionToken = (roguePlanetState.transitionToken || 0) + 1;
     }
+
+    var stageComplete = document.getElementById('rogue-stage-complete');
+    if (stageComplete) stageComplete.style.display = 'none';
+
+    var stageObjective = document.getElementById('rogue-stage-objective');
+    if (stageObjective) stageObjective.remove();
 }
 
 function returnToMainMenu() {
@@ -116,6 +129,7 @@ function returnToMainMenu() {
     _finishRunCalled = false;
     if (typeof clearBossDuelPresentation === 'function') clearBossDuelPresentation();
     stopMusic();
+    resetFrameClock();
     startScreen.classList.remove('hidden');
     modeScreen.classList.add('hidden');
     classScreen.classList.add('hidden');

@@ -333,7 +333,14 @@ function getRogueStageEnemyConfig(){
     try{
         var p=ROGUE_PLANETS[roguePlanetKeys[roguePlanetState.planetIndex]];
         var st=p && p.stages[roguePlanetState.stageIndex];
-        cfg=st && st.enemyConfig ? st.enemyConfig : null;
+        cfg=st && st.enemyConfig ? Object.assign({}, st.enemyConfig) : null;
+        if(cfg && typeof sfRogueStageBalance==='function'){
+            var override=sfRogueStageBalance(roguePlanetKeys[roguePlanetState.planetIndex],roguePlanetState.stageIndex);
+            if(override){
+                cfg=Object.assign(cfg,override);
+                if(override.objective && st.objective) cfg.objective=Object.assign({},st.objective,override.objective);
+            }
+        }
     }catch(e){ cfg=null; }
     return cfg;
 }
@@ -364,16 +371,18 @@ function pickMonsterType() {
 
 function spawnEnemy(forcedType) {
     var rogueCfg = getRogueStageEnemyConfig();
+    var balanceEnemy = null;
     var typeKey = forcedType || pickMonsterType();
     var t = MONSTER_TYPES[typeKey];
+    balanceEnemy = (currentMode==='rogue' && typeof sfGetEnemyBalance==='function') ? sfGetEnemyBalance(typeKey) : null;
     var speedBonus = (level - 1) * 0.4;
     var speedMultiplier = (level <= 3) ? 0.7 : 1;
     var e = {
         type: typeKey, t: t,
-        x: 20 + Math.random() * (canvas.width - t.size - 20),
-        y: -30, size: t.size,
-        speed: (t.speed + speedBonus) * speedMultiplier,
-        hp: t.hp, maxHp: t.hp,
+        x: 20 + Math.random() * (canvas.width - ((balanceEnemy && Number.isFinite(balanceEnemy.size)) ? balanceEnemy.size : t.size) - 20),
+        y: -30, size: (balanceEnemy && Number.isFinite(balanceEnemy.size)) ? balanceEnemy.size : t.size,
+        speed: (((balanceEnemy && Number.isFinite(balanceEnemy.speed)) ? balanceEnemy.speed : t.speed) + speedBonus) * speedMultiplier,
+        hp: (balanceEnemy && Number.isFinite(balanceEnemy.hp)) ? balanceEnemy.hp : t.hp, maxHp: (balanceEnemy && Number.isFinite(balanceEnemy.hp)) ? balanceEnemy.hp : t.hp,
         wobble: Math.random() * Math.PI * 2,
         zigzagPhase: Math.random() * Math.PI * 2,
         baseX: 0, hitFlash: 0,
@@ -429,6 +438,7 @@ function spawnEnemy(forcedType) {
 
 function spawnBoss(bossId) {
     var b = BOSS_TYPES[bossId];
+    var balanceBoss = (currentMode==='rogue' && typeof sfGetBossBalance==='function') ? sfGetBossBalance(bossId) : null;
     if (!b) return;
 
     // Босс всегда выходит один на один: очищаем обычных врагов и их снаряды.
@@ -451,12 +461,16 @@ function spawnBoss(bossId) {
         id: bossId, type: b,
         x: canvas.width / 2 - b.size / 2,
         y: -b.size - 20,
-        size: b.size,
-        hp: b.hp, maxHp: b.hp,
+        size: balanceBoss && Number.isFinite(balanceBoss.size) ? balanceBoss.size : b.size,
+        hp: balanceBoss && Number.isFinite(balanceBoss.hp) ? balanceBoss.hp : b.hp, maxHp: balanceBoss && Number.isFinite(balanceBoss.hp) ? balanceBoss.hp : b.hp,
         phase: 1, wobble: 0, shootTimer: 60, specialTimer: 0,
         rotation: 0, hitFlash: 0, entering: true, defeatTimer: 0,
         telegraphTimer: 0, vulnerableTimer: 0, fireNow: false, contactCooldown: 0,
-        reward: b.reward
+        reward: {
+            gold: balanceBoss && Number.isFinite(balanceBoss.rewardGold) ? balanceBoss.rewardGold : b.reward.gold,
+            crystals: balanceBoss && Number.isFinite(balanceBoss.rewardCrystals) ? balanceBoss.rewardCrystals : b.reward.crystals,
+            skin: b.reward.skin
+        }
     };
     bosses.push(boss);
     showToast('⚠️ ' + b.icon + ' ' + b.name + ' выходит на дуэль!', 'legendary');
@@ -1889,7 +1903,8 @@ function update() {
         if (currentMode === 'rogue' && typeof getRogueStageEnemyConfig === 'function') {
             var rogueSpawnCfg = getRogueStageEnemyConfig();
             if (rogueSpawnCfg) {
-                var rogueInterval = Math.max(55, rogueSpawnCfg.spawnInterval || 90);
+                var rogueMinInterval = (typeof sfRogueBalance==='function' && sfRogueBalance() && sfRogueBalance().spawn) ? sfRogueBalance().spawn.minIntervalFrames : 55;
+                var rogueInterval = Math.max(rogueMinInterval, rogueSpawnCfg.spawnInterval || 90);
                 var rogueMaxAlive = Math.max(3, rogueSpawnCfg.maxAlive || 5);
                 if (currentWaveModifier && currentWaveModifier.enemyMult) {
                     rogueInterval = Math.max(55, Math.floor(rogueInterval / currentWaveModifier.enemyMult));

@@ -79,7 +79,19 @@ function roguePlanetCurrentPlanet(){
 }
 function roguePlanetCurrentStage(){
     var p=roguePlanetCurrentPlanet();
-    return p && p.stages[roguePlanetState.stageIndex] ? p.stages[roguePlanetState.stageIndex] : null;
+    var st=p && p.stages[roguePlanetState.stageIndex] ? p.stages[roguePlanetState.stageIndex] : null;
+    if(!st) return null;
+    if(typeof sfRogueStageBalance==='function'){
+        var override=sfRogueStageBalance(roguePlanetKeys[roguePlanetState.planetIndex],roguePlanetState.stageIndex);
+        if(override){
+            var merged=Object.assign({},st);
+            if(override.objective) merged.objective=Object.assign({},st.objective||{},override.objective);
+            if(override.pool) merged.enemyConfig=Object.assign({},st.enemyConfig||{},override);
+            else merged.enemyConfig=Object.assign({},st.enemyConfig||{},override);
+            return merged;
+        }
+    }
+    return st;
 }
 
 /* Stage kill tracking is installed once. Re-opening the map must not
@@ -293,9 +305,11 @@ function roguePlanetApplyStage(){
     currentWaveModifier=currentWaveModifier||{};
     currentWaveModifier.hpMult=1;
     currentWaveModifier.speedMult=1;
-    if(st.type==='elite'){ currentWaveModifier.hpMult=1.35; currentWaveModifier.speedMult=1.12; }
-    if(st.type==='ambush'){ currentWaveModifier.hpMult=1.12; currentWaveModifier.speedMult=1.16; }
-    if(st.type==='finaltrial'){ currentWaveModifier.hpMult=1.28; currentWaveModifier.speedMult=1.18; }
+    var mb=(typeof sfRogueBalance==='function')?sfRogueBalance():null;
+    var mods=mb&&mb.modifiers?mb.modifiers:{};
+    if(st.type==='elite'){ var em=mods.elite||{hpMult:1.35,speedMult:1.12}; currentWaveModifier.hpMult=em.hpMult; currentWaveModifier.speedMult=em.speedMult; }
+    if(st.type==='ambush'){ var am=mods.ambush||{hpMult:1.12,speedMult:1.16}; currentWaveModifier.hpMult=am.hpMult; currentWaveModifier.speedMult=am.speedMult; }
+    if(st.type==='finaltrial'){ var fm=mods.finaltrial||{hpMult:1.28,speedMult:1.18}; currentWaveModifier.hpMult=fm.hpMult; currentWaveModifier.speedMult=fm.speedMult; }
     roguePlanetState.stageTimer=0;
     roguePlanetState.hazardTimer=0;
     roguePlanetState.hazards=[];
@@ -622,8 +636,10 @@ update=function(){
         if(pressureCfg){
             var pressureMax=pressureCfg.maxAlive || 5;
             var pressureMin=pressureCfg.minAlive || Math.max(2, pressureMax-2);
-            if(enemies.length < pressureMin && frame % 45 === 0){
-                var pressureNeed=Math.min(pressureMin-enemies.length,2);
+            var pressureInterval=(typeof sfRogueBalance==='function'&&sfRogueBalance()&&sfRogueBalance().spawn)?sfRogueBalance().spawn.pressureIntervalFrames:45;
+            var pressureMaxPerTick=(typeof sfRogueBalance==='function'&&sfRogueBalance()&&sfRogueBalance().spawn)?sfRogueBalance().spawn.pressureMaxPerTick:2;
+            if(enemies.length < pressureMin && frame % pressureInterval === 0){
+                var pressureNeed=Math.min(pressureMin-enemies.length,pressureMaxPerTick);
                 for(var pi=0;pi<pressureNeed;pi++) spawnEnemy();
             }
         }

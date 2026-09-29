@@ -7,11 +7,24 @@ import {randomBytes} from "node:crypto";
 const ROOT=process.cwd();
 const CONFIG=path.join(ROOT,"config","roguelike-balance.json");
 const RUNTIME=path.join(ROOT,"js","balance-config.js");
+const BUGS=path.join(ROOT,"config","bugs.json");
 const PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-lab.html"),"utf8");
 const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
 const TOKEN=randomBytes(18).toString("hex");
 
 function load(){return JSON.parse(fs.readFileSync(CONFIG,"utf8"))}
+function loadBugs(){
+  const data=JSON.parse(fs.readFileSync(BUGS,"utf8"));
+  data.bugs=Array.isArray(data.bugs)?data.bugs:[];
+  data.bugs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))||Number(b.id)-Number(a.id));
+  return data;
+}
+function saveBugs(data){
+  data.bugs=Array.isArray(data.bugs)?data.bugs:[];
+  data.bugs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))||Number(b.id)-Number(a.id));
+  data.nextId=data.bugs.reduce((m,b)=>Math.max(m,Number(b.id)||0),0)+1;
+  fs.writeFileSync(BUGS,JSON.stringify(data,null,2)+"\n");
+}
 function runtime(data){
   return "// AUTO-GENERATED FROM config/roguelike-balance.json\nvar STARFALL_BALANCE = "+JSON.stringify(data,null,2)+";\nfunction sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}\nfunction sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}\nfunction sfRogueStageBalance(planetKey,stageIndex){var b=sfRogueBalance();var list=b&&b.stages&&b.stages[planetKey];return list&&list[stageIndex]?list[stageIndex]:null;}\nfunction sfGetEnemyBalance(typeKey){var b=sfRogueBalance();return b&&b.enemies&&b.enemies[typeKey]?b.enemies[typeKey]:null;}\nfunction sfGetBossBalance(bossKey){var b=sfRogueBalance();return b&&b.bosses&&b.bosses[bossKey]?b.bosses[bossKey]:null;}\n";
 }
@@ -24,6 +37,10 @@ function commit(){
   return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"});
 }
 function push(){return execFileSync("git",["push","origin","main"],{cwd:ROOT,encoding:"utf8",stdio:"pipe"})}
+function commitBugs(){
+  execFileSync("git",["add","config/bugs.json"],{cwd:ROOT,stdio:"pipe"});
+  return execFileSync("git",["commit","-m","Dev: update bug registry"],{cwd:ROOT,encoding:"utf8"});
+}
 function headSha(){return execFileSync("git",["rev-parse","HEAD"],{cwd:ROOT,encoding:"utf8"}).trim()}
 function send(res,status,type,body){res.writeHead(status,{"Content-Type":type,"Cache-Control":"no-store"});res.end(body)}
 
@@ -201,6 +218,17 @@ const server=http.createServer(async(req,res)=>{
     const localRequest = req.socket.remoteAddress === "127.0.0.1" || req.socket.remoteAddress === "::1" || req.socket.remoteAddress === "::ffff:127.0.0.1";
     if(!localRequest && u.searchParams.get("token")!==TOKEN) return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
     if(u.pathname==="/api/balance"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(load()));
+    if(u.pathname==="/api/bugs"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(loadBugs()));
+    if(u.pathname==="/api/bugs"&&req.method==="POST"){
+      let body="";for await(const chunk of req)body+=chunk;
+      const data=JSON.parse(body);saveBugs(data);
+      try{commitBugs();}catch(e){if(!String(e.message).includes("nothing to commit")) throw e}
+      if(data.push){
+        try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,bugs:data.bugs}))}
+        catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Баги сохранены и закоммичены, но push не выполнен: "+e.message,bugs:data.bugs}))}
+      }
+      return send(res,200,"application/json",JSON.stringify({success:true,bugs:data.bugs}));
+    }
     if(u.pathname==="/api/run"&&req.method==="POST"){
       let body="";for await(const chunk of req)body+=chunk;
       const p=JSON.parse(body);const data=load();

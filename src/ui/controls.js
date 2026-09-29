@@ -99,16 +99,16 @@ function closeRogueMapAfterRun() {
     var map = document.getElementById('rogue-planet-map');
     if (map) map.classList.remove('open');
 
-    // Invalidate every delayed Roguelike map/stage/boss callback from the
-    // finished run. Otherwise a stale timeout can reopen the map over menu.
+    // One centralized invalidation point for every delayed Roguelike callback.
+    // Incrementing the token makes every callback from the old run stale.
     if (typeof roguePlanetState !== 'undefined') {
+        roguePlanetState.transitionToken = (roguePlanetState.transitionToken || 0) + 1;
         roguePlanetState.mapOpen = false;
         roguePlanetState.stageStarted = false;
         roguePlanetState.bossActive = false;
         roguePlanetState.bossHandled = false;
         roguePlanetState.awaitingMap = false;
         roguePlanetState.active = false;
-        roguePlanetState.transitionToken = (roguePlanetState.transitionToken || 0) + 1;
     }
 
     var stageComplete = document.getElementById('rogue-stage-complete');
@@ -116,6 +116,16 @@ function closeRogueMapAfterRun() {
 
     var stageObjective = document.getElementById('rogue-stage-objective');
     if (stageObjective) stageObjective.remove();
+}
+
+function resetRoguelikeTransitionState() {
+    if (typeof roguePlanetState === 'undefined') return;
+    roguePlanetState.transitionToken = (roguePlanetState.transitionToken || 0) + 1;
+    roguePlanetState.mapOpen = false;
+    roguePlanetState.awaitingMap = false;
+    roguePlanetState.bossActive = false;
+    roguePlanetState.bossHandled = false;
+    roguePlanetState.stageStarted = false;
 }
 
 function returnToMainMenu() {

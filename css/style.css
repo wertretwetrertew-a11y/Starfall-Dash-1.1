@@ -4128,3 +4128,33 @@ canvas {
 @media(prefers-reduced-motion:reduce){
     #rogue-hp-fill.critical{animation:none}
 }
+
+
+/* Bug #6: keep the Roguelike quick-launch tile content inside its bounds. */
+#start-screen .menu-grid .menu-tile.rogue {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    padding: 10px 12px;
+    gap: 3px;
+    line-height: 1.05;
+}
+#start-screen .menu-grid .menu-tile.rogue .mt-icon,
+#start-screen .menu-grid .menu-tile.rogue .mt-label,
+#start-screen .menu-grid .menu-tile.rogue .mt-sub,
+#start-screen .menu-grid .menu-tile.rogue .mt-mini {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+#start-screen .menu-grid .menu-tile.rogue .mt-icon {
+    line-height: 1;
+    margin: 0;
+}
+#start-screen .menu-grid .menu-tile.rogue .mt-label,
+#start-screen .menu-grid .menu-tile.rogue .mt-sub,
+#start-screen .menu-grid .menu-tile.rogue .mt-mini {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

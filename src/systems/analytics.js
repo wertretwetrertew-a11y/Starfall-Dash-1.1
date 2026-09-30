@@ -68,8 +68,8 @@
         });
     }
 
-    wrap('reset',function(){ startRun(); });
     wrap('finishRun',function(){
+        if(!started && window.runStartTime) startRun();
         if(!started)return;
         track('run_finished',{
             result:window.gameOver?'death':'completed',

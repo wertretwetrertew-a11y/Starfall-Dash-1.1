@@ -16,13 +16,13 @@ function spawnCoin() {
     });
 }
 
-// Roguelike XP drops from defeated enemies.
-// XP follows the same top-to-bottom fall as gold, but is intentionally rarer.
+// Roguelike XP is an independent sky drop.
+// It is intentionally NOT created by enemy deaths and falls top-to-bottom like gold.
 function spawnRogueXP() {
     if (currentMode !== 'rogue' || typeof rogueXPOrbs === 'undefined') return;
 
     // XP is a rare field drop independent of kills.
-    // The caller controls how often it is spawned, just like the gold timer.
+    // The caller controls its frequency; pickup is handled by update.js.
     rogueXPOrbs.push({
         x: 20 + Math.random() * (canvas.width - 40),
         y: -20,

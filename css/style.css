@@ -1434,6 +1434,12 @@
         grid-column: 1 / -1;
         grid-row: 3;
         min-height: 86px;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 3;
         border-color: rgba(124,255,178,.20);
         background: linear-gradient(145deg, rgba(13,34,31,.70), rgba(8,15,25,.90));
     }

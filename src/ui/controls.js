@@ -26,37 +26,38 @@ var joyVector = { x: 0, y: 0 };
 var JOY_MAX = 50;
 
 function joyStart(e) {
-    var t = e.touches ? e.touches[0] : e;
+    if (e.cancelable) e.preventDefault();
     var rect = joyZone.getBoundingClientRect();
     joyStartX = rect.left + rect.width / 2;
     joyStartY = rect.top + rect.height / 2;
     joyActive = true;
+    if (joyZone.setPointerCapture && e.pointerId != null) {
+        try { joyZone.setPointerCapture(e.pointerId); } catch (_) {}
+    }
     joyMove(e);
 }
 function joyMove(e) {
     if (!joyActive) return;
     if (e.cancelable) e.preventDefault();
-    var t = e.touches ? e.touches[0] : e;
-    var dx = t.clientX - joyStartX;
-    var dy = t.clientY - joyStartY;
+    var dx = e.clientX - joyStartX;
+    var dy = e.clientY - joyStartY;
     var dist = Math.hypot(dx, dy);
     if (dist > JOY_MAX) { dx = dx / dist * JOY_MAX; dy = dy / dist * JOY_MAX; }
     joyKnob.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
     joyVector.x = dx / JOY_MAX;
     joyVector.y = dy / JOY_MAX;
 }
-function joyEnd() {
+function joyEnd(e) {
+    if (e && e.cancelable) e.preventDefault();
     joyActive = false;
     joyKnob.style.transform = 'translate(0,0)';
     joyVector.x = 0; joyVector.y = 0;
 }
-joyZone.addEventListener('touchstart', joyStart, { passive: false });
-joyZone.addEventListener('touchmove', joyMove, { passive: false });
-joyZone.addEventListener('touchend', joyEnd);
-joyZone.addEventListener('touchcancel', joyEnd);
-joyZone.addEventListener('mousedown', joyStart);
-window.addEventListener('mousemove', joyMove);
-window.addEventListener('mouseup', joyEnd);
+joyZone.addEventListener('pointerdown', joyStart, { passive: false });
+joyZone.addEventListener('pointermove', joyMove, { passive: false });
+joyZone.addEventListener('pointerup', joyEnd, { passive: false });
+joyZone.addEventListener('pointercancel', joyEnd, { passive: false });
+joyZone.addEventListener('lostpointercapture', joyEnd);
 
 var btnRestart = document.getElementById('btn-restart');
 if (btnRestart) {
@@ -130,6 +131,7 @@ function resetRoguelikeTransitionState() {
 
 function returnToMainMenu() {
     gameoverModal.classList.remove('open');
+    resetRoguelikeTransitionState();
     closeRogueMapAfterRun();
     document.body.classList.remove('playing');
     running = false;
@@ -154,6 +156,7 @@ function returnToMainMenu() {
 if (goRestart) {
     goRestart.addEventListener('click', function() {
         gameoverModal.classList.remove('open');
+        resetRoguelikeTransitionState();
         closeRogueMapAfterRun();
         document.body.classList.add('playing');
         gameOver = false;

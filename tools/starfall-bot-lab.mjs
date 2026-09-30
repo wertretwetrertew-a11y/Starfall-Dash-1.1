@@ -8,11 +8,47 @@ const ROOT=process.cwd();
 const CONFIG=path.join(ROOT,"config","roguelike-balance.json");
 const RUNTIME=path.join(ROOT,"js","balance-config.js");
 const BUGS=path.join(ROOT,"config","bugs.json");
+const ANALYTICS=path.join(ROOT,"config","analytics-events.json");
 const PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-lab.html"),"utf8");
 const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
 const TOKEN=randomBytes(18).toString("hex");
 
 function load(){return JSON.parse(fs.readFileSync(CONFIG,"utf8"))}
+function loadAnalytics(){
+  try{const d=JSON.parse(fs.readFileSync(ANALYTICS,"utf8"));return Array.isArray(d.events)?d.events:[]}catch{return []}
+}
+function saveAnalytics(events){
+  const trimmed=events.slice(-30000);
+  fs.writeFileSync(ANALYTICS,JSON.stringify({version:1,events:trimmed},null,2)+"\n");
+}
+function analyticsSummary(events){
+  const count={}; const byMode={}; const byStage={}; const byCharacter={}; const byUpgrade={}; const byDeath={};
+  const sessions=new Set(), runs=new Set(); let completed=0,deaths=0,totalTime=0,totalLevel=0,levelN=0,totalKills=0,totalXP=0,totalGold=0,bosses=0,bossWins=0;
+  for(const e of events){
+    const d=e.data||{}; count[e.event]=(count[e.event]||0)+1;
+    if(d.sessionId)sessions.add(d.sessionId);
+    if(e.event==="run_started"){
+      runs.add(d.sessionId+"|"+(d.ts||"")); const m=d.mode||"unknown";byMode[m]=(byMode[m]||0)+1;
+      const ch=d.character||"unknown";byCharacter[ch]=(byCharacter[ch]||0)+1;
+    }
+    if(e.event==="run_finished"){
+      if(d.result==="completed")completed++; else deaths++;
+      totalTime+=Number(d.runTime)||0; totalLevel+=Number(d.level)||0; levelN++;
+      totalKills+=Number(d.kills)||0;
+      const reason=d.deathReason||d.boss||null;if(reason)byDeath[reason]=(byDeath[reason]||0)+1;
+    }
+    if(e.event==="xp_collected") totalXP+=Number(d.amount)||0;
+    if(e.event==="gold_earned") totalGold+=Number(d.amount)||0;
+    if(e.event==="boss_started"||e.event==="boss_duel_started") bosses++;
+    if(e.event==="boss_defeated") bossWins++;
+    if(e.event==="stage_started"||e.event==="stage_completed"){
+      const key="P"+(d.planet||"?")+" / Э"+(d.stage||"?");byStage[key]=(byStage[key]||0)+1;
+    }
+    if(e.event==="upgrade_selected"){const k=d.upgradeId||"unknown";byUpgrade[k]=(byUpgrade[k]||0)+1;}
+  }
+  const safe=(obj)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  return {events:events.length,sessions:sessions.size,runs:runs.size,completed,deaths,completionRate:runs?completed/runs:0,avgRunTime:levelN?totalTime/levelN:0,avgLevel:levelN?totalLevel/levelN:0,totalKills,totalXP,totalGold,bosses,bossWins,counts:count,byMode:safe(byMode),byStage:safe(byStage),byCharacter:safe(byCharacter),byUpgrade:safe(byUpgrade),byDeath:safe(byDeath),updatedAt:new Date().toISOString()};
+}
 function loadBugs(){
   const data=JSON.parse(fs.readFileSync(BUGS,"utf8"));
   data.bugs=Array.isArray(data.bugs)?data.bugs:[];
@@ -62,7 +98,7 @@ function commitBugs(){
   return execFileSync("git",["commit","-m","Dev: update bug registry"],{cwd:ROOT,encoding:"utf8"});
 }
 function headSha(){return execFileSync("git",["rev-parse","HEAD"],{cwd:ROOT,encoding:"utf8"}).trim()}
-function send(res,status,type,body){res.writeHead(status,{"Content-Type":type,"Cache-Control":"no-store"});res.end(body)}
+function send(res,status,type,body){res.writeHead(status,{"Content-Type":type,"Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"Content-Type"});res.end(body)}
 
 function mulberry32(seed){
   let a=seed>>>0;
@@ -237,6 +273,15 @@ const server=http.createServer(async(req,res)=>{
     if(u.pathname==="/") return send(res,200,"text/html; charset=utf-8",PAGE);
     const localRequest = req.socket.remoteAddress === "127.0.0.1" || req.socket.remoteAddress === "::1" || req.socket.remoteAddress === "::ffff:127.0.0.1";
     if(!localRequest && u.searchParams.get("token")!==TOKEN) return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
+    if(u.pathname==="/api/analytics"&&req.method==="OPTIONS") return send(res,204,"text/plain","");
+    if(u.pathname==="/api/analytics"&&req.method==="POST"){
+      let body="";for await(const chunk of req)body+=chunk;
+      let batch=JSON.parse(body);if(!Array.isArray(batch))batch=[batch];
+      batch=batch.filter(e=>e&&typeof e.event==="string"&&e.data&&typeof e.data==="object").slice(0,500);
+      const events=loadAnalytics();events.push(...batch);saveAnalytics(events);
+      return send(res,200,"application/json",JSON.stringify({success:true,accepted:batch.length,total:Math.min(events.length,30000)}));
+    }
+    if(u.pathname==="/api/analytics"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(analyticsSummary(loadAnalytics())));
     if(u.pathname==="/api/balance"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(load()));
     if(u.pathname==="/api/bugs"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(loadBugs()));
     if(u.pathname==="/api/bugs"&&req.method==="POST"){

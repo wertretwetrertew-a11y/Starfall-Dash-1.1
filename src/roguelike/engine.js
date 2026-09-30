@@ -1083,6 +1083,42 @@ applyDrop = function applyDrop(type,x,y){
 }
 
 
+function rogueDrawXPOrbs(){
+    if(currentMode!=='rogue' || !running || !rogueXPOrbs.length) return;
+    ctx.save();
+    rogueXPOrbs.forEach(function(xp){
+        var cx=xp.x+xp.size/2;
+        var cy=xp.y+xp.size/2;
+        var pulse=1+Math.sin((xp.phase||0))*0.12;
+        var r=Math.max(4,(xp.size/2)*pulse);
+
+        ctx.globalAlpha=0.18;
+        ctx.fillStyle='#b388ff';
+        ctx.beginPath();
+        ctx.arc(cx,cy,r*2.2,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.globalAlpha=0.95;
+        ctx.fillStyle='#b388ff';
+        ctx.beginPath();
+        ctx.arc(cx,cy,r,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.globalAlpha=1;
+        ctx.strokeStyle='#e1bee7';
+        ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.arc(cx,cy,r+1,0,Math.PI*2);
+        ctx.stroke();
+
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx-r*0.28,cy-r*0.28,Math.max(1.5,r*0.2),0,Math.PI*2);
+        ctx.fill();
+    });
+    ctx.restore();
+}
+
 function rogueDrawEnemyHealthBars(){
     if(currentMode!=='rogue' || !running || !enemies.length) return;
     ctx.save();
@@ -1105,5 +1141,6 @@ function rogueDrawEnemyHealthBars(){
 var _rogueV3OldDraw=draw;
 draw=function(){
     _rogueV3OldDraw();
+    rogueDrawXPOrbs();
     rogueDrawEnemyHealthBars();
 };

@@ -229,7 +229,7 @@ function update() {
             bossAnnouncement = '';
             updateBossDuelHUD();
             levelTimer = LEVEL_DURATION;
-            // Roguelike progression is driven only by XP earned from enemy kills.
+            // Roguelike progression is driven only by XP pickups; enemy kills do not grant XP.
             // Boss victory advances the planet route; it must not create a free level.
             if (currentMode !== 'rogue') {
                 levelUp();
@@ -242,8 +242,8 @@ function update() {
     // Спавн монет
     if (bossState === 'none' && frame % 40 === 0) spawnCoin();
 
-    // Roguelike XP падает так же, как золото, но заметно реже.
-    // XP не привязан к убийствам врагов.
+    // Roguelike XP — самостоятельный редкий небесный дроп.
+    // XP НЕ создаётся при убийстве врага: он спавнится независимо и падает сверху, как золото.
     if (currentMode === 'rogue' && bossState === 'none' && frame % 120 === 0) {
         if (typeof spawnRogueXP === 'function') spawnRogueXP();
     }
@@ -389,7 +389,7 @@ function update() {
         return c.y < canvas.height + 20;
     });
 
-    // Roguelike XP — награда за убийства, остающаяся на поле до подбора.
+    // Roguelike XP — редкий самостоятельный падающий предмет, остающийся на поле до подбора.
     if (currentMode === 'rogue') {
         var xpMagnetRadius = (getSave().magnetRadius || 0) + coreBonusCache.magnet;
         if (runUpgrades.magnet) xpMagnetRadius += runUpgrades.magnet * 40;

@@ -9,6 +9,7 @@
     var SESSION='sfd_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9);
     var QUEUE=[];
     var started=false;
+    var pendingDeathReason=null;
     var last={xp:0,gold:0,level:1,stage:null};
 
     function hash(s){
@@ -60,6 +61,7 @@
     }
     function startRun(){
         started=true;
+        pendingDeathReason=null;
         last={xp:Number(window.rogueXP)||0,gold:Number(window.goldEarned)||0,level:Number(window.level)||1,stage:null};
         track('run_started',{
             mode:window.currentMode||null,
@@ -79,17 +81,24 @@
             level:Number(window.level)||0,
             runTime:Number(window.runTime)||0,
             kills:(function(){try{return Number(getSave().totalKills)||0}catch(e){return 0}})(),
+            deathReason:pendingDeathReason||null,
             upgrades:Object.assign({},window.runUpgrades||{}),
             relics:(window.runRelics||[]).slice()
         });
         started=false;
     });
     wrap('playerTakeDamage',function(){
+        if(Number(window.lives)<=1){
+            pendingDeathReason=(window.bossState&&window.bossState!=='none')?'boss':((window.rogueEnemyHazards&&window.rogueEnemyHazards.length)?'hazard':((window.enemyBullets&&window.enemyBullets.length)?'projectile':'contact'));
+        }
         track('damage_taken',{
             livesBefore:Number(window.lives)||0,
             boss:window.bossDuelId||null,
             stage:window.roguePlanetState?Number(window.roguePlanetState.stageIndex)+1:null
         });
+    });
+    wrap('rogueRegisterKill',function(enemy){
+        track('enemy_killed',{enemyType:enemy&&enemy.type||'unknown',stage:window.roguePlanetState?Number(window.roguePlanetState.stageIndex)+1:null});
     });
     wrap('applyUpgrade',function(id){
         track('upgrade_selected',{upgradeId:id});

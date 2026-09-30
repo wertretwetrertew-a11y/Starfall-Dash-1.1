@@ -274,6 +274,7 @@ const server=http.createServer(async(req,res)=>{
     const localRequest = req.socket.remoteAddress === "127.0.0.1" || req.socket.remoteAddress === "::1" || req.socket.remoteAddress === "::ffff:127.0.0.1";
     if(!localRequest && u.searchParams.get("token")!==TOKEN) return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
     if(u.pathname==="/api/analytics"&&req.method==="OPTIONS") return send(res,204,"text/plain","");
+    if(u.pathname==="/api/analytics"&&req.method==="DELETE"){ saveAnalytics([]); return send(res,200,"application/json",JSON.stringify({success:true})); }
     if(u.pathname==="/api/analytics"&&req.method==="POST"){
       let body="";for await(const chunk of req)body+=chunk;
       let batch=JSON.parse(body);if(!Array.isArray(batch))batch=[batch];

@@ -8,8 +8,10 @@ const ROOT=process.cwd();
 const CONFIG=path.join(ROOT,"config","roguelike-balance.json");
 const RUNTIME=path.join(ROOT,"js","balance-config.js");
 const BUGS=path.join(ROOT,"config","bugs.json");
+const IDEAS=path.join(ROOT,"config","ideas.json");
 const ANALYTICS=path.join(ROOT,"config","analytics-events.json");
 const PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-lab.html"),"utf8");
+const IDEAS_PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-ideas.html"),"utf8");
 const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
 const TOKEN=randomBytes(18).toString("hex");
 
@@ -57,18 +59,31 @@ function loadBugs(){
 }
 function saveBugs(data){
   data.bugs=Array.isArray(data.bugs)?data.bugs:[];
-  // Bot Lab uses exactly two statuses: open or fixed.
   for(const bug of data.bugs){
     bug.status=bug.status==="fixed"?"fixed":"open";
-    if(bug.status==="fixed"){
-      if(!bug.fixedAt) bug.fixedAt=new Date().toISOString().slice(0,10);
-    }else{
-      bug.fixedAt=null;
-    }
+    if(bug.status==="fixed"){if(!bug.fixedAt) bug.fixedAt=new Date().toISOString().slice(0,10);}
+    else bug.fixedAt=null;
   }
   data.bugs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))||Number(b.id)-Number(a.id));
   data.nextId=data.bugs.reduce((m,b)=>Math.max(m,Number(b.id)||0),0)+1;
   fs.writeFileSync(BUGS,JSON.stringify(data,null,2)+"\n");
+}
+function loadIdeas(){
+  const data=JSON.parse(fs.readFileSync(IDEAS,"utf8"));
+  data.ideas=Array.isArray(data.ideas)?data.ideas:[];
+  data.ideas.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))||Number(b.id)-Number(a.id));
+  return data;
+}
+function saveIdeas(data){
+  data.ideas=Array.isArray(data.ideas)?data.ideas:[];
+  for(const idea of data.ideas){
+    idea.status=["planned","done","rejected"].includes(idea.status)?idea.status:"planned";
+    idea.priority=["high","medium","low"].includes(idea.priority)?idea.priority:"medium";
+    if(!idea.createdAt) idea.createdAt=new Date().toISOString().slice(0,10);
+  }
+  data.ideas.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))||Number(b.id)-Number(a.id));
+  data.nextId=data.ideas.reduce((m,x)=>Math.max(m,Number(x.id)||0),0)+1;
+  fs.writeFileSync(IDEAS,JSON.stringify(data,null,2)+"\n");
 }
 function runtime(data){
   return "// AUTO-GENERATED FROM config/roguelike-balance.json\nvar STARFALL_BALANCE = "+JSON.stringify(data,null,2)+";\nfunction sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}\nfunction sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}\nfunction sfRogueStageBalance(planetKey,stageIndex){var b=sfRogueBalance();var list=b&&b.stages&&b.stages[planetKey];return list&&list[stageIndex]?list[stageIndex]:null;}\nfunction sfGetEnemyBalance(typeKey){var b=sfRogueBalance();return b&&b.enemies&&b.enemies[typeKey]?b.enemies[typeKey]:null;}\nfunction sfGetBossBalance(bossKey){var b=sfRogueBalance();return b&&b.bosses&&b.bosses[bossKey]?b.bosses[bossKey]:null;}\n";
@@ -84,9 +99,7 @@ function commit(){
 function ensureRemote(){
   let remote="";
   try{remote=execFileSync("git",["remote","get-url","origin"],{cwd:ROOT,encoding:"utf8",stdio:"pipe"}).trim()}catch{}
-  if(!remote){
-    execFileSync("git",["remote","add","origin","https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git"],{cwd:ROOT,stdio:"pipe"});
-  }
+  if(!remote) execFileSync("git",["remote","add","origin","https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1.git"],{cwd:ROOT,stdio:"pipe"});
 }
 function push(){
   ensureRemote();
@@ -96,6 +109,10 @@ function push(){
 function commitBugs(){
   execFileSync("git",["add","config/bugs.json"],{cwd:ROOT,stdio:"pipe"});
   return execFileSync("git",["commit","-m","Dev: update bug registry"],{cwd:ROOT,encoding:"utf8"});
+}
+function commitIdeas(){
+  execFileSync("git",["add","config/ideas.json"],{cwd:ROOT,stdio:"pipe"});
+  return execFileSync("git",["commit","-m","Dev: update ideas registry"],{cwd:ROOT,encoding:"utf8"});
 }
 function headSha(){return execFileSync("git",["rev-parse","HEAD"],{cwd:ROOT,encoding:"utf8"}).trim()}
 function send(res,status,type,body){res.writeHead(status,{"Content-Type":type,"Cache-Control":"no-store","Access-Control-Allow-Origin":"*","Access-Control-Allow-Methods":"GET,POST,OPTIONS","Access-Control-Allow-Headers":"Content-Type"});res.end(body)}
@@ -134,197 +151,80 @@ function simulate(balance,opts){
     summary:{started:runs,completed:0,planetCompleted:0,stagesCompleted:0,deaths:0,avgSurvivalSeconds:0,avgKills:0,avgGold:0,avgCrystals:0,avgLevels:0,avgUpgrades:0,avgDamageTaken:0,bossesDefeated:0,bossesAttempted:0},
     stages:[], enemies:{}, bosses:{}, upgrades:{}
   };
-  for(const [planet,stages] of planets){
-    for(let si=0;si<stages.length;si++){
-      result.stages.push({planet,stage:si+1,attempts:0,completed:0,deaths:0,avgSeconds:0,avgKills:0,avgDamageTaken:0});
-    }
-  }
+  for(const [planet,stages] of planets) for(let si=0;si<stages.length;si++) result.stages.push({planet,stage:si+1,attempts:0,completed:0,deaths:0,avgSeconds:0,avgKills:0,avgDamageTaken:0});
   for(const k of Object.keys(balance.rogue.enemies)) result.enemies[k]={spawned:0,killed:0,damageTaken:0,deaths:0};
   for(const k of Object.keys(balance.rogue.bosses)) result.bosses[k]={attempted:0,defeated:0,deaths:0,avgFightSeconds:0};
   for(const k of Object.keys(UPGRADE_INFO)) result.upgrades[k]={picked:0,label:UPGRADE_INFO[k].label};
 
   let totalSurvival=0,totalKills=0,totalGold=0,totalCrystals=0,totalLevels=0,totalUpgrades=0,totalDamage=0;
   for(let run=0;run<runs;run++){
-    let hp=baseHp, shields=0, damage=baseDamage*profile.damage, speed=profile.move;
+    let hp=baseHp,shields=0,damage=baseDamage*profile.damage,speed=profile.move;
     let crit=0,dodge=0,thorns=0,regen=0,vampire=0,chain=0,slow=1;
-    let gold=0,crystals=0,kills=0,levels=1,upgrades=0,damageTaken=0,elapsed=0,alive=true;
-    let upgradeCursor=0;
-    const picks=[];
+    let gold=0,crystals=0,kills=0,levels=1,upgrades=0,damageTaken=0,elapsed=0,alive=true,upgradeCursor=0;
     const pickUpgrade=()=>{
       const bias=profile.upgradeBias;
-      const pool=Object.keys(UPGRADE_INFO).slice().sort((a,b)=>{
-        const ai=bias.indexOf(a),bi=bias.indexOf(b);
-        return (bi<0?99:bi)-(ai<0?99:ai) || rng()-.5;
-      });
-      const id=pool[(upgradeCursor+Math.floor(rng()*Math.min(4,pool.length)))%pool.length];
-      upgradeCursor++;
-      upgrades++;
-      picks.push(id);
-      result.upgrades[id].picked++;
-      if(id==="damage") damage+=1;
-      if(id==="crit") crit=Math.min(.75,crit+.15);
-      if(id==="dodge") dodge=Math.min(.75,dodge+.15);
-      if(id==="speed") speed*=1.06;
-      if(id==="shield") shields++;
-      if(id==="thorns") thorns+=2;
-      if(id==="regen") regen+=.35;
-      if(id==="vampire") vampire+=.05;
-      if(id==="chain") chain++;
-      if(id==="time_slow") slow*=.9;
-      if(id==="glass_cannon"){damage+=3;hp-=1}
-      if(id==="berserk") damage*=1.04;
+      const pool=Object.keys(UPGRADE_INFO).slice().sort((a,b)=>{const ai=bias.indexOf(a),bi=bias.indexOf(b);return (bi<0?99:bi)-(ai<0?99:ai)||rng()-.5});
+      const id=pool[(upgradeCursor+Math.floor(rng()*Math.min(4,pool.length)))%pool.length];upgradeCursor++;upgrades++;result.upgrades[id].picked++;
+      if(id==="damage")damage+=1;if(id==="crit")crit=Math.min(.75,crit+.15);if(id==="dodge")dodge=Math.min(.75,dodge+.15);if(id==="speed")speed*=1.06;if(id==="shield")shields++;if(id==="thorns")thorns+=2;if(id==="regen")regen+=.35;if(id==="vampire")vampire+=.05;if(id==="chain")chain++;if(id==="time_slow")slow*=.9;if(id==="glass_cannon"){damage+=3;hp-=1}if(id==="berserk")damage*=1.04;
     };
     outer:
     for(let pi=0;pi<planets.length&&alive;pi++){
       const [planet,stages]=planets[pi];
       for(let si=0;si<stages.length&&alive;si++){
-        const s=stages[si];
-        const row=result.stages[pi*4+si]; row.attempts++;
-        const pool=s.pool.filter(k=>balance.rogue.enemies[k]);
-        const spawnRate=60/Math.max(20,s.spawnInterval);
+        const s=stages[si],row=result.stages[pi*4+si];row.attempts++;
+        const pool=s.pool.filter(k=>balance.rogue.enemies[k]),spawnRate=60/Math.max(20,s.spawnInterval);
         const avgHp=pool.reduce((a,k)=>a+balance.rogue.enemies[k].hp,0)/Math.max(1,pool.length);
         const avgThreat=pool.reduce((a,k)=>a+(HAZARD[k]||1),0)/Math.max(1,pool.length);
-        const dps=(damage*8*(1+crit*.6)+thorns*2+chain*.35)*profile.damage;
-        const killRate=Math.max(.05,Math.min(spawnRate*1.8,dps/Math.max(1,avgHp)*.72));
-        let targetTime;
-        const kind=s.objective?.kind||"time",target=Number(s.objective?.target)||90;
-        if(kind==="time") targetTime=target;
-        else if(kind==="kills") targetTime=target/Math.max(.05,killRate*profile.objective);
-        else if(kind==="strongKills") targetTime=target/Math.max(.04,killRate*.45*profile.objective);
-        else if(kind==="coreFragments") targetTime=target/Math.max(.04,killRate*.18*profile.objective);
-        else if(kind==="distance") targetTime=target/(7*60*speed);
-        else targetTime=60;
+        const dps=(damage*8*(1+crit*.6)+thorns*2+chain*.35)*profile.damage,killRate=Math.max(.05,Math.min(spawnRate*1.8,dps/Math.max(1,avgHp)*.72));
+        let targetTime;const kind=s.objective?.kind||"time",target=Number(s.objective?.target)||90;
+        if(kind==="time")targetTime=target;else if(kind==="kills")targetTime=target/Math.max(.05,killRate*profile.objective);else if(kind==="strongKills")targetTime=target/Math.max(.04,killRate*.45*profile.objective);else if(kind==="coreFragments")targetTime=target/Math.max(.04,killRate*.18*profile.objective);else if(kind==="distance")targetTime=target/(7*60*speed);else targetTime=60;
         targetTime=Math.max(8,Math.min(240,targetTime));
-        const pressure=Math.max(1,(s.maxAlive||5)/5);
-        const incomingPerSec=spawnRate*avgThreat*pressure*profile.contact*(1-dodge*.65)*(1+(s.speedMult-1)*.5)*slow;
-        const expectedHits=incomingPerSec*targetTime;
-        let effectiveHp=hp+shields+(regen*targetTime/3)+(vampire*kills);
-        const randomHits=expectedHits*(.72+.56*rng());
-        const lethal=randomHits>=effectiveHp;
-        const stageDamage=Math.max(0,randomHits);
-        damageTaken+=stageDamage; elapsed+=targetTime;
-        const stageKills=Math.max(0,Math.floor(killRate*targetTime*(.82+.3*rng())));
-        kills+=stageKills;
-        gold+=Math.floor(stageKills*(2+levels*.4));
-        if(stageKills>=8) levels+=Math.floor(stageKills/8);
-        for(let n=0;n<stageKills;n++){
-          const k=pool[Math.floor(rng()*pool.length)]||"normal";
-          result.enemies[k].killed++;
-          if(rng()<.18) crystals++;
-        }
-        for(const k of pool) result.enemies[k].spawned+=Math.max(0,Math.floor(spawnRate*targetTime/pool.length));
-        if(stageDamage>0){
-          for(const k of pool) result.enemies[k].damageTaken+=stageDamage/pool.length;
-        }
-        while(upgrades < Math.floor(kills/8)) pickUpgrade();
-        if(lethal){
-          alive=false; row.deaths++; result.summary.deaths++;
-          const dk=pool[Math.floor(rng()*pool.length)]||"normal";
-          result.enemies[dk].deaths++;
-          totalSurvival+=elapsed; totalKills+=kills; totalGold+=gold; totalCrystals+=crystals; totalLevels+=levels; totalUpgrades+=upgrades; totalDamage+=damageTaken;
-          break outer;
-        }
-        hp=Math.min(baseHp+shields,Math.max(1,hp-stageDamage*.55+regen*targetTime/4+vampire*stageKills));
-        row.completed++; row.avgSeconds+=targetTime; row.avgKills+=stageKills; row.avgDamageTaken+=stageDamage;
-        result.summary.stagesCompleted++;
+        const pressure=Math.max(1,(s.maxAlive||5)/5),incomingPerSec=spawnRate*avgThreat*pressure*profile.contact*(1-dodge*.65)*(1+(s.speedMult-1)*.5)*slow;
+        const expectedHits=incomingPerSec*targetTime,effectiveHp=hp+shields+regen*targetTime/3+vampire*kills,randomHits=expectedHits*(.72+.56*rng()),lethal=randomHits>=effectiveHp,stageDamage=Math.max(0,randomHits);
+        damageTaken+=stageDamage;elapsed+=targetTime;
+        const stageKills=Math.max(0,Math.floor(killRate*targetTime*(.82+.3*rng())));kills+=stageKills;gold+=Math.floor(stageKills*(2+levels*.4));if(stageKills>=8)levels+=Math.floor(stageKills/8);
+        for(let n=0;n<stageKills;n++){const k=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[k].killed++;if(rng()<.18)crystals++}
+        for(const k of pool)result.enemies[k].spawned+=Math.max(0,Math.floor(spawnRate*targetTime/pool.length));
+        if(stageDamage>0)for(const k of pool)result.enemies[k].damageTaken+=stageDamage/pool.length;
+        while(upgrades<Math.floor(kills/8))pickUpgrade();
+        if(lethal){alive=false;row.deaths++;result.summary.deaths++;const dk=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[dk].deaths++;totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;break outer}
+        hp=Math.min(baseHp+shields,Math.max(1,hp-stageDamage*.55+regen*targetTime/4+vampire*stageKills));row.completed++;row.avgSeconds+=targetTime;row.avgKills+=stageKills;row.avgDamageTaken+=stageDamage;result.summary.stagesCompleted++;
       }
       if(alive){
-        result.summary.planetCompleted++;
-        const bossKey=pi===0?"dragon":pi===1?"titan":"devourer";
-        const b=balance.rogue.bosses[bossKey];
-        if(b){
-          result.summary.bossesAttempted++; result.bosses[bossKey].attempted++;
-          const bossDps=Math.max(.1,(2+damage)*8*(1+crit*.6)*.42);
-          const fight=Math.max(1,b.hp/bossDps);
-          const bossHits=fight*(.06+profile.contact*.35)*(1-dodge*.55);
-          const bossEffectiveHp=hp+shields+regen*fight/3+vampire*kills;
-          result.bosses[bossKey].avgFightSeconds+=fight;
-          if(bossHits>=bossEffectiveHp){
-            alive=false; result.bosses[bossKey].deaths++; result.summary.deaths++;
-            elapsed+=fight; totalSurvival+=elapsed; totalKills+=kills; totalGold+=gold; totalCrystals+=crystals; totalLevels+=levels; totalUpgrades+=upgrades; totalDamage+=damageTaken+bossHits;
-            break outer;
-          }
-          elapsed+=fight; result.bosses[bossKey].defeated++; result.summary.bossesDefeated++;
-          gold+=b.rewardGold||0; crystals+=b.rewardCrystals||0;
-          hp=Math.min(baseHp+shields,Math.max(1,hp-bossHits*.6+regen*fight/3));
+        result.summary.planetCompleted++;const bossKey=pi===0?"dragon":pi===1?"titan":"devourer",b=balance.rogue.bosses[bossKey];
+        if(b){result.summary.bossesAttempted++;result.bosses[bossKey].attempted++;const bossDps=Math.max(.1,(2+damage)*8*(1+crit*.6)*.42),fight=Math.max(1,b.hp/bossDps),bossHits=fight*(.06+profile.contact*.35)*(1-dodge*.55),bossEffectiveHp=hp+shields+regen*fight/3+vampire*kills;result.bosses[bossKey].avgFightSeconds+=fight;
+          if(bossHits>=bossEffectiveHp){alive=false;result.bosses[bossKey].deaths++;result.summary.deaths++;elapsed+=fight;totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken+bossHits;break outer}
+          elapsed+=fight;result.bosses[bossKey].defeated++;result.summary.bossesDefeated++;gold+=b.rewardGold||0;crystals+=b.rewardCrystals||0;hp=Math.min(baseHp+shields,Math.max(1,hp-bossHits*.6+regen*fight/3));
         }
       }
     }
-    if(alive) result.summary.completed++;
-    totalSurvival+=alive?elapsed:0;
-    totalKills+=kills; totalGold+=gold; totalCrystals+=crystals; totalLevels+=levels; totalUpgrades+=upgrades; totalDamage+=damageTaken;
+    if(alive)result.summary.completed++;totalSurvival+=alive?elapsed:0;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;
   }
-  const denom=runs||1;
-  result.summary.avgSurvivalSeconds=totalSurvival/denom;
-  result.summary.avgKills=totalKills/denom;
-  result.summary.avgGold=totalGold/denom;
-  result.summary.avgCrystals=totalCrystals/denom;
-  result.summary.avgLevels=totalLevels/denom;
-  result.summary.avgUpgrades=totalUpgrades/denom;
-  result.summary.avgDamageTaken=totalDamage/denom;
-  for(const r of result.stages){if(r.completed) {r.avgSeconds/=r.completed;r.avgKills/=r.completed;r.avgDamageTaken/=r.completed}}
-  for(const k of Object.keys(result.bosses)){if(result.bosses[k].defeated) result.bosses[k].avgFightSeconds/=result.bosses[k].defeated}
+  const denom=runs||1;result.summary.avgSurvivalSeconds=totalSurvival/denom;result.summary.avgKills=totalKills/denom;result.summary.avgGold=totalGold/denom;result.summary.avgCrystals=totalCrystals/denom;result.summary.avgLevels=totalLevels/denom;result.summary.avgUpgrades=totalUpgrades/denom;result.summary.avgDamageTaken=totalDamage/denom;
+  for(const r of result.stages)if(r.completed){r.avgSeconds/=r.completed;r.avgKills/=r.completed;r.avgDamageTaken/=r.completed}
+  for(const k of Object.keys(result.bosses))if(result.bosses[k].defeated)result.bosses[k].avgFightSeconds/=result.bosses[k].defeated;
   return result;
 }
 
 const server=http.createServer(async(req,res)=>{
   try{
     const u=new URL(req.url,"http://127.0.0.1");
-    if(u.pathname==="/") return send(res,200,"text/html; charset=utf-8",PAGE);
-    const localRequest = req.socket.remoteAddress === "127.0.0.1" || req.socket.remoteAddress === "::1" || req.socket.remoteAddress === "::ffff:127.0.0.1";
-    if(!localRequest && u.searchParams.get("token")!==TOKEN) return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
-    if(u.pathname==="/api/analytics"&&req.method==="OPTIONS") return send(res,204,"text/plain","");
-    if(u.pathname==="/api/analytics"&&req.method==="DELETE"){ saveAnalytics([]); return send(res,200,"application/json",JSON.stringify({success:true})); }
-    if(u.pathname==="/api/analytics"&&req.method==="POST"){
-      let body="";for await(const chunk of req)body+=chunk;
-      let batch=JSON.parse(body);if(!Array.isArray(batch))batch=[batch];
-      batch=batch.filter(e=>e&&typeof e.event==="string"&&e.data&&typeof e.data==="object").slice(0,500);
-      const events=loadAnalytics();events.push(...batch);saveAnalytics(events);
-      return send(res,200,"application/json",JSON.stringify({success:true,accepted:batch.length,total:Math.min(events.length,30000)}));
-    }
-    if(u.pathname==="/api/analytics"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(analyticsSummary(loadAnalytics())));
-    if(u.pathname==="/api/balance"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(load()));
-    if(u.pathname==="/api/bugs"&&req.method==="GET") return send(res,200,"application/json",JSON.stringify(loadBugs()));
-    if(u.pathname==="/api/bugs"&&req.method==="POST"){
-      let body="";for await(const chunk of req)body+=chunk;
-      const data=JSON.parse(body);saveBugs(data);
-      let commitSha=headSha();
-      try{commitBugs();commitSha=headSha();}catch(e){if(!String(e.message).includes("nothing to commit")) throw e}
-      if(data.push){
-        try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,bugs:data.bugs}))}
-        catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Баги сохранены и закоммичены, но push не выполнен: "+e.message,bugs:data.bugs}))}
-      }
-      return send(res,200,"application/json",JSON.stringify({success:true,bugs:data.bugs}));
-    }
-    if(u.pathname==="/api/run"&&req.method==="POST"){
-      let body="";for await(const chunk of req)body+=chunk;
-      const p=JSON.parse(body);const data=load();
-      return send(res,200,"application/json",JSON.stringify(simulate(data,p)));
-    }
-    if(u.pathname==="/api/save"&&req.method==="POST"){
-      let body="";for await(const chunk of req)body+=chunk;
-      const p=JSON.parse(body);save(p.data);
-      let message="Баланс сохранён.";
-      if(p.push||p.commit){
-        try{commit();message+=" Git commit создан."}
-        catch(e){if(!p.push)message+=" Git commit не создан: "+e.message;else if(!String(e.message).includes("nothing to commit"))throw e}
-      }
-      if(p.push){
-        try{
-          push();
-          const sha=headSha();
-          return send(res,200,"application/json",JSON.stringify({success:true,message:message+" Изменения отправлены в GitHub.",sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,data:p.data}));
-        }catch(e){
-          return send(res,200,"application/json",JSON.stringify({success:false,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:p.data}));
-        }
-      }
-      return send(res,200,"application/json",JSON.stringify({message,data:p.data}));
-    }
+    if(u.pathname==="/")return send(res,200,"text/html; charset=utf-8",PAGE);
+    if(u.pathname==="/ideas")return send(res,200,"text/html; charset=utf-8",IDEAS_PAGE);
+    const localRequest=req.socket.remoteAddress==="127.0.0.1"||req.socket.remoteAddress==="::1"||req.socket.remoteAddress==="::ffff:127.0.0.1";
+    if(!localRequest&&u.searchParams.get("token")!==TOKEN)return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
+    if(u.pathname==="/api/analytics"&&req.method==="OPTIONS")return send(res,204,"text/plain","");
+    if(u.pathname==="/api/analytics"&&req.method==="DELETE"){saveAnalytics([]);return send(res,200,"application/json",JSON.stringify({success:true}))}
+    if(u.pathname==="/api/analytics"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;let batch=JSON.parse(body);if(!Array.isArray(batch))batch=[batch];batch=batch.filter(e=>e&&typeof e.event==="string"&&e.data&&typeof e.data==="object").slice(0,500);const events=loadAnalytics();events.push(...batch);saveAnalytics(events);return send(res,200,"application/json",JSON.stringify({success:true,accepted:batch.length,total:Math.min(events.length,30000)}))}
+    if(u.pathname==="/api/analytics"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(analyticsSummary(loadAnalytics())));
+    if(u.pathname==="/api/balance"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(load()));
+    if(u.pathname==="/api/bugs"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(loadBugs()));
+    if(u.pathname==="/api/bugs"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const data=JSON.parse(body);saveBugs(data);let commitSha=headSha();try{commitBugs();commitSha=headSha()}catch(e){if(!String(e.message).includes("nothing to commit"))throw e}if(data.push){try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,bugs:data.bugs}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Баги сохранены и закоммичены, но push не выполнен: "+e.message,bugs:data.bugs}))}}return send(res,200,"application/json",JSON.stringify({success:true,bugs:data.bugs}))}
+    if(u.pathname==="/api/ideas"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(loadIdeas()));
+    if(u.pathname==="/api/ideas"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const data=JSON.parse(body);saveIdeas(data);let commitSha=headSha();try{commitIdeas();commitSha=headSha()}catch(e){if(!String(e.message).includes("nothing to commit"))throw e}try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,ideas:data.ideas}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Идеи сохранены локально, но push не выполнен: "+e.message,ideas:data.ideas}))}}
+    if(u.pathname==="/api/run"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const p=JSON.parse(body);const data=load();return send(res,200,"application/json",JSON.stringify(simulate(data,p)))}
+    if(u.pathname==="/api/save"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const p=JSON.parse(body);save(p.data);let message="Баланс сохранён.";if(p.push||p.commit){try{commit();message+=" Git commit создан."}catch(e){if(!p.push)message+=" Git commit не создан: "+e.message;else if(!String(e.message).includes("nothing to commit"))throw e}}if(p.push){try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,message:message+" Изменения отправлены в GitHub.",sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,data:p.data}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:p.data}))}}return send(res,200,"application/json",JSON.stringify({message,data:p.data}))}
     return send(res,404,"application/json",JSON.stringify({error:"Not found"}));
   }catch(e){return send(res,500,"application/json",JSON.stringify({error:e.message}))}
 });
-server.listen(PORT,"127.0.0.1",()=>{
-  const url="http://127.0.0.1:"+PORT+"/?token="+TOKEN;
-  console.log("🤖 Starfall Dash Bot Lab: "+url);
-  // Browser is opened by Start-Starfall-Bot-Lab.bat. Keep the server headless here to avoid duplicate tabs.
-});
+server.listen(PORT,"127.0.0.1",()=>{const url="http://127.0.0.1:"+PORT+"/?token="+TOKEN;console.log("🤖 Starfall Dash Bot Lab: "+url);});

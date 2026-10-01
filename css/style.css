@@ -4951,3 +4951,30 @@ body.rogue-hud #hud-progress .xp-icon{
         font-size:12px;
     }
 }
+
+
+/* Top HUD: coins, mode and time form one centered group. Pause stays at the right edge. */
+body.rogue-hud #hud-top-row{
+    position:relative;
+    justify-content:center;
+    gap:12px;
+}
+body.rogue-hud #hud-top-row #buff-strip{
+    position:absolute;
+    left:8px;
+    top:50%;
+    transform:translateY(-50%);
+    width:auto;
+    max-width:25%;
+}
+body.rogue-hud #hud-top-row #btn-pause{
+    position:absolute !important;
+    right:0;
+    top:50%;
+    transform:translateY(-50%);
+    margin-left:0;
+}
+@media(max-width:460px){
+    body.rogue-hud #hud-top-row{gap:8px;}
+    body.rogue-hud #hud-top-row #buff-strip{left:4px;max-width:18%;}
+}

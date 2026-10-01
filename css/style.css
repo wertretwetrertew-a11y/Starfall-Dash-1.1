@@ -4978,3 +4978,19 @@ body.rogue-hud #hud-top-row #btn-pause{
     body.rogue-hud #hud-top-row{gap:8px;}
     body.rogue-hud #hud-top-row #buff-strip{left:4px;max-width:18%;}
 }
+
+
+/* Minimal pause control: icon only, without a circular background or border. */
+body.rogue-hud #hud-top-row #btn-pause{
+    background:transparent !important;
+    border:none !important;
+    box-shadow:none !important;
+    width:30px !important;
+    height:30px !important;
+    padding:0 !important;
+    border-radius:0 !important;
+}
+body.rogue-hud #hud-top-row #btn-pause:active{
+    background:transparent !important;
+    transform:translateY(-50%) scale(.92) !important;
+}

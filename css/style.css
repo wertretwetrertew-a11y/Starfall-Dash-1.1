@@ -242,37 +242,47 @@
             justify-content: flex-start;
             overflow: hidden;
         }
+        /* Mobile portrait layout: HUD -> combo -> stage/HP -> playfield -> touch controls. */
         canvas {
             display: block;
             width: min(94vw, 600px);
             height: auto;
             aspect-ratio: 3 / 2;
             max-width: calc(100vw - 24px);
-            /* Keep the playfield completely below the stage/HP HUD. */
-            max-height: calc(100dvh - 430px);
-            margin: clamp(180px, 17vh, 210px) auto 0;
+            max-height: calc(100dvh - 500px);
+            margin: 350px auto 0;
             flex: 0 1 auto;
         }
 
-        /* Mobile restart/back control should look like Starfall Dash, not a generic red browser button. */
-        #action-buttons {
-            right: max(14px, env(safe-area-inset-right));
-            bottom: max(14px, env(safe-area-inset-bottom));
+        /* The stage/HP panel must occupy its own band and never cover the canvas. */
+        body.playing #rogue-stage-objective.rogue-top-hud {
+            top: 142px !important;
+            left: 50% !important;
+            right: auto !important;
+            width: calc(100vw - 44px) !important;
+            max-width: 665px !important;
+            transform: translateX(-50%) !important;
+            box-sizing: border-box;
         }
-        #btn-restart {
-            width: 62px;
-            height: 62px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, rgba(20,35,70,.92), rgba(35,18,68,.9));
-            border: 1.5px solid rgba(79,195,247,.55);
-            box-shadow: 0 0 18px rgba(79,195,247,.18), inset 0 0 16px rgba(156,107,255,.12);
-            color: #d9f4ff;
-            font-size: 24px;
-            font-weight: 700;
+
+        /* Combo gets its own space between the compact top HUD and the stage panel. */
+        body.playing #hud-combo {
+            top: 72px;
+            z-index: 16;
         }
-        #btn-restart:active {
-            transform: scale(.92);
-            background: linear-gradient(145deg, rgba(35,65,110,.95), rgba(55,30,95,.95));
+
+        /* Pause is the only exit control on mobile. Keep it above the stage panel. */
+        body.playing #btn-pause {
+            top: 94px;
+            right: 12px;
+            width: 42px;
+            height: 42px;
+            z-index: 30;
+        }
+
+        /* Remove the old lower-right restart/back button entirely. */
+        body.playing #action-buttons {
+            display: none !important;
         }
         #hud {
             top: max(6px, env(safe-area-inset-top));

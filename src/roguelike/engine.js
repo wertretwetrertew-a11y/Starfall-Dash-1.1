@@ -297,6 +297,7 @@ function toRoman(n) {
 var _rogueOldUpdateHUD = updateHUD;
 updateHUD = function updateHUD() {
     _rogueOldUpdateHUD();
+    document.body.classList.toggle('rogue-hud', currentMode === 'rogue');
     if (currentMode === 'rogue') {
         // Roguelike HUD: one HP bar under the XP bar in the top HUD.
         var hpValue = Math.max(0, Math.min(Number(rogueMaxHP) || 100, Number(rogueHP) || 0));

@@ -4923,3 +4923,31 @@ body.rogue-hud #hud-hp-row .hud-bar-value{
         gap:5px;
     }
 }
+
+
+/* XP icon — same compact cosmic language as the in-game HUD. */
+body.rogue-hud #hud-progress .hud-bar-label.xp{
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:3px;
+    white-space:nowrap;
+}
+body.rogue-hud #hud-progress .xp-icon{
+    display:inline-grid;
+    place-items:center;
+    width:13px;
+    height:13px;
+    font-size:13px;
+    line-height:1;
+    font-weight:900;
+    text-shadow:0 0 7px rgba(170,120,255,.9);
+}
+@media(max-width:460px){
+    body.rogue-hud #hud-progress .hud-bar-label.xp{gap:2px;}
+    body.rogue-hud #hud-progress .xp-icon{
+        width:12px;
+        height:12px;
+        font-size:12px;
+    }
+}

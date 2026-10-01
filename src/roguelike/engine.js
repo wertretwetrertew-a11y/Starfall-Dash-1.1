@@ -298,19 +298,29 @@ var _rogueOldUpdateHUD = updateHUD;
 updateHUD = function updateHUD() {
     _rogueOldUpdateHUD();
     if (currentMode === 'rogue') {
+        // Roguelike HUD: one HP bar under the XP bar in the top HUD.
+        var hpValue = Math.max(0, Math.min(Number(rogueMaxHP) || 100, Number(rogueHP) || 0));
         if (hudLives) {
-            hudLives.textContent = Math.max(0, Math.ceil(rogueHP)) + ' / ' + rogueMaxHP;
+            hudLives.textContent = Math.ceil(hpValue) + ' / ' + Math.ceil(Number(rogueMaxHP) || 100);
             hudLives.title = 'Здоровье';
         }
+        var hpBar = document.getElementById('hud-hp-fill');
+        if (hpBar) {
+            var hpRatio = (Number(rogueMaxHP) || 100) > 0 ? hpValue / (Number(rogueMaxHP) || 100) : 0;
+            hpBar.style.width = (Math.max(0, Math.min(1, hpRatio)) * 100) + '%';
+            hpBar.classList.toggle('critical', hpRatio <= 0.3);
+        }
 
-        // Roguelike: the existing top progress strip becomes the live XP-to-level bar.
+        // Roguelike: XP is the upper bar of the top HUD.
         var xpBar = document.getElementById('hud-progress-fill');
         var xpTrack = document.getElementById('hud-progress');
+        var xpValue = document.getElementById('hud-xp-value');
         if (xpBar && xpTrack) {
             var need = Math.max(1, Number(rogueXPNext) || 1);
             var current = Math.max(0, Number(rogueXP) || 0);
             var ratio = Math.max(0, Math.min(1, current / need));
             xpBar.style.width = (ratio * 100) + '%';
+            if (xpValue) xpValue.textContent = current + ' / ' + need;
             xpTrack.title = 'Опыт: ' + current + ' / ' + need + ' XP';
             xpTrack.setAttribute('aria-label', 'Опыт до следующего уровня: ' + current + ' из ' + need);
         }

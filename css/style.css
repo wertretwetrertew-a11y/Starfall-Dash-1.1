@@ -1575,6 +1575,58 @@
         }
     }
 
+    /* Mobile quick Roguelike tile: horizontal layout keeps all four text/icon elements visible. */
+    @media (max-width: 700px) {
+        #start-screen .menu-tile.rogue {
+            min-height: 76px;
+            height: 76px;
+            display: grid !important;
+            grid-template-columns: 42px 1fr;
+            grid-template-rows: auto auto;
+            column-gap: 10px;
+            row-gap: 1px;
+            justify-content: start;
+            align-content: center;
+            text-align: left;
+            padding: 8px 14px;
+        }
+        #start-screen .menu-tile.rogue .mt-icon {
+            grid-column: 1;
+            grid-row: 1 / 3;
+            width: 42px;
+            height: 42px;
+            flex: none;
+            font-size: 28px;
+            align-self: center;
+        }
+        #start-screen .menu-tile.rogue .mt-label {
+            grid-column: 2;
+            grid-row: 1;
+            font-size: 13px;
+            line-height: 1.1;
+            align-self: end;
+        }
+        #start-screen .menu-tile.rogue .mt-sub {
+            grid-column: 2;
+            grid-row: 2;
+            font-size: 9px;
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: clip;
+        }
+        #start-screen .menu-tile.rogue .mt-mini {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8px;
+            line-height: 1;
+            white-space: nowrap;
+            opacity: .72;
+        }
+    }
+
     @media (max-width: 430px) {
         #start-screen h1 { font-size: 25px; }
         #start-screen .stats-line { gap: 4px 7px; }

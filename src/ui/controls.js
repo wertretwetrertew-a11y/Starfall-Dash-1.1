@@ -40,7 +40,7 @@ function joyStart(e) {
     if (e.pointerType !== 'touch' && e.pointerType !== 'pen' && window.matchMedia && !window.matchMedia('(pointer: coarse)').matches) return;
 
     var target = e.target;
-    if (target && target.closest && target.closest('#action-buttons, #btn-pause, #hud, button, input, select, textarea, a')) return;
+    if (target && target.closest && target.closest('#action-buttons, #btn-pause, #hud, #joystick-zone, button, input, select, textarea, a')) return;
     if (e.cancelable) e.preventDefault();
 
     joyPointerId = e.pointerId;

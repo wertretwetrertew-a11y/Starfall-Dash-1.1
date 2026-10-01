@@ -8,9 +8,12 @@
 function updateHUD() {
     hudScoreVal.textContent = score;
     hudLevelVal.textContent = level;
-    var hearts = hudLives.querySelectorAll('.hud-heart');
-    for (var i = 0; i < hearts.length; i++) {
-        hearts[i].classList.toggle('lost', i >= lives);
+    if (hudLives) {
+        if (currentMode === 'rogue') {
+            hudLives.textContent = Math.max(0, Math.ceil(rogueHP)) + ' / ' + Math.ceil(rogueMaxHP || 100);
+        } else {
+            hudLives.textContent = '❤ ×' + Math.max(0, lives);
+        }
     }
     var pct = 1 - (levelTimer / LEVEL_DURATION);
     hudProgressFill.style.width = (Math.max(0, Math.min(1, pct)) * 100) + '%';

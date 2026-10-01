@@ -4861,3 +4861,16 @@ body.rogue-hud #rogue-stage-objective{
         max-height:calc(100dvh - 245px);
     }
 }
+
+
+/* HUD is a protected touch zone: floating joystick must never appear over it. */
+body.playing #hud,
+body.playing #hud *,
+body.rogue-hud #hud,
+body.rogue-hud #hud *{
+    pointer-events:auto !important;
+}
+body.playing #joystick-zone,
+body.rogue-hud #joystick-zone{
+    z-index:30;
+}

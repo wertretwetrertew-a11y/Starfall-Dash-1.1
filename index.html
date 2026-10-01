@@ -10,24 +10,29 @@
 
 <div id="game-wrap">
     <div id="hud">
-        <div class="hud-item" id="hud-lives">
-            <span class="hud-heart">❤</span><span class="hud-heart">❤</span>
-            <span class="hud-heart">❤</span><span class="hud-heart">❤</span>
+        <div id="hud-main-row">
+            <div class="hud-item" id="hud-score">
+                <span class="hud-icon">🪙</span>
+                <span class="hud-val" id="hud-score-val">0</span>
+            </div>
+            <div class="hud-item" id="hud-level">
+                <span class="hud-icon">📈</span>
+                <span class="hud-val" id="hud-level-val">1</span>
+            </div>
+            <div id="hud-mode" class="classic">КЛАССИКА</div>
+            <div id="hud-timer">0:00</div>
+            <div id="buff-strip"></div>
         </div>
-        <div class="hud-item" id="hud-score">
-            <span class="hud-icon">🪙</span>
-            <span class="hud-val" id="hud-score-val">0</span>
-        </div>
-        <div class="hud-item" id="hud-level">
-            <span class="hud-icon">📈</span>
-            <span class="hud-val" id="hud-level-val">1</span>
-        </div>
-        <div id="hud-mode" class="classic">КЛАССИКА</div>
-        <div id="hud-timer">0:00</div>
         <div id="hud-progress">
-            <div id="hud-progress-fill"></div>
+            <span class="hud-bar-label">XP</span>
+            <div class="hud-bar-track"><div id="hud-progress-fill"></div></div>
+            <span class="hud-bar-value" id="hud-xp-value"></span>
         </div>
-        <div id="buff-strip"></div>
+        <div id="hud-hp-row">
+            <span class="hud-bar-label hp">❤ HP</span>
+            <span class="hud-bar-value hp-value" id="hud-lives">100 / 100</span>
+            <div id="hud-hp-track"><div id="hud-hp-fill"></div></div>
+        </div>
     </div>
 
     <div id="boss-duel-overlay" aria-hidden="true">

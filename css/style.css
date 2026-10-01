@@ -1494,24 +1494,30 @@
     #start-screen .reset-link { margin-left: 4px; opacity: .42; }
 
     @media (max-width: 700px) {
-        #start-screen { padding-top: 18px; gap: 9px; }
+        /* Mobile: keep the entire main menu visibly higher on short phone screens. */
+        #start-screen { padding-top: 4px; padding-bottom: 10px; gap: 5px; }
         #start-screen h1 { font-size: 29px; }
-        #start-screen .stats-line { gap: 6px 10px; padding: 7px 10px; }
+        #start-screen .stats-line { gap: 5px 9px; padding: 6px 9px; }
         #start-screen .stats-line .sl-item { font-size: 10px; }
         .simple-menu-layout { grid-template-columns: 1fr; }
-        .simple-play-card { min-height: 230px; padding: 22px; }
-        .simple-core-art { right: 16px; bottom: 16px; transform: scale(.8); transform-origin: bottom right; }
-        #start-screen .menu-grid { grid-template-rows: repeat(2,86px) 76px; }
+        .simple-play-card { min-height: 200px; padding: 18px 20px; }
+        .simple-play-card p { margin-bottom: 16px; }
+        .simple-core-art { right: 16px; bottom: 12px; transform: scale(.72); transform-origin: bottom right; }
+        #start-screen .menu-grid { grid-template-rows: repeat(2,78px) 68px; gap: 7px; }
+        #start-screen .menu-tile { padding: 10px 10px; gap: 4px; }
+        #start-screen .menu-tile .mt-icon { font-size: 27px; }
     }
     @media (max-width: 430px) {
         #start-screen h1 { font-size: 25px; }
-        #start-screen .stats-line { gap: 5px 7px; }
+        #start-screen .stats-line { gap: 4px 7px; }
         #start-screen .stats-line .sl-item { font-size: 9px; }
-        .simple-play-card { min-height: 205px; padding: 19px; }
+        .simple-play-card { min-height: 178px; padding: 16px 18px; }
         .simple-play-card h2 { font-size: 34px; }
-        .simple-play-card p { font-size: 11px; max-width: 250px; margin-bottom: 15px; }
-        .simple-play-btn { height: 42px; min-width: 170px; }
+        .simple-play-card p { font-size: 11px; max-width: 250px; margin-bottom: 12px; }
+        .simple-play-btn { height: 40px; min-width: 170px; }
         .simple-core-art { display: none; }
+        #start-screen .menu-grid { grid-template-rows: repeat(2,70px) 62px; gap: 6px; }
+        #start-screen .menu-tile { padding: 8px 9px; gap: 3px; }
         #start-screen .menu-tile .mt-icon { font-size: 23px; }
         #start-screen .menu-tile .mt-label { font-size: 11px; }
         #start-screen .menu-tile .mt-sub { font-size: 8px; }

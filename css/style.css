@@ -4412,3 +4412,186 @@ canvas {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+
+/* ==========================================================
+   ROGUELIKE HUD v2 — XP ABOVE HP, TASK BELOW
+   Approved mobile/portrait layout:
+   TOP HUD -> XP -> HP -> TASK -> COMBO -> PLAYFIELD -> CONTROLS
+   ========================================================== */
+#hud-main-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+}
+#hud-progress,
+#hud-hp-row{
+    box-sizing:border-box;
+    align-items:center;
+    min-width:0;
+}
+#hud-progress{
+    display:flex;
+    gap:7px;
+}
+#hud-hp-row{
+    display:flex;
+    gap:7px;
+}
+.hud-bar-label{
+    flex:0 0 auto;
+    color:#b9c6df;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.7px;
+}
+.hud-bar-label.hp{color:#ff8fa4}
+.hud-bar-track,
+#hud-hp-track{
+    flex:1 1 auto;
+    min-width:70px;
+    height:7px;
+    overflow:hidden;
+    border-radius:99px;
+    background:rgba(0,0,0,.38);
+    border:1px solid rgba(138,180,255,.22);
+    box-shadow:inset 0 1px rgba(255,255,255,.04);
+}
+#hud-hp-track{border-color:rgba(255,92,122,.22)}
+.hud-bar-value{
+    flex:0 0 auto;
+    min-width:52px;
+    text-align:right;
+    color:#fff;
+    font-size:9px;
+    font-weight:900;
+    font-variant-numeric:tabular-nums;
+}
+.hud-bar-value.hp-value{color:#fff}
+#hud-hp-fill{
+    width:100%;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#7cffb2,#4fc3f7);
+    box-shadow:0 0 10px rgba(124,255,178,.35);
+    transition:width .18s ease,filter .18s ease;
+}
+#hud-hp-fill.critical{
+    background:linear-gradient(90deg,#ff5c7a,#ff9b70);
+    filter:brightness(1.08);
+}
+body.rogue-hud #hud{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"main" "xp" "hp";
+    width:min(620px,calc(100vw - 24px));
+    max-width:none;
+    padding:8px 10px 9px;
+    gap:6px;
+    border-radius:18px;
+    white-space:normal;
+}
+body.rogue-hud #hud-main-row{grid-area:main}
+body.rogue-hud #hud-progress{grid-area:xp;width:auto;height:auto}
+body.rogue-hud #hud-hp-row{grid-area:hp}
+body.rogue-hud #hud-progress .hud-bar-track{border-color:rgba(156,107,255,.38)}
+body.rogue-hud #hud-progress-fill{
+    background:linear-gradient(90deg,#9c6bff,#4fc3f7);
+}
+body.rogue-hud #hud-combo{
+    top:210px;
+}
+body.rogue-hud #rogue-stage-objective.rogue-top-hud{
+    grid-template-columns:1fr;
+    gap:0;
+    padding:6px;
+}
+body.rogue-hud #rogue-stage-objective .rogue-task-card{
+    width:100%;
+}
+body.rogue-hud #btn-pause{
+    top:18px;
+    right:18px;
+    z-index:30;
+}
+
+@media (pointer:coarse),(max-width:800px){
+    body.rogue-hud #hud{
+        top:max(6px,env(safe-area-inset-top));
+        width:calc(100vw - 24px);
+        padding:7px 9px 8px;
+        gap:5px;
+        border-radius:17px;
+    }
+    body.rogue-hud #hud-main-row{
+        gap:6px;
+        padding-right:45px;
+    }
+    body.rogue-hud #hud-main-row .hud-item{gap:3px}
+    body.rogue-hud #hud-main-row .hud-icon{font-size:12px}
+    body.rogue-hud #hud-main-row .hud-val{font-size:10px}
+    body.rogue-hud #hud-mode{
+        font-size:9px;
+        padding:2px 6px;
+    }
+    body.rogue-hud #hud-timer{
+        min-width:43px;
+        font-size:13px;
+    }
+    body.rogue-hud #hud-progress,
+    body.rogue-hud #hud-hp-row{
+        gap:6px;
+    }
+    body.rogue-hud .hud-bar-label{
+        font-size:9px;
+        min-width:25px;
+    }
+    body.rogue-hud .hud-bar-track,
+    body.rogue-hud #hud-hp-track{
+        min-width:0;
+        height:7px;
+    }
+    body.rogue-hud .hud-bar-value{
+        min-width:54px;
+        font-size:9px;
+    }
+
+    /* Exact portrait order: HUD -> task -> combo -> field. */
+    body.rogue-hud #rogue-stage-objective.rogue-top-hud{
+        top:124px !important;
+        left:50% !important;
+        width:calc(100vw - 28px) !important;
+        max-width:none !important;
+        transform:translateX(-50%) !important;
+    }
+    body.rogue-hud #hud-combo{
+        top:204px !important;
+    }
+    body.rogue-hud #btn-pause{
+        top:18px !important;
+        right:18px !important;
+        width:42px;
+        height:42px;
+    }
+    body.rogue-hud canvas{
+        margin-top:278px;
+        max-height:calc(100dvh - 430px);
+    }
+    body.rogue-hud #action-buttons{
+        display:none !important;
+    }
+}
+
+@media(max-width:460px){
+    body.rogue-hud #hud-main-row{
+        gap:5px;
+        padding-right:43px;
+    }
+    body.rogue-hud #hud-progress,
+    body.rogue-hud #hud-hp-row{gap:5px}
+    body.rogue-hud .hud-bar-value{
+        min-width:48px;
+        font-size:8.5px;
+    }
+}

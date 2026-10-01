@@ -21,44 +21,78 @@ document.addEventListener('keyup', function(e) { keys[e.key] = false; });
 
 var joyZone = document.getElementById('joystick-zone');
 var joyKnob = document.getElementById('joystick-knob');
-var joyActive = false, joyStartX = 0, joyStartY = 0;
+var gameWrap = document.getElementById('game-wrap');
+var joyActive = false, joyStartX = 0, joyStartY = 0, joyPointerId = null;
 var joyVector = { x: 0, y: 0 };
 var JOY_MAX = 50;
 
+function positionFloatingJoystick(x, y) {
+    if (!joyZone) return;
+    var size = joyZone.getBoundingClientRect().width || 150;
+    joyZone.style.left = (x - size / 2) + 'px';
+    joyZone.style.top = (y - size / 2) + 'px';
+    joyZone.style.right = 'auto';
+    joyZone.style.bottom = 'auto';
+}
+
 function joyStart(e) {
+    if (!e) return;
+    if (e.pointerType !== 'touch' && e.pointerType !== 'pen' && window.matchMedia && !window.matchMedia('(pointer: coarse)').matches) return;
+
+    var target = e.target;
+    if (target && target.closest && target.closest('#action-buttons, #btn-pause, #hud, button, input, select, textarea, a')) return;
     if (e.cancelable) e.preventDefault();
-    var rect = joyZone.getBoundingClientRect();
-    joyStartX = rect.left + rect.width / 2;
-    joyStartY = rect.top + rect.height / 2;
+
+    joyPointerId = e.pointerId;
+    joyStartX = e.clientX;
+    joyStartY = e.clientY;
     joyActive = true;
-    if (joyZone.setPointerCapture && e.pointerId != null) {
-        try { joyZone.setPointerCapture(e.pointerId); } catch (_) {}
+
+    positionFloatingJoystick(joyStartX, joyStartY);
+    if (joyZone) joyZone.classList.add('active');
+
+    if (gameWrap && gameWrap.setPointerCapture && e.pointerId != null) {
+        try { gameWrap.setPointerCapture(e.pointerId); } catch (_) {}
     }
     joyMove(e);
 }
+
 function joyMove(e) {
-    if (!joyActive) return;
+    if (!joyActive || (joyPointerId != null && e.pointerId !== joyPointerId)) return;
     if (e.cancelable) e.preventDefault();
+
     var dx = e.clientX - joyStartX;
     var dy = e.clientY - joyStartY;
     var dist = Math.hypot(dx, dy);
-    if (dist > JOY_MAX) { dx = dx / dist * JOY_MAX; dy = dy / dist * JOY_MAX; }
+    if (dist > JOY_MAX) {
+        dx = dx / dist * JOY_MAX;
+        dy = dy / dist * JOY_MAX;
+    }
     joyKnob.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
     joyVector.x = dx / JOY_MAX;
     joyVector.y = dy / JOY_MAX;
 }
-function joyEnd(e) {
-    if (e && e.cancelable) e.preventDefault();
-    joyActive = false;
-    joyKnob.style.transform = 'translate(0,0)';
-    joyVector.x = 0; joyVector.y = 0;
-}
-joyZone.addEventListener('pointerdown', joyStart, { passive: false });
-joyZone.addEventListener('pointermove', joyMove, { passive: false });
-joyZone.addEventListener('pointerup', joyEnd, { passive: false });
-joyZone.addEventListener('pointercancel', joyEnd, { passive: false });
-joyZone.addEventListener('lostpointercapture', joyEnd);
 
+function joyEnd(e) {
+    if (e && joyPointerId != null && e.pointerId != null && e.pointerId !== joyPointerId) return;
+    if (e && e.cancelable) e.preventDefault();
+
+    joyActive = false;
+    joyPointerId = null;
+    if (joyKnob) joyKnob.style.transform = 'translate(0,0)';
+    if (joyZone) joyZone.classList.remove('active');
+    joyVector.x = 0;
+    joyVector.y = 0;
+}
+
+/* Floating joystick: the player can touch anywhere on the game field. */
+if (gameWrap) {
+    gameWrap.addEventListener('pointerdown', joyStart, { passive: false });
+    gameWrap.addEventListener('pointermove', joyMove, { passive: false });
+    gameWrap.addEventListener('pointerup', joyEnd, { passive: false });
+    gameWrap.addEventListener('pointercancel', joyEnd, { passive: false });
+    gameWrap.addEventListener('lostpointercapture', joyEnd);
+}
 var btnRestart = document.getElementById('btn-restart');
 if (btnRestart) {
     btnRestart.addEventListener('click', function() {

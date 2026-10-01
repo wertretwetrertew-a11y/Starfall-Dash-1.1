@@ -163,13 +163,6 @@ function roguePlanetInjectUI(){
                     '<div class="rogue-task-progress"><div id="rogue-stage-objective-fill"></div></div>' +
                     '<div id="rogue-stage-objective-time" class="rogue-task-time"></div>' +
                 '</div>' +
-            '</div>' +
-            '<div class="rogue-hp-card">' +
-                '<div class="rogue-hp-head">' +
-                    '<span>❤ ЗДОРОВЬЕ</span>' +
-                    '<b id="rogue-hp-text">100 / 100</b>' +
-                '</div>' +
-                '<div class="rogue-hp-bar"><div id="rogue-hp-fill"></div></div>' +
             '</div>';
         document.body.appendChild(stageObjective);
     }
@@ -424,15 +417,9 @@ function roguePlanetRenderStageObjective(){
     document.getElementById('rogue-stage-objective-fill').style.width=(ratio*100)+'%';
     document.getElementById('rogue-stage-objective-time').textContent=remaining;
 
-    var hp=Math.max(0,Math.min(rogueMaxHP,Number(rogueHP)||0));
-    var hpRatio=rogueMaxHP>0 ? hp/rogueMaxHP : 0;
-    var hpFill=document.getElementById('rogue-hp-fill');
-    var hpText=document.getElementById('rogue-hp-text');
-    if(hpFill){ hpFill.style.width=(hpRatio*100)+'%'; hpFill.classList.toggle('critical',hpRatio<=0.3); }
-    if(hpText) hpText.textContent=Math.ceil(hp)+' / '+Math.ceil(rogueMaxHP);
-
     var rect=canvasEl.getBoundingClientRect();
-    var panelHeight=78;
+    // The task panel is now only the task. HP lives exclusively in the top HUD.
+    var panelHeight=62;
     var gap=9;
 
     /* The run HUD always prefers the area ABOVE the canvas.

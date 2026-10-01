@@ -4874,3 +4874,52 @@ body.playing #joystick-zone,
 body.rogue-hud #joystick-zone{
     z-index:30;
 }
+
+
+/* ==========================================================
+   ROGUELIKE BARS — each resource is its own horizontal row.
+   Order: LABEL → BAR → VALUE.
+   HP and XP stay vertically stacked, never on the same row.
+   ========================================================== */
+body.rogue-hud #hud-bars{
+    min-width:0;
+}
+
+body.rogue-hud #hud-progress,
+body.rogue-hud #hud-hp-row{
+    display:grid !important;
+    grid-template-columns:32px minmax(0,1fr) 52px;
+    align-items:center;
+    width:100%;
+    min-width:0;
+    gap:7px;
+}
+
+body.rogue-hud #hud-progress .hud-bar-label,
+body.rogue-hud #hud-hp-row .hud-bar-label{
+    grid-column:1;
+    white-space:nowrap;
+}
+
+body.rogue-hud #hud-progress .hud-bar-track,
+body.rogue-hud #hud-hp-row #hud-hp-track{
+    grid-column:2;
+    width:100%;
+    min-width:0;
+}
+
+body.rogue-hud #hud-progress .hud-bar-value,
+body.rogue-hud #hud-hp-row .hud-bar-value{
+    grid-column:3;
+    text-align:right;
+    white-space:nowrap;
+    min-width:0;
+}
+
+@media(max-width:460px){
+    body.rogue-hud #hud-progress,
+    body.rogue-hud #hud-hp-row{
+        grid-template-columns:30px minmax(0,1fr) 48px;
+        gap:5px;
+    }
+}

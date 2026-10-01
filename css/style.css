@@ -1605,6 +1605,11 @@
             font-size: 13px;
             line-height: 1.1;
             align-self: end;
+            width: max-content;
+            max-width: none;
+            white-space: nowrap;
+            overflow: visible;
+            letter-spacing: .3px;
         }
         #start-screen .menu-tile.rogue .mt-sub {
             grid-column: 2;

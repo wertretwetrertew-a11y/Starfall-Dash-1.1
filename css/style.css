@@ -222,13 +222,51 @@
     }
     @media (pointer: coarse), (max-width: 800px) {
         body.playing #mobile-controls { display: block; }
-        #game-wrap { min-height: 100dvh; padding-bottom: env(safe-area-inset-bottom); }
-        canvas { width: min(94vw, 600px); max-height: calc(100dvh - 220px); margin-bottom: 180px; }
-        #hud { max-width: calc(100vw - 12px); overflow: hidden; }
+
+        /* Mobile gameplay layout: reserve the top for HUD and the bottom for touch controls.
+           The canvas scales from the phone width instead of using the desktop-centered layout. */
+        #game-wrap {
+            width: 100vw;
+            height: 100dvh;
+            min-height: 0;
+            padding: 0;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: min(94vw, 600px);
+            height: auto;
+            aspect-ratio: 3 / 2;
+            max-width: calc(100vw - 24px);
+            max-height: calc(100dvh - 330px);
+            margin: 96px auto 0;
+            flex: 0 1 auto;
+        }
+        #hud {
+            top: max(6px, env(safe-area-inset-top));
+            max-width: calc(100vw - 12px);
+            overflow: hidden;
+        }
         #tile-quick { display: flex !important; }
-        #joystick-zone { left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom)); }
-        #action-buttons { right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
-        #hud { top: 6px; font-size: 11px; padding: 5px 10px; gap: 8px; }
+
+        #joystick-zone {
+            left: max(12px, env(safe-area-inset-left));
+            bottom: max(12px, env(safe-area-inset-bottom));
+            width: min(150px, 31vw);
+            height: min(150px, 31vw);
+        }
+        #joystick-knob {
+            width: min(65px, 13vw);
+            height: min(65px, 13vw);
+            margin-left: min(-32.5px, -6.5vw);
+            margin-top: min(-32.5px, -6.5vw);
+        }
+        #action-buttons {
+            right: max(12px, env(safe-area-inset-right));
+            bottom: max(12px, env(safe-area-inset-bottom));
+        }
+        #hud { font-size: 11px; padding: 5px 10px; gap: 8px; }
         #hud-progress { width: 50px; height: 7px; }
         #hud-timer { font-size: 13px; min-width: 45px; }
         #upgrade-strip { bottom: 175px; font-size: 10px; padding: 4px 8px; }

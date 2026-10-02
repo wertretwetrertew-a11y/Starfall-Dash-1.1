@@ -1612,7 +1612,7 @@ function draw() {
             ctx.save();
             ctx.translate(m.x, m.y);
             ctx.rotate(meteorAngle + m.rotation);
-            ctx.globalAlpha = 0.98;
+            ctx.globalAlpha = Math.max(0, m.life) * 0.92;
             ctx.shadowColor = '#ff6b18';
             ctx.shadowBlur = sfShadow(8);
 

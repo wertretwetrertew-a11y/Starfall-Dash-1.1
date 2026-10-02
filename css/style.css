@@ -5502,3 +5502,22 @@ body.rogue-hud #hud-hp-row .hud-bar-value{
         min-width:48px !important;
     }
 }
+
+
+/* ==========================================================
+   COMBO STABILITY — keep the badge locked to the HUD centerline.
+   The previous pulse animation translated the element vertically,
+   which made the combo icon visibly jump up/down on each hit.
+   ========================================================== */
+body.rogue-hud #hud-top-row #hud-combo{
+    transform-origin:center center !important;
+    vertical-align:middle !important;
+}
+body.rogue-hud #hud-top-row #hud-combo.pulse{
+    animation:rogueHudComboPulseStable .3s ease-out !important;
+}
+@keyframes rogueHudComboPulseStable{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.12);}
+    100%{transform:scale(1);}
+}

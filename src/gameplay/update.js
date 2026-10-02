@@ -8,6 +8,8 @@
 function update() {
     if (!running || gameOver || paused || isChoosingUpgrade) return;
     frame++;
+    // Cache the active save object for this simulation tick.
+    var saveObj = getSave();
     // 🔧 ФИКС: защита от изменения running во время update
     var _wasRunning = running;
 
@@ -135,7 +137,7 @@ function update() {
         if (mag > 1) { dx /= mag; dy /= mag; }
         dirX = dx; dirY = dy;
 
-        var s = getSave();
+        var s = saveObj;
         var spd = player.speed * (s.playerSpeedBonus || 1);
         spd *= coreBonusCache.speed;
 
@@ -312,7 +314,6 @@ function update() {
     updateWeather();
 
     // Магнит
-    var saveObj = getSave();
     var magnetRadiusBase = saveObj.magnetRadius + coreBonusCache.magnet;
     if (mode.isRoguelike && runUpgrades.magnet) magnetRadiusBase += runUpgrades.magnet * 40;
     if (magnetRadiusBase > 0 || buff.magnet > 0) {
@@ -321,8 +322,7 @@ function update() {
         for (var ci = 0; ci < coins.length; ci++) {
             var c = coins[ci];
             var cxc = c.x + c.size/2, cyc = c.y + c.size/2;
-            var pxc2 = player.x + player.size/2, pyc2 = player.y + player.size/2;
-            var ddx = pxc2 - cxc, ddy = pyc2 - cyc;
+            var ddx = px - cxc, ddy = py - cyc;
             var d = Math.hypot(ddx, ddy);
             if (d < radius && d > 0) {
                 c.x += ddx * pull;
@@ -360,7 +360,7 @@ function update() {
             }
 
             goldEarned += gained;
-            var sv = getSave();
+            var sv = saveObj;
             sv.bank += gained;
             sv.totalCoins = (sv.totalCoins || 0) + gained;
 
@@ -391,7 +391,7 @@ function update() {
 
     // Roguelike XP — редкий самостоятельный падающий предмет, остающийся на поле до подбора.
     if (currentMode === 'rogue') {
-        var xpMagnetRadius = (getSave().magnetRadius || 0) + coreBonusCache.magnet;
+        var xpMagnetRadius = (saveObj.magnetRadius || 0) + coreBonusCache.magnet;
         if (runUpgrades.magnet) xpMagnetRadius += runUpgrades.magnet * 40;
         if (buff.magnet > 0) xpMagnetRadius = Math.max(xpMagnetRadius, 250);
 
@@ -444,7 +444,7 @@ function update() {
     // Осколки космического ядра: они выпадают из убитых врагов и падают
     // с места смерти. Их можно подобрать магнитом или обычным движением.
     if (currentMode === 'rogue') {
-        var coreMagnetRadius = (getSave().magnetRadius || 0) + coreBonusCache.magnet;
+        var coreMagnetRadius = (saveObj.magnetRadius || 0) + coreBonusCache.magnet;
         if (runUpgrades.magnet) coreMagnetRadius += runUpgrades.magnet * 40;
         if (buff.magnet > 0) coreMagnetRadius = Math.max(coreMagnetRadius, 250);
 

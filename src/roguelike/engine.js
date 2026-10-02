@@ -398,6 +398,8 @@ function ensureFiniteRoguePlayerState() {
         player.speed = 7;
         player.x = canvas.width / 2 - player.size / 2;
         player.y = canvas.height * 0.57 - player.size / 2;
+        player.vx = 0;
+        player.vy = 0;
         player.lastDirX = 0;
         player.lastDirY = 1;
         player.frozen = 0;

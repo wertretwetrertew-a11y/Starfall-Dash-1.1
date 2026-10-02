@@ -1687,6 +1687,11 @@ function ensureFpsCounter() {
 }
 
 function updateFpsCounter(now) {
+    if (!running || gameOver) {
+        if (fpsCounterEl) fpsCounterEl.style.display = 'none';
+        return;
+    }
+
     if (!FPS_COUNTER_ENABLED) {
         if (fpsCounterEl) fpsCounterEl.style.display = 'none';
         return;

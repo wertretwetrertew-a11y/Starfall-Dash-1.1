@@ -1360,30 +1360,39 @@ function drawRogueEnemyHazards() {
         var h = rogueEnemyHazards[i];
         var warning = h.warning > 0;
         var pulse = 1 + Math.sin(now / 90) * 0.06;
-        ctx.save();
-        ctx.globalAlpha = warning ? 0.18 : 0.12;
-        ctx.fillStyle = h.color;
-        ctx.shadowColor = h.color;
-        ctx.shadowBlur = sfShadow(warning ? 10 : 18);
-        ctx.beginPath();
-        ctx.arc(h.x, h.y, h.radius * pulse, 0, Math.PI * 2);
-        ctx.fill();
 
-        ctx.globalAlpha = warning ? 0.85 : 0.55;
-        ctx.strokeStyle = h.color;
-        ctx.lineWidth = warning ? 2.5 : 1.5;
-        ctx.beginPath();
-        ctx.arc(h.x, h.y, h.radius * pulse, 0, Math.PI * 2);
-        ctx.stroke();
+        // Опасная зона теперь выглядит как настоящий метеорит.
+        // Механика зоны остаётся прежней: меняется только визуал.
+        if (typeof meteorSprite !== 'undefined' && meteorSprite.complete && meteorSprite.naturalWidth > 0) {
+            var frame = Math.floor(now / 70) % 12;
+            var drawSize = Math.max(46, Math.min(68, h.radius * 0.72)) * pulse;
+            var meteorAngle = Math.atan2(3.8, -0.8);
 
+            ctx.save();
+            ctx.translate(h.x, h.y);
+            ctx.rotate(meteorAngle);
+            ctx.globalAlpha = warning ? 1 : 0.88;
+            ctx.shadowColor = h.color || '#ff6b18';
+            ctx.shadowBlur = sfShadow(warning ? 16 : 11);
+            ctx.drawImage(
+                meteorSprite,
+                frame * 48, 0, 48, 48,
+                -drawSize / 2, -drawSize / 2, drawSize, drawSize
+            );
+            ctx.restore();
+        }
+
+        // Во время предупреждения оставляем только маленький индикатор,
+        // чтобы было понятно, что именно эта точка наносит урон.
         if (warning) {
-            ctx.globalAlpha = 0.9;
+            ctx.save();
+            ctx.globalAlpha = 0.85;
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 10px Segoe UI, Arial';
             ctx.textAlign = 'center';
-            ctx.fillText('⚠', h.x, h.y + 4);
+            ctx.fillText('⚠', h.x, h.y + h.radius * 0.62);
+            ctx.restore();
         }
-        ctx.restore();
     }
 }
 

@@ -5391,3 +5391,69 @@ body.rogue-hud #hud-top-row #buff-strip{
         padding:3px 6px !important;
     }
 }
+
+
+/* ==========================================================
+   ROGUELIKE HUD — SAFARI FINAL PAUSE RESET
+   The pause control is a DIV, not a native <button>, so Safari
+   cannot inject the browser's default button background/frame.
+   ========================================================== */
+body.rogue-hud #hud-top-row #btn-pause{
+    position:static !important;
+    inset:auto !important;
+    display:grid !important;
+    place-items:center !important;
+    width:24px !important;
+    min-width:24px !important;
+    max-width:24px !important;
+    height:30px !important;
+    min-height:30px !important;
+    max-height:30px !important;
+    flex:0 0 24px !important;
+    margin:0 !important;
+    padding:0 !important;
+    border:0 !important;
+    border-width:0 !important;
+    border-style:none !important;
+    border-radius:0 !important;
+    background:none !important;
+    background-color:transparent !important;
+    background-image:none !important;
+    box-shadow:none !important;
+    outline:none !important;
+    color:#fff !important;
+    font-family:inherit !important;
+    font-size:20px !important;
+    font-weight:700 !important;
+    line-height:1 !important;
+    text-shadow:none !important;
+    appearance:none !important;
+    -webkit-appearance:none !important;
+    -webkit-tap-highlight-color:transparent !important;
+    transform:none !important;
+}
+body.rogue-hud #hud-top-row #btn-pause::before,
+body.rogue-hud #hud-top-row #btn-pause::after{
+    content:none !important;
+    display:none !important;
+}
+body.rogue-hud #hud-top-row #btn-pause:focus,
+body.rogue-hud #hud-top-row #btn-pause:active{
+    background:none !important;
+    background-color:transparent !important;
+    box-shadow:none !important;
+    outline:none !important;
+    transform:none !important;
+}
+@media(max-width:460px){
+    body.rogue-hud #hud-top-row #btn-pause{
+        width:22px !important;
+        min-width:22px !important;
+        max-width:22px !important;
+        flex-basis:22px !important;
+        height:28px !important;
+        min-height:28px !important;
+        max-height:28px !important;
+        font-size:19px !important;
+    }
+}

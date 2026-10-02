@@ -1634,10 +1634,84 @@ function draw() {
 }
 
 // ==========================================================
+//   FPS DEBUG COUNTER — временный тестовый счётчик
+//   Чтобы скрыть после тестов: FPS_COUNTER_ENABLED = false
+// ==========================================================
+var FPS_COUNTER_ENABLED = true;
+var fpsCounterEl = null;
+var fpsFrameCount = 0;
+var fpsWindowStart = 0;
+var fpsValue = 0;
+
+function ensureFpsCounter() {
+    if (!FPS_COUNTER_ENABLED) {
+        if (fpsCounterEl) fpsCounterEl.style.display = 'none';
+        return;
+    }
+
+    if (!fpsCounterEl) {
+        fpsCounterEl = document.createElement('div');
+        fpsCounterEl.id = 'fps-counter';
+        fpsCounterEl.textContent = 'FPS: --';
+        fpsCounterEl.style.cssText = [
+            'position:absolute',
+            'z-index:40',
+            'display:none',
+            'padding:3px 8px',
+            'border:1px solid rgba(156,107,255,.45)',
+            'border-radius:9px',
+            'background:rgba(8,10,28,.82)',
+            'color:#fff',
+            'font:700 11px/1.1 Segoe UI,Arial,sans-serif',
+            'letter-spacing:.2px',
+            'white-space:nowrap',
+            'pointer-events:none',
+            'box-shadow:0 0 10px rgba(156,107,255,.18)',
+            'backdrop-filter:blur(4px)',
+            '-webkit-backdrop-filter:blur(4px)'
+        ].join(';');
+        var wrap = document.getElementById('game-wrap');
+        if (wrap) wrap.appendChild(fpsCounterEl);
+    }
+
+    var hud = document.getElementById('hud');
+    if (hud && fpsCounterEl) {
+        var hudRect = hud.getBoundingClientRect();
+        var wrapRect = hud.parentElement.getBoundingClientRect();
+        fpsCounterEl.style.left = '50%';
+        fpsCounterEl.style.top = Math.max(0, hudRect.bottom - wrapRect.top + 5) + 'px';
+        fpsCounterEl.style.transform = 'translateX(-50%)';
+    }
+
+    fpsCounterEl.style.display = 'block';
+}
+
+function updateFpsCounter(now) {
+    if (!FPS_COUNTER_ENABLED) {
+        if (fpsCounterEl) fpsCounterEl.style.display = 'none';
+        return;
+    }
+
+    ensureFpsCounter();
+
+    if (!fpsWindowStart) fpsWindowStart = now;
+    fpsFrameCount++;
+
+    var elapsed = now - fpsWindowStart;
+    if (elapsed >= 500) {
+        fpsValue = Math.round((fpsFrameCount * 1000) / elapsed);
+        fpsFrameCount = 0;
+        fpsWindowStart = now;
+        if (fpsCounterEl) fpsCounterEl.textContent = 'FPS: ' + fpsValue;
+    }
+}
+
+// ==========================================================
 //   ГЛАВНЫЙ ЦИКЛ — С ЗАЩИТОЙ ОТ НАКОПЛЕНИЯ
 // ==========================================================
 function loop(now) {
     if (!now) now = performance.now();
+    updateFpsCounter(now);
     var elapsed = now - lastTime;
     lastTime = now;
     if (elapsed > 100) elapsed = 100;

@@ -4,7 +4,7 @@
 
 // ===== DOM =====
 var canvas = document.getElementById('game');
-var ctx = canvas.getContext('2d');
+var ctx = canvas.getContext('2d', { alpha: false });
 var hudScoreVal = document.getElementById('hud-score-val');
 var hudLevelVal = document.getElementById('hud-level-val');
 var hudProgressFill = document.getElementById('hud-progress-fill');

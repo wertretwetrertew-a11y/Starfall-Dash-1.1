@@ -1021,6 +1021,30 @@ function getCoinGradient(big) {
     return g;
 }
 
+/* ==========================================================
+   MOBILE RENDER OPTIMIZER
+   Keeps gameplay logic unchanged; only reduces expensive Canvas
+   effects on touch devices. The FPS counter remains enabled.
+   ========================================================== */
+var SF_COARSE_DEVICE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+var SF_RENDER_FACTOR = SF_COARSE_DEVICE ? 0.72 : 1;
+var SF_BG_GRADIENT = null;
+var SF_BG_THEME_KEY = '';
+
+function sfShadow(value) {
+    return value * SF_RENDER_FACTOR;
+}
+function sfGetBackgroundGradient(theme, key) {
+    if (SF_BG_GRADIENT && SF_BG_THEME_KEY === key) return SF_BG_GRADIENT;
+    var g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    g.addColorStop(0, theme.bg1);
+    g.addColorStop(0.5, theme.bg2);
+    g.addColorStop(1, theme.bg3);
+    SF_BG_GRADIENT = g;
+    SF_BG_THEME_KEY = key;
+    return g;
+}
+
 function drawPlayer() {
     var s = getSave();
     var skin = SKINS[s.equippedSkin] || SKINS.default;
@@ -1096,7 +1120,7 @@ function drawPlayer() {
     if (player.frozen > 0) { topColor = '#b3e5fc'; bottomColor = '#0277bd'; }
 
     ctx.shadowColor = player.frozen > 0 ? '#00e5ff' : c.glow;
-    ctx.shadowBlur = 24;
+    ctx.shadowBlur = sfShadow(24);
     var grad = ctx.createLinearGradient(0, 0, 0, player.size);
     grad.addColorStop(0, topColor);
     grad.addColorStop(1, bottomColor);
@@ -1113,7 +1137,7 @@ function drawPlayer() {
         ctx.strokeStyle = '#ff1744';
         ctx.lineWidth = 3;
         ctx.shadowColor = '#ff1744';
-        ctx.shadowBlur = 16;
+        ctx.shadowBlur = sfShadow(16);
         ctx.beginPath();
         ctx.moveTo(lcx, 0);
         ctx.lineTo(lcx, e.y + e.size);
@@ -1122,7 +1146,7 @@ function drawPlayer() {
     }
 
     // Глаза
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = sfShadow(0);
     var eyeY = player.size * 0.38;
     var eyeSpacing = player.size * 0.22;
     ctx.fillStyle = '#fff';
@@ -1175,7 +1199,7 @@ function drawCoins() {
         var isBig = c.value >= 5;
         ctx.save();
         ctx.shadowColor = isBig ? '#ff5c7a' : theme.glow;
-        ctx.shadowBlur = isBig ? 18 : 12;
+        ctx.shadowBlur = sfShadow(isBig ? 18 : 12);
         var scaleX = Math.abs(Math.cos(c.phase));
         var scaleY = Math.abs(Math.cos(c.phase * 0.5) * 0.3 + 0.7);
         ctx.translate(c.x + c.size / 2, c.y + c.size / 2);
@@ -1187,9 +1211,9 @@ function drawCoins() {
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 11px Segoe UI, Arial';
             ctx.textAlign = 'center';
-            ctx.shadowColor = '#000'; ctx.shadowBlur = 3;
+            ctx.shadowColor = '#000'; ctx.shadowBlur = sfShadow(3);
             ctx.fillText('×' + c.value, c.x + c.size / 2, c.y + c.size / 2 + 4);
-            ctx.shadowBlur = 0;
+            ctx.shadowBlur = sfShadow(0);
         }
     }
 }
@@ -1203,7 +1227,7 @@ function drawRogueXP() {
         ctx.translate(xp.x + xp.size / 2, xp.y + xp.size / 2);
         ctx.scale(pulse, pulse);
         ctx.shadowColor = '#9c6bff';
-        ctx.shadowBlur = 18;
+        ctx.shadowBlur = sfShadow(18);
         var g = ctx.createRadialGradient(0, -3, 1, 0, 0, xp.size / 2);
         g.addColorStop(0, '#ffffff');
         g.addColorStop(0.35, '#d1b3ff');
@@ -1217,7 +1241,7 @@ function drawRogueXP() {
         ctx.lineTo(-xp.size / 2, 0);
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.shadowBlur = sfShadow(0);
         ctx.fillStyle = '#fff';
         ctx.font = 'bold 10px Arial';
         ctx.textAlign = 'center';
@@ -1232,7 +1256,7 @@ function drawDrop(d) {
     var t = performance.now();
     ctx.save();
     ctx.shadowColor = style.glow;
-    ctx.shadowBlur = 20;
+    ctx.shadowBlur = sfShadow(20);
     var pulse = 1 + Math.sin(t / 150) * 0.1;
     ctx.translate(d.x, d.y);
     ctx.scale(pulse, pulse);
@@ -1240,7 +1264,7 @@ function drawDrop(d) {
     g.addColorStop(0, style.c1); g.addColorStop(0.6, style.c2); g.addColorStop(1, style.c3);
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(0, 0, d.size / 2, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = sfShadow(0);
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 15px Arial';
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1259,7 +1283,7 @@ function drawRogueCoreFragments() {
         ctx.rotate(fragment.rotation);
         ctx.scale(pulse, pulse);
         ctx.shadowColor = '#80deea';
-        ctx.shadowBlur = 22;
+        ctx.shadowBlur = sfShadow(22);
         var g = ctx.createLinearGradient(-fragment.size / 2, -fragment.size / 2, fragment.size / 2, fragment.size / 2);
         g.addColorStop(0, '#e0f7fa');
         g.addColorStop(0.45, '#80deea');
@@ -1291,7 +1315,7 @@ function drawRogueEnemyHazards() {
         ctx.globalAlpha = warning ? 0.18 : 0.12;
         ctx.fillStyle = h.color;
         ctx.shadowColor = h.color;
-        ctx.shadowBlur = warning ? 10 : 18;
+        ctx.shadowBlur = sfShadow(warning ? 10 : 18);
         ctx.beginPath();
         ctx.arc(h.x, h.y, h.radius * pulse, 0, Math.PI * 2);
         ctx.fill();
@@ -1316,7 +1340,7 @@ function drawRogueEnemyHazards() {
 
 function drawEnemyBullet(b) {
     ctx.save();
-    ctx.shadowColor = b.color; ctx.shadowBlur = 12;
+    ctx.shadowColor = b.color; ctx.shadowBlur = sfShadow(12);
     ctx.fillStyle = b.color;
     ctx.beginPath(); ctx.arc(b.x, b.y, b.size / 2, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
@@ -1334,7 +1358,7 @@ function drawWeb(w) {
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.shadowColor = 'rgba(190,220,255,.45)';
-    ctx.shadowBlur = 5;
+    ctx.shadowBlur = sfShadow(5);
 
     // Радиальные нити — от центра к краям.
     ctx.lineWidth = 1.1;
@@ -1348,7 +1372,7 @@ function drawWeb(w) {
     }
 
     // Концентрические нити — именно они дают силуэту настоящей паутины.
-    ctx.shadowBlur = 2;
+    ctx.shadowBlur = sfShadow(2);
     ctx.lineWidth = 0.9;
     var rings = 4;
     for (var r = 1; r <= rings; r++) {
@@ -1367,7 +1391,7 @@ function drawWeb(w) {
     }
 
     // Маленький узел в центре и мягкое свечение.
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = sfShadow(8);
     ctx.fillStyle = '#f4f8ff';
     ctx.beginPath();
     ctx.arc(0, 0, 2.2, 0, Math.PI * 2);
@@ -1380,7 +1404,7 @@ function drawMonster(e) {
     var t = e.t;
     ctx.save();
     ctx.shadowColor = t.glow;
-    ctx.shadowBlur = e.hitFlash > 0 ? 30 : 14;
+    ctx.shadowBlur = sfShadow(e.hitFlash > 0 ? 30 : 14);
     var cx = e.x + e.size / 2, cy = e.y + e.size / 2, r = e.size / 2;
     if (t.shape === 'ghost') ctx.globalAlpha = e.ghostAlpha;
     if (e.hitFlash > 0) {
@@ -1409,7 +1433,7 @@ function drawMonster(e) {
         ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
     }
     // Глаза
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = sfShadow(0);
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(cx - 4, cy - 2, 2.5, 0, Math.PI * 2);
@@ -1427,7 +1451,7 @@ function drawBoss(boss) {
     var b = boss.type;
     ctx.save();
     ctx.shadowColor = boss.vulnerableTimer > 0 ? '#7cffb2' : b.glow;
-    ctx.shadowBlur = boss.hitFlash > 0 ? 40 : (boss.vulnerableTimer > 0 ? 38 : (boss.telegraphTimer > 0 ? 32 : 25));
+    ctx.shadowBlur = sfShadow(boss.hitFlash > 0 ? 40 : (boss.vulnerableTimer > 0 ? 38 : (boss.telegraphTimer > 0 ? 32 : 25)));
     var cx = boss.x + boss.size / 2, cy = boss.y + boss.size / 2, r = boss.size / 2;
 
     if (boss.telegraphTimer > 0) {
@@ -1453,7 +1477,7 @@ function drawBoss(boss) {
     g.addColorStop(1, b.c2);
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur = sfShadow(0);
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(cx - r*0.3, cy - r*0.15, 6, 0, Math.PI * 2);
@@ -1483,7 +1507,7 @@ function drawBoss(boss) {
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 13px Segoe UI, Arial';
     ctx.textAlign = 'center';
-    ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
+    ctx.shadowColor = '#000'; ctx.shadowBlur = sfShadow(4);
     ctx.fillText(b.icon + ' ' + b.name + '  —  Фаза ' + boss.phase + '/3', canvas.width / 2, barY + barH + 16);
     ctx.restore();
 }
@@ -1493,7 +1517,7 @@ function drawOrbitals() {
         if (!o.x) return;
         ctx.save();
         ctx.shadowColor = '#7c4dff';
-        ctx.shadowBlur = 20;
+        ctx.shadowBlur = sfShadow(20);
         var g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.size);
         g.addColorStop(0, '#fff');
         g.addColorStop(0.5, '#b388ff');
@@ -1512,10 +1536,8 @@ function draw() {
 
     var s = getSave();
     var theme = THEMES[s.equippedTheme] || THEMES.cosmos;
-    var bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bgGrad.addColorStop(0, theme.bg1);
-    bgGrad.addColorStop(0.5, theme.bg2);
-    bgGrad.addColorStop(1, theme.bg3);
+    var themeKey = (s.equippedTheme || 'cosmos') + '|' + theme.bg1 + '|' + theme.bg2 + '|' + theme.bg3;
+    var bgGrad = sfGetBackgroundGradient(theme, themeKey);
     ctx.fillStyle = bgGrad;
     ctx.fillRect(-30, -30, canvas.width + 60, canvas.height + 60);
 
@@ -1539,7 +1561,7 @@ function draw() {
         ctx.globalAlpha = Math.max(0, m.life) * 0.85;
         ctx.strokeStyle = m.color;
         ctx.lineWidth = 2;
-        ctx.shadowColor = m.color; ctx.shadowBlur = 12;
+        ctx.shadowColor = m.color; ctx.shadowBlur = sfShadow(12);
         ctx.beginPath();
         ctx.moveTo(m.x, m.y);
         ctx.lineTo(m.x - m.vx / Math.hypot(m.vx, m.vy) * m.len, m.y - m.vy / Math.hypot(m.vx, m.vy) * m.len);
@@ -1607,7 +1629,7 @@ function draw() {
         ctx.fillStyle = noHitWaveDamage === 0 ? 'rgba(124,255,178,0.9)' : 'rgba(255,92,122,0.9)';
         ctx.font = 'bold 14px Segoe UI, Arial';
         ctx.textAlign = 'center';
-        ctx.shadowColor = '#000'; ctx.shadowBlur = 4;
+        ctx.shadowColor = '#000'; ctx.shadowBlur = sfShadow(4);
         ctx.fillText(noHitWaveDamage === 0 ? '✨ ИДЕАЛЬНО!' : '❌ Урон получен', canvas.width / 2, canvas.height - 30);
         ctx.restore();
     }
@@ -1618,14 +1640,14 @@ function draw() {
         ctx.translate(canvas.width - 60, canvas.height - 50);
         ctx.scale(comboS, comboS);
         ctx.globalAlpha = 0.9;
-        ctx.shadowColor = '#ff9800'; ctx.shadowBlur = 20;
+        ctx.shadowColor = '#ff9800'; ctx.shadowBlur = sfShadow(20);
         ctx.fillStyle = '#ff9800';
         ctx.font = 'bold 22px Segoe UI, Arial';
         ctx.textAlign = 'center';
         ctx.fillText('×' + getComboMultiplier(), 0, 0);
         ctx.font = 'bold 12px Segoe UI, Arial';
         ctx.fillStyle = '#fff';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = sfShadow(8);
         ctx.fillText(combo + ' подряд', 0, 16);
         ctx.restore();
     }

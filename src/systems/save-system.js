@@ -171,9 +171,10 @@ function migrateSave(d) {
     return d;
 }
 
+// Runtime reads are intentionally cheap: schema migration is performed when a
+// profile is loaded/entered, not on every game-loop read.
 function getSave() {
     if (currentProfile && currentProfile.data) {
-        currentProfile.data = migrateSave(currentProfile.data);
         return currentProfile.data;
     }
     return makeDefaultSave();

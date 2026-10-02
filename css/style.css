@@ -5143,3 +5143,62 @@ body.rogue-hud #hud-top-row #hud-timer{
         gap:7px;
     }
 }
+
+
+/* ==========================================================
+   ROGUELIKE FULL-WIDTH PLAYFIELD
+   HUD keeps its framed panel; the roguelike playfield has NO
+   separate border and fills the remaining phone viewport.
+   ========================================================== */
+body.rogue-hud #game-wrap{
+    justify-content:flex-start;
+    align-items:center;
+    min-height:100dvh;
+    height:100dvh;
+}
+
+body.rogue-hud canvas{
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    width:100vw !important;
+    height:100dvh !important;
+    max-width:none !important;
+    max-height:none !important;
+    aspect-ratio:auto !important;
+    border:none !important;
+    border-radius:0 !important;
+    box-sizing:border-box;
+    z-index:1;
+}
+
+/* HUD stays above the borderless field and keeps its own frame. */
+body.rogue-hud #hud{
+    z-index:20;
+}
+
+/* Keep gameplay visuals from being hidden behind the HUD. */
+body.rogue-hud #hud-top-row,
+body.rogue-hud #hud-main-row,
+body.rogue-hud #hud-progress,
+body.rogue-hud #hud-hp-row{
+    position:relative;
+    z-index:21;
+}
+
+/* Existing top-row controls remain above the playfield. */
+body.rogue-hud #btn-pause,
+body.rogue-hud #hud-combo{
+    z-index:32 !important;
+}
+
+@media (pointer:coarse),(max-width:800px){
+    body.rogue-hud canvas{
+        width:100vw !important;
+        height:100dvh !important;
+        max-width:none !important;
+        max-height:none !important;
+    }
+}

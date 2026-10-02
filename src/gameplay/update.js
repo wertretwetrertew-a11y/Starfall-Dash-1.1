@@ -1529,6 +1529,7 @@ function drawOrbitals() {
 }
 
 function draw() {
+    var lowResRender = sfBeginRender();
     ctx.save();
     if (screenShake > 0.5) {
         ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
@@ -1653,6 +1654,7 @@ function draw() {
     }
 
     ctx.restore();
+    sfEndRender(lowResRender);
 }
 
 // ==========================================================

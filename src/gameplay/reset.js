@@ -163,7 +163,7 @@ function reset() {
     persist();
 
     player.x = canvas.width / 2 - player.size / 2;
-    player.y = canvas.height - 60;
+    player.y = canvas.height * 0.57 - player.size / 2;
     player.frozen = 0;
     player.inWeb = false;
     player.breath = 0;

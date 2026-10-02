@@ -164,6 +164,8 @@ function reset() {
 
     player.x = canvas.width / 2 - player.size / 2;
     player.y = canvas.height * 0.57 - player.size / 2;
+    player.vx = 0;
+    player.vy = 0;
     player.frozen = 0;
     player.inWeb = false;
     player.breath = 0;

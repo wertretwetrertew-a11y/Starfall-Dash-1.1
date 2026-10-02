@@ -118,39 +118,38 @@
     <div id="mode-screen" class="hidden">
         <div class="mode-header">
             <button class="mode-back" id="mode-back">← Назад</button>
-            <h2>🎮 Выбери режим</h2>
-            <div style="width:80px;"></div>
+            <div class="mode-title-block">
+                <span class="mode-title-emblem">✦</span>
+                <h2>ВЫБЕРИ РЕЖИМ</h2>
+                <span class="mode-title-sub">КАКОЙ ПУТЬ ТЫ ВЫБЕРЕШЬ?</span>
+            </div>
+            <div class="mode-header-spacer"></div>
         </div>
         <div class="mode-grid">
             <button class="mode-card rogue" data-mode="rogue">
-                <div class="mc-icon">🎲</div>
-                <div class="mc-name">РЕЖИМ РОГАЛИК</div>
-                <div class="mc-desc">Выбирай героя, проходи 3 планеты, собирай билд и побеждай боссов</div>
+                <div class="mc-icon"><img src="assets/ui/mode-roguelike.svg" alt=""></div>
+                <div class="mc-copy"><div class="mc-name">РОГАЛИК</div><div class="mc-desc">Случайные улучшения и новые испытания.</div></div>
                 <div class="mc-best" id="best-rogue">🏆 0</div>
             </button>
             <button class="mode-card classic" data-mode="classic">
-                <div class="mc-icon">🎯</div>
-                <div class="mc-name">Классика</div>
-                <div class="mc-desc">Стандартный режим. уровни за убийства</div>
+                <div class="mc-icon"><img src="assets/ui/mode-classic.svg" alt=""></div>
+                <div class="mc-copy"><div class="mc-name">КЛАССИКА</div><div class="mc-desc">Стандартный режим. Уровни за убийства.</div></div>
                 <div class="mc-best" id="best-classic">🏆 0</div>
             </button>
-            <button class="mode-card survival" data-mode="survival">
-                <div class="mc-icon">🔥</div>
-                <div class="mc-name">Выживание</div>
-                <div class="mc-desc">1 жизнь. Как долго продержишься?</div>
-                <div class="mc-best" id="best-survival">🏆 0:00</div>
-            </button>
             <button class="mode-card timeattack" data-mode="timeattack">
-                <div class="mc-icon">⏱</div>
-                <div class="mc-name">Тайм-атака</div>
-                <div class="mc-desc">90 секунд. Собери максимум монет!</div>
+                <div class="mc-icon"><img src="assets/ui/mode-timeattack.svg" alt=""></div>
+                <div class="mc-copy"><div class="mc-name">ТАЙМ-АТАКА</div><div class="mc-desc">90 секунд. Собери максимум монет!</div></div>
                 <div class="mc-best" id="best-timeattack">🏆 0</div>
             </button>
             <button class="mode-card hardcore" data-mode="hardcore">
-                <div class="mc-icon">💀</div>
-                <div class="mc-name">Хардкор</div>
-                <div class="mc-desc">×2 врагов, ×3 очков, ×2 золота</div>
+                <div class="mc-icon"><img src="assets/ui/mode-hardcore.svg" alt=""></div>
+                <div class="mc-copy"><div class="mc-name">ХАРДКОР</div><div class="mc-desc">Один удар — и всё закончено.</div></div>
                 <div class="mc-best" id="best-hardcore">🏆 0</div>
+            </button>
+            <button class="mode-card survival" data-mode="survival">
+                <div class="mc-icon"><img src="assets/ui/mode-survival.svg" alt=""></div>
+                <div class="mc-copy"><div class="mc-name">ВЫЖИВАНИЕ</div><div class="mc-desc">Как можно дольше. Сможешь выжить?</div></div>
+                <div class="mc-best" id="best-survival">🏆 0:00</div>
             </button>
         </div>
     </div>

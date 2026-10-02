@@ -313,13 +313,16 @@ function update() {
     // Метеоры — ЕДИНСТВЕННАЯ система метеоритов.
     // Старые длинные линии здесь больше не рисуются: каждый метеорит
     // является одним компактным объектом со спрайт-анимацией из 12 кадров.
-    if (bossState === 'none' && meteors.length < 3 && frame % 90 === 0 && Math.random() < 0.7) {
+    // Механика метеоритов оставлена от старой версии:
+    // тот же спавн, количество, траектории, скорость и затухание.
+    // Меняется только внешний вид — теперь он берётся из нового спрайта.
+    if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7) {
+        var meteorAngle = Math.PI * (0.55 + Math.random() * 0.18);
         var meteorSpeed = 3.8 + Math.random() * 1.8;
-        var meteorAngle = Math.PI * (0.52 + Math.random() * 0.16);
-        var meteorSize = 16 + Math.random() * 3;
+        var meteorSize = 14 + Math.random() * 5;
         meteors.push({
-            x: 10 + Math.random() * (canvas.width - 20),
-            y: -meteorSize - 4,
+            x: Math.random() * canvas.width,
+            y: -24,
             vx: Math.cos(meteorAngle) * meteorSpeed,
             vy: Math.sin(meteorAngle) * meteorSpeed,
             size: meteorSize,
@@ -327,8 +330,8 @@ function update() {
             age: 0,
             animFrame: Math.floor(Math.random() * 12),
             animTimer: 0,
-            rotation: 0,
-            spin: (Math.random() - 0.5) * 0.035
+            rotation: Math.random() * Math.PI * 2,
+            spin: (Math.random() - 0.5) * 0.045
         });
     }
 
@@ -340,13 +343,15 @@ function update() {
         m.rotation += m.spin;
         m.animTimer++;
 
-        // 12 кадров: огонь и осколки меняются каждые 4 игровых кадра.
+        // Анимация нового визуала.
         if (m.animTimer >= 4) {
             m.animTimer = 0;
             m.animFrame = (m.animFrame + 1) % 12;
         }
 
-        if (m.y > canvas.height + 45 || m.x < -55 || m.x > canvas.width + 55) {
+        // Старое поведение: метеорит постепенно исчезает.
+        m.life -= 0.012;
+        if (m.life <= 0 || m.y > canvas.height + 50 || m.x < -70 || m.x > canvas.width + 70) {
             meteors.splice(mi, 1);
         }
     }

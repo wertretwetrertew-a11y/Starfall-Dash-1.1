@@ -1642,6 +1642,7 @@ var fpsCounterEl = null;
 var fpsFrameCount = 0;
 var fpsWindowStart = 0;
 var fpsValue = 0;
+var fpsLastFrameTime = 0;
 
 function ensureFpsCounter() {
     if (!FPS_COUNTER_ENABLED) {
@@ -1702,12 +1703,18 @@ function updateFpsCounter(now) {
     if (!fpsWindowStart) fpsWindowStart = now;
     fpsFrameCount++;
 
-    var elapsed = now - fpsWindowStart;
-    if (elapsed >= 500) {
-        fpsValue = Math.round((fpsFrameCount * 1000) / elapsed);
-        fpsFrameCount = 0;
-        fpsWindowStart = now;
-        if (fpsCounterEl) fpsCounterEl.textContent = 'FPS: ' + fpsValue;
+    // Обновляем почти каждый кадр: FPS берётся из интервала между кадрами.
+    // Это заметно быстрее реагирует на просадки, чем старое окно 500 мс.
+    if (fpsLastFrameTime > 0) {
+        var frameDelta = now - fpsLastFrameTime;
+        if (frameDelta > 0) fpsValue = Math.round(1000 / frameDelta);
+    }
+    fpsLastFrameTime = now;
+
+    // Перерисовываем текст раз в ~50 мс, чтобы сам счётчик не создавал лишнюю нагрузку.
+    if (fpsCounterEl && (!fpsCounterEl._fpsUiTime || now - fpsCounterEl._fpsUiTime >= 50)) {
+        fpsCounterEl.textContent = 'FPS: ' + fpsValue;
+        fpsCounterEl._fpsUiTime = now;
     }
 }
 

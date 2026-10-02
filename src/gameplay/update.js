@@ -7,6 +7,10 @@ var meteorSprite = new Image();
 meteorSprite.decoding = 'async';
 meteorSprite.src = 'assets/meteor-sprite.svg?v=20261002-meteor-2';
 
+var gameBackgroundSprite = new Image();
+gameBackgroundSprite.decoding = 'async';
+gameBackgroundSprite.src = 'assets/game-background.svg?v=20261002-bg-1';
+
 //   UPDATE — КРИТИЧНЫЕ ФИКСЫ
 // ==========================================================
 function update() {
@@ -1584,8 +1588,13 @@ function draw() {
     var theme = THEMES[s.equippedTheme] || THEMES.cosmos;
     var themeKey = (s.equippedTheme || 'cosmos') + '|' + theme.bg1 + '|' + theme.bg2 + '|' + theme.bg3;
     var bgGrad = sfGetBackgroundGradient(theme, themeKey);
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(-30, -30, canvas.width + 60, canvas.height + 60);
+    if (gameBackgroundSprite.complete && gameBackgroundSprite.naturalWidth > 0) {
+        // Новый вертикальный космический фон. Растягиваем ровно на логическое поле 360x780.
+        ctx.drawImage(gameBackgroundSprite, 0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(-30, -30, canvas.width + 60, canvas.height + 60);
+    }
 
     // Параллакс
     for (var psi = 0; psi < parallaxStars.length; psi++) {

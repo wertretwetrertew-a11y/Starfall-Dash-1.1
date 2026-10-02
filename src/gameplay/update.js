@@ -149,9 +149,19 @@ function update() {
         if (buff.speedBoost > 0) spd *= 2;
         if (player.inWeb) spd *= 0.5;
 
-        player.x += dx * spd;
-        player.y += dy * spd;
+        // Быстрый отклик без видимого джойстика: небольшая инерция помогает
+        // маневрировать, но разворот происходит почти мгновенно.
+        var targetVx = dx * spd;
+        var targetVy = dy * spd;
+        var accel = (dx !== 0 || dy !== 0) ? 0.48 : 0.62;
+        if ((dx * player.vx + dy * player.vy) < -0.05) accel = 0.78;
+        player.vx += (targetVx - player.vx) * accel;
+        player.vy += (targetVy - player.vy) * accel;
     }
+    player.x += player.vx;
+    player.y += player.vy;
+    if (player.x <= 0 || player.x >= canvas.width - player.size) player.vx = 0;
+    if (player.y <= 0 || player.y >= canvas.height - player.size) player.vy = 0;
     player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
     player.y = Math.max(0, Math.min(canvas.height - player.size, player.y));
 

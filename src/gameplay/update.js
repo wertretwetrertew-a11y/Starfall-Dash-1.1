@@ -1611,7 +1611,7 @@ function draw() {
 
             ctx.save();
             ctx.translate(m.x, m.y);
-            ctx.rotate(meteorAngle + m.rotation);
+            // Хвост всегда строго позади метеорита: направление определяется только его скоростью.\n            // Вращение корпуса не может развернуть огонь вперёд.\n            ctx.rotate(meteorAngle);
             ctx.globalAlpha = Math.max(0, m.life) * 0.92;
             ctx.shadowColor = '#ff6b18';
             ctx.shadowBlur = sfShadow(8);

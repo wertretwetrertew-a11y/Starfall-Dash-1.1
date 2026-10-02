@@ -22,6 +22,9 @@ function rectsCollide(a, b) {
            a.y < b.y + b.size && a.y + a.size > b.y;
 }
 
+var SF_PARTICLE_COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+var SF_PARTICLE_CAP = SF_PARTICLE_COARSE ? 140 : 200;
+
 function addParticles(x, y, color, count, spread) {
     count = count || 12;
     spread = spread || 6;
@@ -29,9 +32,8 @@ function addParticles(x, y, color, count, spread) {
     // Mobile Safari/Chrome can spend a disproportionate amount of time
     // drawing large particle batches. Keep the normal visual effect, but
     // prevent burst effects from growing into an expensive queue.
-    var particleCap = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 140 : 200;
-    if (particles.length > particleCap) count = Math.min(count, 3);
-    else if (particles.length > particleCap - 25) count = Math.min(count, 5);
+    if (particles.length > SF_PARTICLE_CAP) count = Math.min(count, 3);
+    else if (particles.length > SF_PARTICLE_CAP - 25) count = Math.min(count, 5);
 
     for (var i = 0; i < count; i++) {
         particles.push({

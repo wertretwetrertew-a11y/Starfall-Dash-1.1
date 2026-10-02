@@ -24,7 +24,8 @@ var joyKnob = document.getElementById('joystick-knob');
 var gameWrap = document.getElementById('game-wrap');
 var joyActive = false, joyStartX = 0, joyStartY = 0, joyPointerId = null;
 var joyVector = { x: 0, y: 0 };
-var JOY_MAX = 50;
+var JOY_MAX = 42;
+var JOY_DEAD_ZONE = 7;
 
 function positionFloatingJoystick(x, y) {
     if (!joyZone) return;
@@ -48,8 +49,8 @@ function joyStart(e) {
     joyStartY = e.clientY;
     joyActive = true;
 
-    positionFloatingJoystick(joyStartX, joyStartY);
-    if (joyZone) joyZone.classList.add('active');
+    // Никакого видимого джойстика: точка касания только задаёт направление.
+    if (joyZone) joyZone.classList.remove('active');
 
     if (gameWrap && gameWrap.setPointerCapture && e.pointerId != null) {
         try { gameWrap.setPointerCapture(e.pointerId); } catch (_) {}
@@ -64,13 +65,15 @@ function joyMove(e) {
     var dx = e.clientX - joyStartX;
     var dy = e.clientY - joyStartY;
     var dist = Math.hypot(dx, dy);
-    if (dist > JOY_MAX) {
-        dx = dx / dist * JOY_MAX;
-        dy = dy / dist * JOY_MAX;
+    if (dist < JOY_DEAD_ZONE) {
+        joyVector.x = 0;
+        joyVector.y = 0;
+        return;
     }
-    joyKnob.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
-    joyVector.x = dx / JOY_MAX;
-    joyVector.y = dy / JOY_MAX;
+    var usable = Math.min(JOY_MAX, dist);
+    var strength = Math.min(1, (usable - JOY_DEAD_ZONE) / (JOY_MAX - JOY_DEAD_ZONE));
+    joyVector.x = (dx / dist) * strength;
+    joyVector.y = (dy / dist) * strength;
 }
 
 function joyEnd(e) {

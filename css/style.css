@@ -5247,3 +5247,62 @@ body.rogue-hud #game{
 body.rogue-hud #hud{
     z-index:20;
 }
+
+
+/* ==========================================================
+   PHONE-NATIVE GAME VIEWPORT — 9:16
+   The logical game world is 360x780. It scales uniformly;
+   the playfield itself has no frame.
+   ========================================================== */
+body.rogue-hud #game-wrap{
+    position:relative;
+    width:100vw;
+    height:100dvh;
+    min-height:100dvh;
+    overflow:hidden;
+}
+
+body.rogue-hud #game{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    right:auto !important;
+    bottom:auto !important;
+
+    /* 360x780 logical world = 9:19.5 */
+    width:min(100vw, calc(100dvh * 360 / 780)) !important;
+    height:min(100dvh, calc(100vw * 780 / 360)) !important;
+    aspect-ratio:360 / 780 !important;
+
+    margin:0 !important;
+    max-width:none !important;
+    max-height:none !important;
+
+    transform:translate(-50%, -50%) !important;
+    transform-origin:center center !important;
+
+    border:none !important;
+    border-radius:0 !important;
+    box-sizing:content-box !important;
+    z-index:1;
+}
+
+/* On modern portrait phones the game occupies the full available
+   width and keeps the 360x780 logical proportions. */
+@media (orientation:portrait){
+    body.rogue-hud #game{
+        width:100vw !important;
+        height:auto !important;
+        aspect-ratio:360 / 780 !important;
+    }
+}
+
+/* The HUD remains an overlay above the game world. */
+body.rogue-hud #hud{
+    z-index:20 !important;
+}
+
+/* The old 600x400 spacing rules must not reserve vertical space. */
+body.rogue-hud #game{
+    margin-top:0 !important;
+}

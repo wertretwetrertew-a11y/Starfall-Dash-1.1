@@ -119,7 +119,7 @@ var rogueCoreFragmentMisses = 0;
 
 // ===== ИГРОК =====
 var player = {
-    x: GAME_WIDTH / 2 - 15, y: GAME_HEIGHT - 60, size: 30, speed: 7, frozen: 0, inWeb: false,
+    x: GAME_WIDTH / 2 - 15, y: GAME_HEIGHT * 0.62, size: 30, speed: 7, frozen: 0, inWeb: false,
     breath: 0, tilt: 0, lastDirX: 0, lastDirY: 1,
     damageFlash: 0, blinkTimer: 0, isBlinking: false
 };

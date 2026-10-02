@@ -25,7 +25,14 @@ function rectsCollide(a, b) {
 function addParticles(x, y, color, count, spread) {
     count = count || 12;
     spread = spread || 6;
-    if (particles.length > 200) count = Math.min(count, 4);
+
+    // Mobile Safari/Chrome can spend a disproportionate amount of time
+    // drawing large particle batches. Keep the normal visual effect, but
+    // prevent burst effects from growing into an expensive queue.
+    var particleCap = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 140 : 200;
+    if (particles.length > particleCap) count = Math.min(count, 3);
+    else if (particles.length > particleCap - 25) count = Math.min(count, 5);
+
     for (var i = 0; i < count; i++) {
         particles.push({
             x: x, y: y,

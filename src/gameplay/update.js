@@ -3,6 +3,10 @@
 // Extracted from legacy gameplay.js; global API intentionally preserved.
 // ==========================================================
 
+var meteorSprite = new Image();
+meteorSprite.decoding = 'async';
+meteorSprite.src = 'assets/meteor-sprite.svg?v=20261002-meteor-2';
+
 //   UPDATE — КРИТИЧНЫЕ ФИКСЫ
 // ==========================================================
 function update() {
@@ -306,41 +310,43 @@ function update() {
         }
     }
 
-    // Метеоры — компактные игровые объекты Starfall Dash.
-    // У каждого есть 12 визуальных состояний: вращается камень, меняется огонь
-    // и слегка плавает расположение осколков. Это даёт ощущение живой анимации
-    // без тяжёлой картинки/спрайт-листа и хорошо подходит для Canvas/iPhone.
-    if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7) {
-        var meteorAngle = Math.PI * (0.55 + Math.random() * 0.18);
+    // Метеоры — ЕДИНСТВЕННАЯ система метеоритов.
+    // Старые длинные линии здесь больше не рисуются: каждый метеорит
+    // является одним компактным объектом со спрайт-анимацией из 12 кадров.
+    if (bossState === 'none' && meteors.length < 3 && frame % 90 === 0 && Math.random() < 0.7) {
         var meteorSpeed = 3.8 + Math.random() * 1.8;
+        var meteorAngle = Math.PI * (0.52 + Math.random() * 0.16);
+        var meteorSize = 16 + Math.random() * 3;
         meteors.push({
-            x: Math.random() * canvas.width, y: -24,
+            x: 10 + Math.random() * (canvas.width - 20),
+            y: -meteorSize - 4,
             vx: Math.cos(meteorAngle) * meteorSpeed,
             vy: Math.sin(meteorAngle) * meteorSpeed,
-            size: 14 + Math.random() * 5,
+            size: meteorSize,
             life: 1,
             age: 0,
             animFrame: Math.floor(Math.random() * 12),
             animTimer: 0,
-            rotation: Math.random() * Math.PI * 2,
-            spin: (Math.random() - 0.5) * 0.045,
-            phase: Math.random() * Math.PI * 2,
-            seed: Math.random() * 1000
+            rotation: 0,
+            spin: (Math.random() - 0.5) * 0.035
         });
     }
+
     for (var mi = meteors.length - 1; mi >= 0; mi--) {
         var m = meteors[mi];
-        m.x += m.vx; m.y += m.vy;
+        m.x += m.vx;
+        m.y += m.vy;
         m.age++;
         m.rotation += m.spin;
-        m.phase += 0.16;
         m.animTimer++;
+
+        // 12 кадров: огонь и осколки меняются каждые 4 игровых кадра.
         if (m.animTimer >= 4) {
             m.animTimer = 0;
             m.animFrame = (m.animFrame + 1) % 12;
         }
-        m.life -= 0.012;
-        if (m.life <= 0 || m.y > canvas.height + 50 || m.x < -70 || m.x > canvas.width + 70) {
+
+        if (m.y > canvas.height + 45 || m.x < -55 || m.x > canvas.width + 55) {
             meteors.splice(mi, 1);
         }
     }
@@ -1589,124 +1595,30 @@ function draw() {
     drawWeather();
     drawRogueEnemyHazards();
 
-    // Метеоры — 12-кадровая процедурная анимация в стиле игровых объектов Starfall Dash.
-    for (var mi = 0; mi < meteors.length; mi++) {
-        var m = meteors[mi];
-        var meteorAngle = Math.atan2(m.vy, m.vx);
-        var flamePulse = 0.88 + Math.sin(m.phase + m.animFrame * 0.55) * 0.12;
-        var framePhase = (m.animFrame / 12) * Math.PI * 2;
-        var rockScale = 0.94 + Math.sin(framePhase + m.seed) * 0.05;
-        var dirLen = Math.hypot(m.vx, m.vy) || 1;
-        var nx = -m.vy / dirLen, ny = m.vx / dirLen;
+    // Метеоры — компактный 12-кадровый спрайт.
+    // Важно: это единственный renderer метеоритов. Старый ctx.stroke()
+    // со светящимися длинными линиями полностью удалён.
+    if (typeof meteorSprite !== 'undefined' && meteorSprite.complete && meteorSprite.naturalWidth > 0) {
+        for (var mi = 0; mi < meteors.length; mi++) {
+            var m = meteors[mi];
+            var meteorAngle = Math.atan2(m.vy, m.vx);
+            var drawSize = m.size * 2.55;
 
-        ctx.save();
-        ctx.translate(m.x, m.y);
-        ctx.rotate(meteorAngle + m.rotation);
-        ctx.globalAlpha = Math.max(0, m.life) * 0.92;
-
-        // Огненный след: несколько острых слоёв, форма немного меняется каждый кадр.
-        ctx.shadowColor = '#ff7a18';
-        ctx.shadowBlur = sfShadow(10);
-        ctx.fillStyle = '#ff5a16';
-        ctx.beginPath();
-        ctx.moveTo(-m.size * 0.25, 0);
-        ctx.lineTo(-m.size * (1.35 + 0.22 * flamePulse), -m.size * (0.38 + 0.12 * Math.sin(framePhase)));
-        ctx.lineTo(-m.size * (0.82 + 0.18 * flamePulse), 0);
-        ctx.lineTo(-m.size * (1.55 + 0.20 * flamePulse), m.size * (0.30 + 0.10 * Math.cos(framePhase)));
-        ctx.lineTo(-m.size * 0.10, m.size * 0.18);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.shadowColor = '#ffd43b';
-        ctx.fillStyle = '#ffcf35';
-        ctx.beginPath();
-        ctx.moveTo(-m.size * 0.15, -m.size * 0.04);
-        ctx.lineTo(-m.size * (1.05 + 0.16 * flamePulse), -m.size * 0.20);
-        ctx.lineTo(-m.size * 0.52, 0);
-        ctx.lineTo(-m.size * (1.12 + 0.12 * Math.cos(framePhase)), m.size * 0.18);
-        ctx.closePath();
-        ctx.fill();
-
-        // Компактный многогранный корпус.
-        ctx.shadowColor = '#ff7b19';
-        ctx.shadowBlur = sfShadow(7);
-        var s = m.size * rockScale;
-        ctx.fillStyle = '#2d2a4b';
-        ctx.strokeStyle = '#ff9a27';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(s * 0.95, 0);
-        ctx.lineTo(s * 0.48, -s * 0.78);
-        ctx.lineTo(-s * 0.34, -s * 0.64);
-        ctx.lineTo(-s * 0.72, 0);
-        ctx.lineTo(-s * 0.28, s * 0.67);
-        ctx.lineTo(s * 0.52, s * 0.72);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        // Грани.
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = '#49456e';
-        ctx.beginPath();
-        ctx.moveTo(s * 0.95, 0);
-        ctx.lineTo(s * 0.48, -s * 0.78);
-        ctx.lineTo(s * 0.05, -s * 0.08);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = '#24223e';
-        ctx.beginPath();
-        ctx.moveTo(s * 0.05, -s * 0.08);
-        ctx.lineTo(s * 0.48, -s * 0.78);
-        ctx.lineTo(-s * 0.34, -s * 0.64);
-        ctx.lineTo(-s * 0.28, s * 0.67);
-        ctx.closePath();
-        ctx.fill();
-
-        // Раскалённая трещина/кратер, который меняет положение при вращении.
-        var craterSide = Math.sin(framePhase + m.seed) > 0 ? 0.34 : -0.22;
-        ctx.fillStyle = '#ff7a18';
-        ctx.beginPath();
-        ctx.arc(s * 0.20, s * craterSide, s * 0.20, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#ffd34a';
-        ctx.beginPath();
-        ctx.arc(s * 0.20, s * craterSide, s * 0.10, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 3 осколка: небольшие смещения создают эффект вращения/разлёта.
-        for (var si = 0; si < 3; si++) {
-            var a = (-0.9 + si * 0.65) + Math.sin(framePhase + m.seed + si) * 0.16;
-            var dist = s * (1.05 + si * 0.34);
-            var sx = Math.cos(a) * dist;
-            var sy = Math.sin(a) * dist;
-            var shard = s * (0.12 + si * 0.025);
             ctx.save();
-            ctx.translate(sx, sy);
-            ctx.rotate(Math.sin(framePhase + si + m.seed) * 0.5);
-            ctx.fillStyle = si === 1 ? '#514c78' : '#34304f';
-            ctx.strokeStyle = '#ff8d22';
-            ctx.lineWidth = 0.9;
-            ctx.beginPath();
-            ctx.moveTo(-shard, 0);
-            ctx.lineTo(0, -shard * 0.72);
-            ctx.lineTo(shard, 0);
-            ctx.lineTo(0, shard * 0.72);
-            ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
+            ctx.translate(m.x, m.y);
+            ctx.rotate(meteorAngle + m.rotation);
+            ctx.globalAlpha = 0.98;
+            ctx.shadowColor = '#ff6b18';
+            ctx.shadowBlur = sfShadow(8);
+
+            ctx.drawImage(
+                meteorSprite,
+                m.animFrame * 48, 0, 48, 48,
+                -drawSize / 2, -drawSize / 2, drawSize, drawSize
+            );
+
             ctx.restore();
         }
-
-        // Единичная искра, меняющая положение между кадрами.
-        var sparkX = -s * (1.2 + 0.2 * Math.sin(framePhase));
-        var sparkY = s * (0.7 + 0.25 * Math.cos(framePhase));
-        ctx.fillStyle = '#ffd84a';
-        ctx.beginPath();
-        ctx.arc(sparkX, sparkY, Math.max(0.8, s * 0.045), 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.restore();
     }
 
     // Темнота (волна)

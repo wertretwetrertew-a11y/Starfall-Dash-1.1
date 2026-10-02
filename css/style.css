@@ -5202,3 +5202,48 @@ body.rogue-hud #hud-combo{
         max-height:none !important;
     }
 }
+
+
+/* ==========================================================
+   ROGUELIKE RESPONSIVE ASPECT-RATIO FIX
+   Do NOT stretch the 600x400 game world to the phone's portrait
+   viewport. Keep the native 3:2 coordinate space and scale it
+   uniformly. The HUD remains an overlay and the playfield has no frame.
+   ========================================================== */
+
+body.rogue-hud #game-wrap{
+    overflow:hidden;
+    position:relative;
+    min-height:100dvh;
+    height:100dvh;
+}
+
+body.rogue-hud #game{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    right:auto !important;
+    bottom:auto !important;
+
+    /* Native game space is 600x400 = 3:2. */
+    width:min(100vw, 150dvh) !important;
+    height:auto !important;
+    aspect-ratio:3 / 2 !important;
+
+    margin:0 !important;
+    max-width:none !important;
+    max-height:none !important;
+
+    transform:translate(-50%, -50%) !important;
+    transform-origin:center center !important;
+
+    border:none !important;
+    border-radius:0 !important;
+    box-sizing:content-box !important;
+    z-index:1;
+}
+
+/* The HUD remains above the uniformly-scaled playfield. */
+body.rogue-hud #hud{
+    z-index:20;
+}

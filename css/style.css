@@ -5521,3 +5521,163 @@ body.rogue-hud #hud-top-row #hud-combo.pulse{
     50%{transform:scale(1.12);}
     100%{transform:scale(1);}
 }
+
+/* === Compact one-screen mode selector === */
+#mode-screen:not(.hidden){
+    width:100%;
+    min-height:100dvh;
+    height:100dvh;
+    box-sizing:border-box;
+    padding:12px 10px 14px;
+    overflow:hidden;
+}
+#mode-screen .mode-header{
+    width:min(100%,420px);
+    margin:0 auto 10px;
+    min-height:76px;
+    gap:8px;
+}
+#mode-screen .mode-header-spacer{width:62px;flex:0 0 62px;}
+#mode-screen .mode-back{
+    flex:0 0 auto;
+    padding:9px 11px;
+    border-radius:14px;
+    font-size:13px;
+    white-space:nowrap;
+    background:rgba(10,18,48,.72);
+    box-shadow:0 0 18px rgba(79,195,247,.08), inset 0 1px 0 rgba(255,255,255,.08);
+}
+#mode-screen .mode-title-block{
+    flex:1;
+    min-width:0;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+}
+#mode-screen .mode-title-emblem{
+    display:block;
+    color:#cda7ff;
+    font-size:19px;
+    line-height:18px;
+    text-shadow:0 0 12px #8c4dff;
+    margin-bottom:2px;
+}
+#mode-screen .mode-title-block h2{
+    margin:0;
+    font-size:clamp(19px,5.6vw,27px);
+    line-height:1.05;
+    white-space:nowrap;
+    letter-spacing:.7px;
+}
+#mode-screen .mode-title-sub{
+    margin-top:5px;
+    font-size:8px;
+    letter-spacing:2px;
+    color:#9ca9d8;
+    white-space:nowrap;
+}
+#mode-screen .mode-grid{
+    width:min(100%,420px);
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    flex:1;
+    min-height:0;
+}
+#mode-screen .mode-card{
+    flex:1 1 0;
+    min-height:0 !important;
+    height:auto;
+    width:100%;
+    box-sizing:border-box;
+    display:grid;
+    grid-template-columns:60px minmax(0,1fr) auto;
+    align-items:center;
+    justify-content:stretch;
+    gap:10px;
+    padding:8px 10px;
+    border-radius:17px;
+    text-align:left;
+    overflow:hidden;
+}
+#mode-screen .mode-card.rogue{
+    grid-column:auto;
+}
+#mode-screen .mode-card .mc-icon{
+    width:54px;
+    height:54px;
+    margin:0;
+    border-radius:15px;
+    display:grid;
+    place-items:center;
+    filter:drop-shadow(0 0 9px currentColor);
+}
+#mode-screen .mode-card .mc-icon img{
+    width:54px;
+    height:54px;
+    display:block;
+    object-fit:contain;
+}
+#mode-screen .mode-card .mc-copy{
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:3px;
+}
+#mode-screen .mode-card .mc-name{
+    font-size:clamp(15px,4.2vw,19px);
+    line-height:1;
+    letter-spacing:.6px;
+    white-space:nowrap;
+}
+#mode-screen .mode-card .mc-desc{
+    max-width:none;
+    font-size:10px;
+    line-height:1.2;
+    white-space:normal;
+}
+#mode-screen .mode-card .mc-best{
+    margin:0;
+    padding:6px 8px;
+    min-width:47px;
+    text-align:center;
+    font-size:10px;
+    white-space:nowrap;
+}
+#mode-screen .mode-card.rogue{
+    background:linear-gradient(135deg,rgba(156,78,255,.22),rgba(52,25,100,.2));
+    border-color:#a766ff;
+    color:#cda7ff;
+}
+#mode-screen .mode-card.classic{
+    background:linear-gradient(135deg,rgba(33,150,243,.18),rgba(11,50,91,.22));
+}
+#mode-screen .mode-card.timeattack{
+    background:linear-gradient(135deg,rgba(255,193,7,.17),rgba(89,55,0,.22));
+}
+#mode-screen .mode-card.hardcore{
+    background:linear-gradient(135deg,rgba(255,60,100,.18),rgba(79,15,44,.22));
+    border-color:#ff526c;
+    color:#ff7890;
+}
+#mode-screen .mode-card.survival{
+    background:linear-gradient(135deg,rgba(0,210,255,.16),rgba(7,54,91,.22));
+    border-color:#25d9ff;
+    color:#55e7ff;
+}
+#mode-screen .mode-card:active{transform:scale(.985);}
+@media(max-height:680px){
+    #mode-screen:not(.hidden){padding-top:7px;padding-bottom:8px;}
+    #mode-screen .mode-header{min-height:60px;margin-bottom:6px;}
+    #mode-screen .mode-title-emblem{font-size:15px;line-height:14px;}
+    #mode-screen .mode-title-sub{margin-top:3px;font-size:7px;}
+    #mode-screen .mode-card{grid-template-columns:48px minmax(0,1fr) auto;gap:7px;padding:5px 8px;}
+    #mode-screen .mode-card .mc-icon,#mode-screen .mode-card .mc-icon img{width:44px;height:44px;}
+    #mode-screen .mode-card .mc-desc{font-size:9px;}
+    #mode-screen .mode-card .mc-best{padding:5px 7px;min-width:43px;}
+}

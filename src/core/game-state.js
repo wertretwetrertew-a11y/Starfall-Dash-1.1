@@ -4,6 +4,19 @@
 //   This file intentionally contains declarations only.
 // ==========================================================
 
+// ==========================================================
+//   PHONE-NATIVE GAME VIEWPORT
+//   The game logic uses one stable portrait coordinate space.
+//   CSS scales this 9:16 world uniformly to the real device.
+// ==========================================================
+var GAME_WIDTH = 360;
+var GAME_HEIGHT = 780;
+
+if (typeof canvas !== 'undefined' && canvas) {
+    canvas.width = GAME_WIDTH;
+    canvas.height = GAME_HEIGHT;
+}
+
 var currentShopTab = 'skins';
 var currentProfile = null;
 var pendingProfile = null;
@@ -77,7 +90,7 @@ var coreBonusCache = {
         var count = 15 - layer * 3;
         for (var i = 0; i < count; i++) {
             parallaxStars.push({
-                x: Math.random() * 600, y: Math.random() * 400,
+                x: Math.random() * GAME_WIDTH, y: Math.random() * GAME_HEIGHT,
                 size: 0.6 + layer * 0.5,
                 speed: 0.08 + layer * 0.15,
                 layer: layer, twinkle: Math.random() * Math.PI * 2
@@ -106,7 +119,7 @@ var rogueCoreFragmentMisses = 0;
 
 // ===== ИГРОК =====
 var player = {
-    x: 285, y: 340, size: 30, speed: 7, frozen: 0, inWeb: false,
+    x: GAME_WIDTH / 2 - 15, y: GAME_HEIGHT - 60, size: 30, speed: 7, frozen: 0, inWeb: false,
     breath: 0, tilt: 0, lastDirX: 0, lastDirY: 1,
     damageFlash: 0, blinkTimer: 0, isBlinking: false
 };

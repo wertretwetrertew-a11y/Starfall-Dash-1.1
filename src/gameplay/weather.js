@@ -128,10 +128,9 @@ function drawWeather() {
     if (!s.showWeather) return;
     for (var i = 0; i < weatherParticles.length; i++) {
         var p = weatherParticles[i];
-        ctx.save();
         if (p.type === 'ember') {
             ctx.globalAlpha = 0.7;
-            ctx.shadowColor = p.color; ctx.shadowBlur = 8;
+            ctx.shadowColor = p.color; ctx.shadowBlur = sfShadow(8);
             ctx.fillStyle = p.color;
             ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
         } else if (p.type === 'bubbles') {
@@ -142,7 +141,7 @@ function drawWeather() {
             ctx.globalAlpha = Math.max(0, p.life);
             ctx.fillStyle = p.color;
             ctx.font = 'bold 14px monospace'; ctx.textAlign = 'center';
-            ctx.shadowColor = '#00ff41'; ctx.shadowBlur = 6;
+            ctx.shadowColor = '#00ff41'; ctx.shadowBlur = sfShadow(6);
             ctx.fillText(p.char, p.x, p.y);
         } else if (p.type === 'clouds') {
             var grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
@@ -151,17 +150,19 @@ function drawWeather() {
             ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
         } else if (p.type === 'sparks') {
             ctx.globalAlpha = 0.4 + Math.sin(p.twinkle) * 0.4;
-            ctx.shadowColor = p.color; ctx.shadowBlur = 6;
+            ctx.shadowColor = p.color; ctx.shadowBlur = sfShadow(6);
             ctx.fillStyle = p.color;
             ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
         } else if (p.type === 'neon') {
             ctx.globalAlpha = 0.3 + Math.sin(p.twinkle) * 0.3;
-            ctx.shadowColor = p.color; ctx.shadowBlur = 10;
+            ctx.shadowColor = p.color; ctx.shadowBlur = sfShadow(10);
             ctx.fillStyle = p.color;
             ctx.fillRect(p.x, p.y, p.size, p.size);
         }
-        ctx.restore();
     }
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = sfShadow(0);
+    // One save/restore for the whole weather pass is enough; particles do not transform the canvas.
 }
 
 // ==========================================================

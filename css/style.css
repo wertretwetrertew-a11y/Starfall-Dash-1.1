@@ -5702,3 +5702,195 @@ body.rogue-hud #hud-top-row #hud-combo.pulse{
     #mode-screen .mode-card .mc-desc{font-size:7px;max-width:95px;}
     #mode-screen .mode-card .mc-best{padding:3px 5px;min-width:39px;}
 }
+
+
+/* === FINAL MODE SELECTOR: five small independent objects, 3 + 2 === */
+#mode-screen:not(.hidden){
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  padding:14px 12px 18px !important;
+  overflow:hidden !important;
+  gap:0 !important;
+}
+
+#mode-screen .mode-header{
+  width:100% !important;
+  max-width:420px !important;
+  min-height:64px !important;
+  margin:0 0 8px !important;
+  flex:0 0 auto !important;
+}
+
+#mode-screen .mode-grid{
+  width:100% !important;
+  max-width:360px !important;
+  margin:0 auto !important;
+  display:grid !important;
+  grid-template-columns:repeat(3, 1fr) !important;
+  grid-template-rows:auto auto !important;
+  justify-items:center !important;
+  align-items:start !important;
+  align-content:center !important;
+  column-gap:10px !important;
+  row-gap:18px !important;
+  flex:1 1 auto !important;
+  min-height:0 !important;
+}
+
+#mode-screen .mode-card{
+  width:100% !important;
+  max-width:106px !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  height:auto !important;
+  aspect-ratio:auto !important;
+  padding:0 !important;
+  margin:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:6px !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  isolation:auto !important;
+  overflow:visible !important;
+  color:#fff !important;
+}
+
+#mode-screen .mode-card:nth-child(4){
+  grid-column:2 !important;
+  grid-row:2 !important;
+  margin:0 !important;
+}
+#mode-screen .mode-card:nth-child(5){
+  grid-column:3 !important;
+  grid-row:2 !important;
+  margin:0 !important;
+}
+
+/* The prepared SVGs are the actual visual objects. */
+#mode-screen .mode-card .mc-icon{
+  width:76px !important;
+  height:76px !important;
+  min-width:76px !important;
+  min-height:76px !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  filter:drop-shadow(0 0 10px currentColor) !important;
+  display:grid !important;
+  place-items:center !important;
+}
+
+#mode-screen .mode-card .mc-icon img{
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  display:block !important;
+}
+
+#mode-screen .mode-card .mc-copy{
+  width:100% !important;
+  min-width:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  gap:2px !important;
+}
+
+#mode-screen .mode-card .mc-name{
+  font-size:12px !important;
+  line-height:1.1 !important;
+  font-weight:900 !important;
+  letter-spacing:.4px !important;
+  white-space:nowrap !important;
+  text-shadow:0 0 8px currentColor !important;
+}
+
+#mode-screen .mode-card .mc-desc{
+  display:none !important;
+}
+
+#mode-screen .mode-card .mc-best{
+  margin:1px 0 0 !important;
+  padding:2px 6px !important;
+  min-width:0 !important;
+  font-size:8px !important;
+  line-height:1.1 !important;
+  background:transparent !important;
+  border:0 !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  color:#9ca9d8 !important;
+}
+
+#mode-screen .mode-card::before,
+#mode-screen .mode-card::after{
+  display:none !important;
+  content:none !important;
+}
+
+#mode-screen .mode-card:hover{
+  transform:none !important;
+  filter:none !important;
+  box-shadow:none !important;
+}
+#mode-screen .mode-card:hover .mc-icon{
+  transform:scale(1.06) !important;
+}
+#mode-screen .mode-card:active{
+  transform:scale(.94) !important;
+}
+
+/* Narrow phones: keep all five objects comfortably inside one screen. */
+@media(max-width:380px){
+  #mode-screen .mode-grid{
+    max-width:330px !important;
+    column-gap:6px !important;
+    row-gap:14px !important;
+  }
+  #mode-screen .mode-card{
+    max-width:96px !important;
+  }
+  #mode-screen .mode-card .mc-icon{
+    width:68px !important;
+    height:68px !important;
+    min-width:68px !important;
+    min-height:68px !important;
+  }
+  #mode-screen .mode-card .mc-name{
+    font-size:11px !important;
+  }
+}
+
+/* Short phones: reduce only the object size, never introduce scrolling. */
+@media(max-height:680px){
+  #mode-screen:not(.hidden){
+    padding-top:8px !important;
+    padding-bottom:8px !important;
+  }
+  #mode-screen .mode-header{
+    min-height:54px !important;
+    margin-bottom:2px !important;
+  }
+  #mode-screen .mode-grid{
+    row-gap:10px !important;
+  }
+  #mode-screen .mode-card .mc-icon{
+    width:58px !important;
+    height:58px !important;
+    min-width:58px !important;
+    min-height:58px !important;
+  }
+}

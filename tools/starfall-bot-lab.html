@@ -145,11 +145,14 @@ function bindStageEnemyEditors(){
         document.querySelectorAll('.enemy-stage-editor.open').forEach(x=>x.classList.remove('open'));
         if(wasOpen)return;
         editor.classList.add('open');
-        editor.innerHTML='<h3>👾 '+esc(enemyNames[key]||key)+'</h3><div class="grid">'+
-          inp('rogue.enemies.'+key+'.hp','HP',e.hp)+
-          inp('rogue.enemies.'+key+'.speed','Скорость',e.speed)+
-          inp('rogue.enemies.'+key+'.size','Размер',e.size)+
-          '</div><p style="margin:9px 0 0"><small>Показатели меняются сразу в настройках баланса. Галочка слева определяет, появляется ли этот враг на данном этапе.</small></p>';
+        if(!editor.dataset.rendered){
+          editor.innerHTML='<h3>👾 '+esc(enemyNames[key]||key)+'</h3><div class="grid">'+
+            inp('rogue.enemies.'+key+'.hp','HP',e.hp)+
+            inp('rogue.enemies.'+key+'.speed','Скорость',e.speed)+
+            inp('rogue.enemies.'+key+'.size','Размер',e.size)+
+            '</div><p style="margin:9px 0 0"><small>Изменения остаются в текущем черновике. Галочка слева определяет, появляется ли этот враг на данном этапе.</small></p>';
+          editor.dataset.rendered='1';
+        }
       };
     });
   });
@@ -238,7 +241,24 @@ function collect(){document.querySelectorAll('[data-p]').forEach(e=>{let a=e.dat
     b.textContent='☁️ Сохранить в GitHub';
   }
 }
-$('gh').onclick=()=>save(true);$('loc').onclick=()=>save(false);enhanceCollapsibles();bindStageEnemyEditors();loadVersion();load().then(()=>{let tab=sessionStorage.getItem('botLabTab');if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}})</script></html>$('gh').onclick=()=>save(true);$('loc').onclick=()=>save(false);
-document.getElementById('editor').addEventListener('input',()=>{try{collect();localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}});
-document.getElementById('editor').addEventListener('change',()=>{try{collect();localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}});
-enhanceCollapsibles();bindStageEnemyEditors();loadVersion();load().then(()=>{let tab=sessionStorage.getItem('botLabTab');if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}})</script></html>
+$('gh').onclick=()=>save(true);
+$('loc').onclick=()=>save(false);
+document.getElementById('editor').addEventListener('input',()=>{
+  try{
+    collect();
+    localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
+  }catch{}
+});
+document.getElementById('editor').addEventListener('change',()=>{
+  try{
+    collect();
+    localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
+  }catch{}
+});
+enhanceCollapsibles();
+bindStageEnemyEditors();
+loadVersion();
+load().then(()=>{
+  let tab=sessionStorage.getItem('botLabTab');
+  if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}
+})</script></html>

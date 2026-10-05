@@ -59,6 +59,8 @@ UPGRADE_POOL = {
  echo:{id:'echo',name:'Эхо',icon:'👻',rarity:'rare',stacks:true,maxStacks:3,desc:'После смерти врага остаётся Эхо. Следующий враг, коснувшийся его, получает дополнительный эффект.',tags:['chain','kills']},
  shield:{id:'shield',name:'Щит',icon:'🛡',rarity:'common',stacks:true,maxStacks:3,desc:'Блокирует один контактный или снарядный удар. Когда щит полностью пробит, следующий полученный урон восстанавливает запас щитов.',tags:['defense']},
  orbit:{id:'orbit',name:'Орбита',icon:'🪐',rarity:'epic',stacks:true,maxStacks:3,desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',tags:['contact','area']}
+ ,lightning:{id:'lightning',name:'Молния',icon:'⚡',rarity:'epic',stacks:true,maxStacks:3,desc:'Автоматически бьёт ближайшего врага и цепляется к следующим целям. С каждым прыжком урон уменьшается.',tags:['auto','chain']}
+ ,vampirism:{id:'vampirism',name:'Вампиризм',icon:'🩸',rarity:'rare',stacks:true,maxStacks:3,desc:'Возвращает часть фактически нанесённого врагам урона. Максимум лечения от Вампиризма — 100 HP в секунду.',tags:['sustain','damage']}
 };
 
 /* ---------- RUN STATE ---------- */
@@ -88,6 +90,10 @@ var rogueKillChainTimer = 0;
 var roguePoisonZoneTimer = 0;
 var roguePoisonZoneActive = false;
 var roguePoisonZoneTick = 0;
+var rogueLightningCooldown = 0;
+var rogueLightningBolts = [];
+var rogueVampirismSecond = -1;
+var rogueVampirismHealedThisSecond = 0;
 
 var _rogueSaveReady = false;
 var _rogueSaveProfileRef = null;
@@ -285,6 +291,10 @@ reset = function reset() {
     roguePoisonZoneTimer = 0;
     roguePoisonZoneActive = false;
     roguePoisonZoneTick = 0;
+    rogueLightningCooldown = 0;
+    rogueLightningBolts = [];
+    rogueVampirismSecond = -1;
+    rogueVampirismHealedThisSecond = 0;
 
     // lives остаётся техническим флагом совместимости со старым кодом,
     // но больше не является здоровьем Roguelike.
@@ -373,6 +383,38 @@ function nativeContactDamage() {
     return 1;
 }
 
+/* ---------- UNIFIED ROGUELIKE DAMAGE ---------- */
+/* Every actual enemy damage event goes through this function.
+   Vampirism therefore works with contact, poison, lightning and all
+   other run-only damage sources without creating extra healing paths. */
+function rogueDealDamage(enemy, amount, source) {
+    if (currentMode !== 'rogue' || !enemy || enemy.hp <= 0) return 0;
+    amount = Math.max(0, Number(amount) || 0);
+    var before = Math.max(0, Number(enemy.hp) || 0);
+    var dealt = Math.min(before, amount);
+    if (dealt <= 0) return 0;
+
+    enemy.hp = Math.max(0, before - dealt);
+
+    if (runUpgrades.vampirism) {
+        var second = Math.floor((typeof frame === 'number' ? frame : 0) / 60);
+        if (second !== rogueVampirismSecond) {
+            rogueVampirismSecond = second;
+            rogueVampirismHealedThisSecond = 0;
+        }
+        var vampLevel = Math.max(1, Math.min(3, runUpgrades.vampirism));
+        var vampRatio = [0, 0.05, 0.10, 0.15][vampLevel];
+        var wantedHeal = dealt * vampRatio;
+        var room = Math.max(0, 100 - rogueVampirismHealedThisSecond);
+        var heal = Math.min(wantedHeal, room, Math.max(0, rogueMaxHP - rogueHP));
+        if (heal > 0) {
+            rogueHP += heal;
+            rogueVampirismHealedThisSecond += heal;
+        }
+    }
+    return dealt;
+}
+
 /* ---------- DAMAGE / 100 HP ---------- */
 function playerTakeDamage() {
     if (currentMode !== 'rogue') {
@@ -393,7 +435,7 @@ function playerTakeDamage() {
         enemies.forEach(function(e){
             var d = Math.hypot((e.x+e.size/2)-sx, (e.y+e.size/2)-sy);
             if(d < 55){
-                e.hp = Math.max(0, e.hp - shieldPower);
+                rogueDealDamage(e, shieldPower, 'shield');
                 e.hitFlash = 8;
             }
         });
@@ -546,6 +588,116 @@ function rogueEnsureShieldCapacity() {
     playerShields = Math.min(playerShields, maxShields);
 }
 
+/* ---------- LIGHTNING ---------- */
+/* Lightning is a completely independent effect.
+   Spread can extend its chain, but lightning never transfers poison
+   and never turns poison into a lightning target/conductor. */
+function rogueTriggerLightning() {
+    if (currentMode !== 'rogue' || !running || gameOver || !runUpgrades.lightning || !enemies.length) return;
+
+    var level = Math.max(1, Math.min(3, runUpgrades.lightning));
+    var candidates = enemies.filter(function(e){ return e && e.hp > 0; });
+    if (!candidates.length) return;
+
+    var px = player.x + player.size / 2;
+    var py = player.y + player.size / 2;
+    candidates.sort(function(a,b){
+        var ad=Math.hypot((a.x+a.size/2)-px,(a.y+a.size/2)-py);
+        var bd=Math.hypot((b.x+b.size/2)-px,(b.y+b.size/2)-py);
+        return ad-bd;
+    });
+
+    var chain = [candidates[0]];
+    var used = {};
+    used[candidates[0]._rogueId || (candidates[0]._rogueId='e'+Math.random())] = true;
+
+    var spreadLevel = runUpgrades.propagation ? Math.max(1,Math.min(3,runUpgrades.propagation)) : 0;
+    var spreadRadius = spreadLevel ? [0,90,125,165][spreadLevel] : 0;
+    var normalJumpRadius = 135;
+    var maxTargets = level; // without Spread: I=1, II=2, III=3 targets
+    var unlimited = !!spreadLevel;
+
+    while (chain.length < candidates.length) {
+        if (!unlimited && chain.length >= maxTargets) break;
+        var source = chain[chain.length - 1];
+        var sx=source.x+source.size/2, sy=source.y+source.size/2;
+        var best=null, bestD=Infinity;
+
+        candidates.forEach(function(target){
+            if (!target || target.hp<=0) return;
+            var key=target._rogueId || (target._rogueId='e'+Math.random());
+            if (used[key]) return;
+            var d=Math.hypot((target.x+target.size/2)-sx,(target.y+target.size/2)-sy);
+            var limit = unlimited ? spreadRadius : normalJumpRadius;
+            if (d <= limit && d < bestD) {
+                best=target;
+                bestD=d;
+            }
+        });
+
+        if (!best) break;
+        chain.push(best);
+        used[best._rogueId] = true;
+    }
+
+    var baseDamage = [0,8,12,16][level];
+    var falloff = [1,1,0.70,0.50,0.35,0.25];
+    var segments=[];
+    for (var i=0;i<chain.length;i++) {
+        var target=chain[i];
+        var damage=Math.max(1,Math.floor(baseDamage * (falloff[Math.min(i,falloff.length-1)] || 0.25)));
+        rogueDealDamage(target, damage, 'lightning');
+        target.hitFlash=7;
+        segments.push({
+            x:target.x+target.size/2,
+            y:target.y+target.size/2
+        });
+    }
+
+    if (segments.length) {
+        rogueLightningBolts.push({start:{x:px,y:py},points:segments,life:9,maxLife:9});
+        addParticles(segments[0].x,segments[0].y,'#8fe8ff',10,8);
+        screenShake=Math.max(screenShake,3);
+    }
+}
+
+function rogueTickLightning() {
+    if (rogueLightningCooldown > 0) rogueLightningCooldown--;
+    if (runUpgrades.lightning && rogueLightningCooldown <= 0) {
+        var level=Math.max(1,Math.min(3,runUpgrades.lightning));
+        rogueTriggerLightning();
+        rogueLightningCooldown=[0,180,140,100][level]; // 3.0 / 2.33 / 1.67 sec
+    }
+    for(var i=rogueLightningBolts.length-1;i>=0;i--){
+        rogueLightningBolts[i].life--;
+        if(rogueLightningBolts[i].life<=0) rogueLightningBolts.splice(i,1);
+    }
+}
+
+function rogueDrawLightning() {
+    if(currentMode!=='rogue' || !running || !rogueLightningBolts.length) return;
+    ctx.save();
+    rogueLightningBolts.forEach(function(bolt){
+        var alpha=Math.max(0,bolt.life/bolt.maxLife);
+        var pts=[bolt.start].concat(bolt.points);
+        ctx.globalAlpha=alpha;
+        ctx.lineWidth=5;
+        ctx.strokeStyle='#8fe8ff';
+        ctx.shadowColor='#8fe8ff';
+        ctx.shadowBlur=14;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x,pts[0].y);
+        for(var i=1;i<pts.length;i++){
+            var p=pts[i], prev=pts[i-1];
+            var mx=(prev.x+p.x)/2, my=(prev.y+p.y)/2;
+            ctx.lineTo(mx + (i%2 ? 7 : -7), my + (i%2 ? -5 : 5));
+            ctx.lineTo(p.x,p.y);
+        }
+        ctx.stroke();
+    });
+    ctx.restore();
+}
+
 /* ---------- RUN SYSTEM TICK ---------- */
 function rogueTickSystems() {
     if (currentMode !== 'rogue' || !running || gameOver) return;
@@ -608,7 +760,7 @@ function rogueTickSystems() {
             e._poisonTimer--;
             var poisonDamageTick = [0, 30, 24, 18][Math.max(1, Math.min(3, runUpgrades.poison || 1))];
             if (poisonDamageTick > 0 && frame % poisonDamageTick === 0) {
-                e.hp -= Math.max(1, runUpgrades.poison || 1);
+                rogueDealDamage(e, Math.max(1, runUpgrades.poison || 1), 'poison');
                 e.hitFlash = 4;
 
                 // First poison damage turns this enemy into a permanent propagation source.
@@ -621,13 +773,13 @@ function rogueTickSystems() {
         }
     });
 
-    // Propagation: a debuffed enemy becomes a permanent moving source after its
-    // first debuff hit. Any other enemy entering that source area receives the
-    // same debuff and can become a new source after its own first damage tick.
+    // Spread is a universal propagation modifier. Poison uses it for poison,
+    // while Lightning uses the same upgrade independently for lightning chaining.
     if (runUpgrades.poison && runUpgrades.propagation) {
+        var propagationLevel = Math.max(1, Math.min(3, runUpgrades.propagation));
+        var propagationRadius = [0,90,125,165][propagationLevel];
         var propagationPoisonLevel = Math.max(1, Math.min(3, runUpgrades.poison));
-        var propagationRadius = [0, 90, 125, 165][propagationPoisonLevel];
-        var propagationPoisonDuration = [0, 180, 240, 300][propagationPoisonLevel];
+        var propagationPoisonDuration = [0,180,240,300][propagationPoisonLevel];
 
         enemies.forEach(function(source){
             if (!source || source.hp <= 0 || source._rogueSpreadSource !== 'poison') return;
@@ -646,6 +798,8 @@ function rogueTickSystems() {
             });
         });
     }
+
+    rogueTickLightning();
 
     // Singularity
     rogueSingularities.forEach(function(g){
@@ -673,7 +827,7 @@ function rogueTickSystems() {
             var ed=Math.hypot(echo.x-(enemy.x+enemy.size/2),echo.y-(enemy.y+enemy.size/2));
             if(ed < enemy.size/2 + 18){
                 var echoDamage=2+echo.power;
-                enemy.hp=Math.max(0,enemy.hp-echoDamage);
+                rogueDealDamage(enemy, echoDamage, 'echo');
                 enemy.hitFlash=8;
                 addParticles(enemy.x+enemy.size/2,enemy.y+enemy.size/2,'#b388ff',10,8);
                 rogueEchoes.splice(eci,1);
@@ -696,7 +850,7 @@ function rogueTickSystems() {
                 var oy=player.y+player.size/2+Math.sin(o.angle)*o.distance;
                 enemies.forEach(function(e){
                     if(Math.hypot(ox-(e.x+e.size/2),oy-(e.y+e.size/2))<e.size/2+10){
-                        e.hp -= 1 + runUpgrades.orbit;
+                        rogueDealDamage(e, 1 + runUpgrades.orbit, 'orbit');
                         e.hitFlash=5;
                     }
                 });
@@ -727,7 +881,7 @@ function rogueDetectContact() {
         hitEnemy.rogueContactCooldown=12;
 
         var contactDamage=Math.max(1, Math.floor(playerDamage||1));
-        hitEnemy.hp=Math.max(0,hitEnemy.hp-contactDamage);
+        rogueDealDamage(hitEnemy, contactDamage, 'contact');
         hitEnemy.hitFlash=8;
         addParticles(hitEnemy.x+hitEnemy.size/2,hitEnemy.y+hitEnemy.size/2,'#ffffff',4,5);
 
@@ -740,7 +894,7 @@ function rogueDetectContact() {
                 enemies.forEach(function(e){
                     if(e===hitEnemy || e.hp<=0) return;
                     var d=Math.hypot((e.x+e.size/2)-px,(e.y+e.size/2)-py);
-                    if(d<radius) e.hp=Math.max(0,e.hp-(1+Math.floor(lvl/2)));
+                    if(d<radius) rogueDealDamage(e, 1+Math.floor(lvl/2), 'pulse');
                 });
                 addParticles(px,py,'#e040fb',20,12);
             }else{
@@ -1015,7 +1169,7 @@ function rogueDrawPoisonZone(){
 
 function rogueDrawPropagationZones(){
     if(currentMode!=='rogue' || !running || !runUpgrades.poison || !runUpgrades.propagation) return;
-    var lvl=Math.max(1,Math.min(3,runUpgrades.poison));
+    var lvl=Math.max(1,Math.min(3,runUpgrades.propagation));
     var radius=[0,90,125,165][lvl];
     var now=performance.now();
     ctx.save();
@@ -1066,4 +1220,5 @@ draw=function(){
     rogueDrawPropagationZones();
     rogueDrawXPOrbs();
     rogueDrawEnemyHealthBars();
+    rogueDrawLightning();
 };

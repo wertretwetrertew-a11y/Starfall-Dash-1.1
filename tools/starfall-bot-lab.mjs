@@ -1,7 +1,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
-import {execFileSync,execFile} from "node:child_process";
+import {execFileSync,spawn} from "node:child_process";
 import {randomBytes} from "node:crypto";
 
 const ROOT=process.cwd();
@@ -16,7 +16,7 @@ const UPDATE_HISTORY=path.join(ROOT,"config","update-history.json");
 const PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-lab.html"),"utf8");
 const IDEAS_PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-ideas.html"),"utf8");
 const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
-const TOKEN=randomBytes(18).toString("hex");
+const TOKEN=process.env.STARFALL_BOTLAB_TOKEN||randomBytes(18).toString("hex");
 
 function load(){return JSON.parse(fs.readFileSync(CONFIG,"utf8"))}
 function gitText(args){
@@ -43,8 +43,18 @@ function updateBotLabFromGitHub(){
 }
 function scheduleBotLabRestart(){
   const script=process.argv[1];
-  const env={...process.env,STARFALL_BOTLAB_RESTART_DELAY:"1200"};
-  const child=execFile(process.execPath,[script],{cwd:ROOT,env,windowsHide:true,stdio:"ignore"});
+  const env={
+    ...process.env,
+    STARFALL_BOTLAB_RESTART_DELAY:"1200",
+    STARFALL_BOTLAB_TOKEN:TOKEN
+  };
+  const child=spawn(process.execPath,[script],{
+    cwd:ROOT,
+    env,
+    windowsHide:true,
+    detached:true,
+    stdio:"ignore"
+  });
   child.unref();
   setTimeout(()=>process.exit(0),500);
 }
@@ -425,7 +435,7 @@ const server=http.createServer(async(req,res)=>{
         return send(res,200,"application/json",JSON.stringify({success:false,updated:false,version:gameVersion(),message:e.message}));
       }
     }
-    if(u.pathname==="/api/version"&&req.method==="GET"){const v=gameVersion();return send(res,200,"application/json",JSON.stringify({version:v,balanceVersion:v,source:"config/roguelike-balance.json + index.html"}));}
+    if(u.pathname==="/api/version"&&req.method==="GET"){const v=gameVersion();return send(res,200,"application/json",JSON.stringify({version:v,balanceVersion:v,commit:headSha(),source:"config/roguelike-balance.json + index.html"}));}
     if(u.pathname==="/api/updates"&&req.method==="GET"){const h=loadUpdateHistory();return send(res,200,"application/json",JSON.stringify({currentVersion:gameVersion(),updates:h.updates.slice().reverse()}));}
     if(u.pathname==="/api/balance"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(load()));
     if(u.pathname==="/api/bugs"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(loadBugs()));

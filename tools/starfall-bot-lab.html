@@ -138,7 +138,6 @@ function bindStageEnemyEditors(){
       btn.onclick=(ev)=>{
         ev.preventDefault();
         ev.stopPropagation();
-        collect();
         const key=cb.value;
         const e=data.rogue.enemies[key];
         const wasOpen=editor.classList.contains('open');
@@ -204,7 +203,22 @@ function renderEditor(){
   bindStageEnemyEditors();
   document.querySelectorAll('#editor .collapsible').forEach(x=>x.classList.add('collapsed'));
 }
-function collect(){document.querySelectorAll('[data-p]').forEach(e=>{let a=e.dataset.p.split('.'),x=data;for(let i=0;i<a.length-1;i++)x=x[a[i]];x[a[a.length-1]]=e.dataset.t?e.value.split(',').map(s=>s.trim()).filter(Boolean):Number(e.value)});document.querySelectorAll('[data-stage-pool]').forEach(e=>{let a=e.dataset.stagePool.split('.'),s=data.rogue.stages[a[0]][Number(a[1])];s.pool=[...document.querySelectorAll('[data-stage-pool="'+e.dataset.stagePool+'"]:checked')].map(x=>x.value)})}async function save(push){
+function collect(){
+  document.querySelectorAll('[data-p]').forEach(e=>{
+    let path=e.dataset.p;
+    let a=path.split('.'),x=data;
+    for(let i=0;i<a.length-1;i++)x=x[a[i]];
+    x[a[a.length-1]]=e.dataset.t?e.value.split(',').map(s=>s.trim()).filter(Boolean):Number(e.value);
+  });
+  document.querySelectorAll('[data-stage-pool]').forEach(e=>{
+    let a=e.dataset.stagePool.split('.'),s=data.rogue.stages[a[0]][Number(a[1])];
+    s.pool=[...document.querySelectorAll('[data-stage-pool="'+e.dataset.stagePool+'"]:checked')].map(x=>x.value);
+  });
+  // Keep duplicated global/inline fields visually and logically identical.
+  document.querySelectorAll('[data-p]').forEach(e=>{
+    document.querySelectorAll('[data-p="'+e.dataset.p.replace(/"/g,'\\\"')+'"]').forEach(other=>{if(other!==e)other.value=e.value});
+  });
+}async function save(push){
   collect();
   if(!push){
     saveDraft(true);
@@ -243,15 +257,28 @@ function collect(){document.querySelectorAll('[data-p]').forEach(e=>{let a=e.dat
 }
 $('gh').onclick=()=>save(true);
 $('loc').onclick=()=>save(false);
-document.getElementById('editor').addEventListener('input',()=>{
-  try{
-    collect();
-    localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
-  }catch{}
+function readInputValue(el){
+  return el.dataset.t ? el.value.split(',').map(s=>s.trim()).filter(Boolean) : Number(el.value);
+}
+function syncFieldFromInput(el){
+  const path=el.dataset.p;
+  if(!path)return;
+  const a=path.split('.');
+  let x=data;
+  for(let i=0;i<a.length-1;i++)x=x[a[i]];
+  x[a[a.length-1]]=readInputValue(el);
+  document.querySelectorAll('[data-p="'+path.replace(/"/g,'\\\"')+'"]').forEach(other=>{
+    if(other!==el)other.value=el.value;
+  });
+  localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
+}
+document.getElementById('editor').addEventListener('input',e=>{
+  try{if(e.target&&e.target.matches('[data-p]'))syncFieldFromInput(e.target)}catch{}
 });
-document.getElementById('editor').addEventListener('change',()=>{
+document.getElementById('editor').addEventListener('change',e=>{
   try{
-    collect();
+    if(e.target&&e.target.matches('[data-p]'))syncFieldFromInput(e.target);
+    else collect();
     localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
   }catch{}
 });

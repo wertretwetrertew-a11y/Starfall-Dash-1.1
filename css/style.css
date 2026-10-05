@@ -6051,3 +6051,29 @@ body.rogue-hud #hud-top-row #hud-combo.pulse{
         margin-top: -26px;
     }
 }
+
+
+/* ==========================================================
+   GAME VERSION — always visible in the main menu
+   ========================================================== */
+#start-screen .game-version {
+    position: absolute;
+    left: 50%;
+    bottom: max(8px, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 12;
+    pointer-events: none;
+    color: rgba(255,255,255,.48);
+    font: 700 10px/1.2 Segoe UI, Arial, sans-serif;
+    letter-spacing: .8px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+@media (max-width: 800px) {
+    #start-screen .game-version {
+        bottom: max(6px, env(safe-area-inset-bottom));
+        font-size: 9px;
+        letter-spacing: .7px;
+    }
+}

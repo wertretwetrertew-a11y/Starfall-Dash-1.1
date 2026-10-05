@@ -91,7 +91,9 @@ function summarizeBalanceChanges(before,after){
       changes.push(p||"balance"); return;
     }
     if(Array.isArray(a)){
-      if(JSON.stringify(a)!==JSON.stringify(b))changes.push(p||"balance");
+      if(!Array.isArray(b)){changes.push(p||"balance");return;}
+      const max=Math.max(a.length,b.length);
+      for(let i=0;i<max;i++)walk(a[i],b[i],(p?p+".":"")+i);
       return;
     }
     if(a&&typeof a==="object"){
@@ -103,6 +105,24 @@ function summarizeBalanceChanges(before,after){
   };
   walk(before,after,"");
   return [...new Set(changes)].filter(x=>x!=="gameVersion").slice(0,80);
+}
+
+function validateBalanceForSave(before,nextData){
+  const beforeStages=before&&before.rogue&&before.rogue.stages;
+  const nextStages=nextData&&nextData.rogue&&nextData.rogue.stages;
+  if(!beforeStages||!nextStages) throw new Error("Некорректный баланс: отсутствует rogue.stages.");
+  for(const planet of Object.keys(beforeStages)){
+    if(!Array.isArray(nextStages[planet])) throw new Error("Не удалось сохранить этапы планеты "+planet+": список этапов отсутствует.");
+    if(nextStages[planet].length!==beforeStages[planet].length){
+      throw new Error("Не удалось сохранить этапы планеты "+planet+": ожидалось "+beforeStages[planet].length+" этапа, получено "+nextStages[planet].length+".");
+    }
+    for(let i=0;i<beforeStages[planet].length;i++){
+      if(!nextStages[planet][i]||typeof nextStages[planet][i]!=="object"){
+        throw new Error("Не удалось сохранить этап "+(i+1)+" планеты "+planet+": данные этапа потеряны.");
+      }
+    }
+  }
+  return true;
 }
 
 function summarizeBalanceUpdate(changes,before,after){
@@ -423,6 +443,7 @@ const server=http.createServer(async(req,res)=>{
       const nextData=p.data&&typeof p.data==="object"?p.data:before;
       nextData.gameVersion=nextVersion;
       const changed=summarizeBalanceChanges(before,nextData);
+      validateBalanceForSave(before,nextData);
 
       try{
         save(nextData);

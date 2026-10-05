@@ -55,8 +55,6 @@ CHARACTER_CLASSES = {
 UPGRADE_POOL = {
  poison:{id:'poison',name:'Яд',icon:'☠️',rarity:'common',stacks:true,maxStacks:3,desc:'Периодически создаёт вокруг героя ядовитую область. Враги внутри получают периодический урон.',tags:['status','area']},
  propagation:{id:'propagation',name:'Распространение',icon:'🦠',rarity:'rare',stacks:true,maxStacks:3,desc:'Распространяет эффекты, которые поддерживают цепное распространение: яд и молнию — независимо друг от друга.',tags:['status','chain']},
- singularity:{id:'singularity',name:'Сингулярность',icon:'🕳️',rarity:'epic',stacks:true,maxStacks:3,desc:'Убийства создают гравитационные точки, притягивающие врагов к месту смерти.',tags:['control','kills']},
- echo:{id:'echo',name:'Эхо',icon:'👻',rarity:'rare',stacks:true,maxStacks:3,desc:'После смерти врага остаётся Эхо. Следующий враг, коснувшийся его, получает дополнительный эффект.',tags:['chain','kills']},
  shield:{id:'shield',name:'Щит',icon:'🛡',rarity:'common',stacks:true,maxStacks:3,desc:'Блокирует один контактный или снарядный удар. Когда щит полностью пробит, следующий полученный урон восстанавливает запас щитов.',tags:['defense']},
  orbit:{id:'orbit',name:'Орбита',icon:'🪐',rarity:'epic',stacks:true,maxStacks:3,desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',tags:['contact','area']},
  lightning:{id:'lightning',name:'Молния',icon:'⚡',rarity:'epic',stacks:true,maxStacks:3,desc:'Автоматически бьёт ближайшего врага и цепляется к следующим целям. С каждым прыжком урон уменьшается.',tags:['auto','chain']},
@@ -77,8 +75,6 @@ var roguePhaseTimer = 0;
 var roguePhaseReady = false;
 var rogueContactTimer = 0;
 var roguePulseMarks = {};
-var rogueEchoes = [];
-var rogueSingularities = [];
 var rogueLastBossState = 'none';
 var rogueNativeBoost = 0;
 var rogueNativeTriggered = false;
@@ -278,8 +274,6 @@ reset = function reset() {
     roguePhaseReady = false;
     rogueContactTimer = 0;
     roguePulseMarks = {};
-    rogueEchoes = [];
-    rogueSingularities = [];
     rogueLastBossState = 'none';
     rogueNativeBoost = 0;
     rogueNativeTriggered = false;
@@ -559,13 +553,6 @@ function rogueRegisterKill(enemy) {
     var rapidKill = rogueKillChainTimer > 0;
     rogueKillChainTimer = 90;
 
-    if (runUpgrades.singularity) {
-        rogueSingularities.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:240,power:runUpgrades.singularity,empoweredTimer:0});
-    }
-    if (runUpgrades.echo) {
-        rogueEchoes.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:180,power:runUpgrades.echo});
-    }
-
     // Propagation is no longer death-triggered.
     // A debuff spreads while its persistent source area is active.
 }
@@ -800,44 +787,6 @@ function rogueTickSystems() {
     }
 
     rogueTickLightning();
-
-    // Singularity
-    rogueSingularities.forEach(function(g){
-        g.life--;
-        if(g.empoweredTimer>0) g.empoweredTimer--;
-        var effectivePower = g.power * (g.empoweredTimer>0 ? 1.8 : 1);
-        var radius=85+effectivePower*15;
-        enemies.forEach(function(e){
-            var ex=e.x+e.size/2, ey=e.y+e.size/2;
-            var dx=g.x-ex, dy=g.y-ey, d=Math.hypot(dx,dy);
-            if(d>2 && d<radius){
-                var force=(effectivePower/25)*(1-d/radius);
-                e.x += dx*force; e.y += dy*force;
-            }
-        });
-    });
-    rogueSingularities=rogueSingularities.filter(function(g){return g.life>0;});
-
-    // Echo: the next enemy that physically touches the Echo is hit and consumes it.
-    for(var eci=rogueEchoes.length-1; eci>=0; eci--){
-        var echo=rogueEchoes[eci];
-        var consumed=false;
-        for(var eji=0; eji<enemies.length; eji++){
-            var enemy= enemies[eji];
-            var ed=Math.hypot(echo.x-(enemy.x+enemy.size/2),echo.y-(enemy.y+enemy.size/2));
-            if(ed < enemy.size/2 + 18){
-                var echoDamage=2+echo.power;
-                rogueDealDamage(enemy, echoDamage, 'echo');
-                enemy.hitFlash=8;
-                addParticles(enemy.x+enemy.size/2,enemy.y+enemy.size/2,'#b388ff',10,8);
-                rogueEchoes.splice(eci,1);
-                consumed=true;
-                break;
-            }
-        }
-        if(!consumed) echo.life--;
-    }
-    rogueEchoes=rogueEchoes.filter(function(e){return e.life>0;});
 
     // Orbiters.
     if (runUpgrades.orbit) {
@@ -1079,8 +1028,6 @@ function clearRogueRunState() {
     rogueHeat=0;
     rogueOverload=0;
     rogueBloodCharges=0;
-    rogueEchoes=[];
-    rogueSingularities=[];
 }
 
 /* Ensure old reset cannot carry old upgrade data into the new run. */

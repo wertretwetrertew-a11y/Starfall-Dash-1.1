@@ -7,6 +7,7 @@ import {randomBytes} from "node:crypto";
 const ROOT=process.cwd();
 const CONFIG=path.join(ROOT,"config","roguelike-balance.json");
 const RUNTIME=path.join(ROOT,"js","balance-config.js");
+const GAME_RUNTIME=path.join(ROOT,"src","data","roguelike-balance.js");
 const BUGS=path.join(ROOT,"config","bugs.json");
 const IDEAS=path.join(ROOT,"config","ideas.json");
 const ANALYTICS=path.join(ROOT,"config","analytics-events.json");
@@ -92,9 +93,10 @@ function runtime(data){
 function save(data){
   fs.writeFileSync(CONFIG,JSON.stringify(data,null,2)+"\n");
   fs.writeFileSync(RUNTIME,runtime(data));
+  fs.writeFileSync(GAME_RUNTIME,runtime(data));
 }
 function commit(){
-  execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js"],{cwd:ROOT,stdio:"pipe"});
+  execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js","src/data/roguelike-balance.js"],{cwd:ROOT,stdio:"pipe"});
   return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"});
 }
 function ensureRemote(){

@@ -68,7 +68,8 @@ var STARFALL_BALANCE = {
             "target": 6
           },
           "pool": [
-            "miniboss"
+            "miniboss",
+            "laser"
           ]
         }
       ],
@@ -292,7 +293,7 @@ var STARFALL_BALANCE = {
       },
       "laser": {
         "hp": 15,
-        "speed": 1.8,
+        "speed": 1.5,
         "size": 32
       }
     },

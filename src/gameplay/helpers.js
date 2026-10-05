@@ -36,6 +36,37 @@ var SF_PARTICLE_BUDGET_FRAME = -1;
 var SF_PARTICLE_BUDGET_USED = 0;
 var SF_PARTICLE_POOL = [];
 
+// v3.2.2: cache tiny particle sprites so draw() does not rebuild an arc/path
+// for every particle on every render frame. The particle's alpha and size
+// remain dynamic, while the circle geometry is rendered once per color.
+var SF_PARTICLE_SPRITE_CACHE = Object.create(null);
+var SF_PARTICLE_SPRITE_KEYS = [];
+var SF_PARTICLE_SPRITE_CACHE_CAP = 48;
+
+function sfGetParticleSprite(color) {
+    color = color || '#fff';
+    var cached = SF_PARTICLE_SPRITE_CACHE[color];
+    if (cached) return cached;
+
+    if (SF_PARTICLE_SPRITE_KEYS.length >= SF_PARTICLE_SPRITE_CACHE_CAP) {
+        var oldKey = SF_PARTICLE_SPRITE_KEYS.shift();
+        delete SF_PARTICLE_SPRITE_CACHE[oldKey];
+    }
+
+    var sprite = document.createElement('canvas');
+    sprite.width = 16;
+    sprite.height = 16;
+    var sctx = sprite.getContext('2d');
+    sctx.fillStyle = color;
+    sctx.beginPath();
+    sctx.arc(8, 8, 8, 0, Math.PI * 2);
+    sctx.fill();
+
+    SF_PARTICLE_SPRITE_CACHE[color] = sprite;
+    SF_PARTICLE_SPRITE_KEYS.push(color);
+    return sprite;
+}
+
 function sfAcquireParticle() {
     return SF_PARTICLE_POOL.length ? SF_PARTICLE_POOL.pop() : {};
 }

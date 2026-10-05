@@ -85,7 +85,7 @@ function makeDefaultSave() {
         freeCases: { common:0, rare:0, epic:0, legendary:0, mythic:0 },
         claimedAchievements: [],
         dailyStreak: 0, lastDailyClaim: null, dailyHistory: [],
-        showLevelToast: true, showWeather: true,
+        showLevelToast: true, showWeather: true, joystickSide: 'left',
         modeBests: {
             rogue: { coins: 0, time: 0 },
             classic: { coins: 0, time: 0 },

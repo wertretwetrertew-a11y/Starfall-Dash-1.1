@@ -653,7 +653,9 @@ if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7 && !(current
             }
         } else if (et.shape === 'boss') {
             e.y += e.speed;
-            if (e.y > 60 && e.y < canvas.height * 0.4) e.y -= e.speed;
+            // Мини-босс держится ниже верхней зоны, чтобы его было хорошо видно на мобильном экране.
+            var miniBossY = Math.max(140, canvas.height * 0.24);
+            if (e.y > miniBossY) e.y -= e.speed;
             e.x += Math.sin(e.wobble * 0.3) * 1.5;
             e.x = Math.max(10, Math.min(canvas.width - e.size - 10, e.x));
             e.shootTimer--;

@@ -6451,3 +6451,97 @@ body.rogue-hud #hud-top-row #hud-combo.pulse{
 }
 
 /* VERSION BUMP — v3.0.4 */
+
+
+/* ==========================================================
+   MANUAL ORIENTATION PREFERENCE
+   ========================================================== */
+#settings-modal .orientation-actions{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  justify-content:flex-end !important;
+  gap:5px !important;
+}
+#settings-modal .orientation-actions .modal-btn{
+  white-space:nowrap !important;
+  font-size:11px !important;
+  padding:7px 8px !important;
+}
+
+/* Force the selected layout even when the physical phone orientation
+   differs from the preference. */
+@media (orientation: portrait) {
+  body.orientation-landscape #game-wrap{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    width:100dvh !important;
+    height:100vw !important;
+    transform:translate(-50%,-50%) rotate(90deg) !important;
+    transform-origin:center center !important;
+  }
+  body.orientation-landscape #game{
+    width:calc(100dvh - 24px) !important;
+    max-width:none !important;
+    max-height:calc(100vw - 92px) !important;
+    aspect-ratio:16 / 9 !important;
+    margin:52px auto 40px !important;
+  }
+  body.orientation-landscape #hud{
+    max-width:calc(100dvh - 20px) !important;
+  }
+  body.orientation-landscape #joystick-zone{
+    left:max(16px,env(safe-area-inset-left)) !important;
+  }
+}
+
+@media (orientation: landscape) {
+  body.orientation-portrait #game-wrap{
+    position:absolute !important;
+    left:50% !important;
+    top:50% !important;
+    width:100dvh !important;
+    height:100vw !important;
+    transform:translate(-50%,-50%) rotate(-90deg) !important;
+    transform-origin:center center !important;
+  }
+  body.orientation-portrait #game{
+    width:calc(100dvh - 24px) !important;
+    max-width:600px !important;
+    max-height:calc(100vw - 500px) !important;
+    aspect-ratio:3 / 2 !important;
+    margin:350px auto 0 !important;
+  }
+}
+
+/* Preference-selected landscape layout inside the rotated portrait viewport. */
+@media (orientation: portrait) {
+  body.orientation-landscape #hud{
+    top:max(5px,env(safe-area-inset-top)) !important;
+    padding:4px 9px !important;
+    gap:7px !important;
+    z-index:40 !important;
+  }
+  body.orientation-landscape #hud-top-row{gap:7px !important;}
+  body.orientation-landscape #hud-top-row .hud-item,
+  body.orientation-landscape #hud-top-row #hud-mode,
+  body.orientation-landscape #hud-top-row #hud-timer{font-size:10px !important;}
+  body.orientation-landscape #hud-bars-row{gap:6px !important;}
+  body.orientation-landscape #hud-combo{top:54px !important;}
+  body.orientation-landscape #rogue-stage-objective.rogue-top-hud{
+    top:52px !important;
+    width:48vw !important;
+    transform:translateX(-50%) scale(.82) !important;
+  }
+  body.orientation-landscape #mobile-controls{height:150px !important;}
+  body.orientation-landscape #joystick-zone{
+    bottom:max(14px,env(safe-area-inset-bottom)) !important;
+    width:112px !important;height:112px !important;
+  }
+  body.orientation-landscape #joystick-knob{
+    width:50px !important;height:50px !important;
+    margin-left:-25px !important;margin-top:-25px !important;
+  }
+}
+
+/* VERSION BUMP — v3.0.5 */

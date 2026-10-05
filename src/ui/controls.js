@@ -27,6 +27,18 @@ var joyVector = { x: 0, y: 0 };
 var JOY_MAX = 42;
 var JOY_DEAD_ZONE = 7;
 
+function applyJoystickSide(side) {
+    side = side === 'right' ? 'right' : 'left';
+    if (document.body) {
+        document.body.classList.toggle('joystick-right', side === 'right');
+        document.body.classList.toggle('joystick-left', side !== 'right');
+    }
+}
+
+try {
+    if (typeof getSave === 'function') applyJoystickSide(getSave().joystickSide || 'left');
+} catch (_) {}
+
 function positionFloatingJoystick(x, y) {
     if (!joyZone) return;
     var size = joyZone.getBoundingClientRect().width || 150;

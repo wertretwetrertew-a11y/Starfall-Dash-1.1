@@ -1838,8 +1838,11 @@ function loop(now) {
         accumulated = frameBudget;
     }
 
-    var stepCount = 0;
-    while (accumulated >= frameBudget && stepCount < 3) {
+    // v3.1.5: не допускаем каскад из 2–3 update() за один render-frame.
+    // Если устройство не успело обработать кадр, выполняем максимум один
+    // игровой тик и сбрасываем накопившийся backlog. Это не меняет механику
+    // игры в штатном режиме, но предотвращает CPU-пики и цепную просадку FPS.
+    if (accumulated >= frameBudget) {
         try { update(); } catch (e) {
             console.error('❌ update() ERROR:', e.message);
             console.error('   stack:', e.stack);
@@ -1849,8 +1852,15 @@ function loop(now) {
                 if (typeof showToast === 'function') showToast('⚠ ' + e.message, 'error');
             }
         }
+
         accumulated -= frameBudget;
-        stepCount++;
+
+        // Не пытаемся догонять пропущенные тики в этом же кадре.
+        // Остаток больше одного тика отбрасываем, чтобы следующая RAF
+        // не получила ещё один/два update() подряд.
+        if (accumulated >= frameBudget) {
+            accumulated = 0;
+        }
     }
 
     try { draw(); } catch (e) {

@@ -315,7 +315,8 @@ function simulate(balance,opts){
   const result={
     meta:{runs,profile:profile.label,seed:Number(opts.seed)||20260929,baseDamage,baseHp,model:"Balance Simulator v1"},
     summary:{started:runs,completed:0,planetCompleted:0,stagesCompleted:0,deaths:0,avgSurvivalSeconds:0,avgKills:0,avgGold:0,avgCrystals:0,avgLevels:0,avgUpgrades:0,avgDamageTaken:0,bossesDefeated:0,bossesAttempted:0},
-    stages:[], enemies:{}, bosses:{}, upgrades:{}
+    stages:[], enemies:{}, bosses:{}, upgrades:{},
+    runDetails:[], detailsMeta:{totalRuns:runs,storedRuns:0,limit:200}
   };
   for(const [planet,stages] of planets) for(let si=0;si<stages.length;si++) result.stages.push({planet,stage:si+1,attempts:0,completed:0,deaths:0,avgSeconds:0,avgKills:0,avgDamageTaken:0});
   for(const k of Object.keys(balance.rogue.enemies)) result.enemies[k]={spawned:0,killed:0,damageTaken:0,deaths:0};
@@ -327,10 +328,12 @@ function simulate(balance,opts){
     let hp=baseHp,shields=0,damage=baseDamage*profile.damage,speed=profile.move;
     let crit=0,dodge=0,thorns=0,regen=0,vampire=0,chain=0,slow=1;
     let gold=0,crystals=0,kills=0,levels=1,upgrades=0,damageTaken=0,elapsed=0,alive=true,upgradeCursor=0;
+    const runDetail={run:run+1,result:"in_progress",durationSec:0,level:1,kills:0,gold:0,crystals:0,damageTaken:0,upgrades:[],stages:[],killsByEnemy:{},death:null,bosses:[]};
     const pickUpgrade=()=>{
       const bias=profile.upgradeBias;
       const pool=Object.keys(UPGRADE_INFO).slice().sort((a,b)=>{const ai=bias.indexOf(a),bi=bias.indexOf(b);return (bi<0?99:bi)-(ai<0?99:ai)||rng()-.5});
       const id=pool[(upgradeCursor+Math.floor(rng()*Math.min(4,pool.length)))%pool.length];upgradeCursor++;upgrades++;result.upgrades[id].picked++;
+      runDetail.upgrades.push(UPGRADE_INFO[id]?.label||id);
       if(id==="damage")damage+=1;if(id==="crit")crit=Math.min(.75,crit+.15);if(id==="dodge")dodge=Math.min(.75,dodge+.15);if(id==="speed")speed*=1.06;if(id==="shield")shields++;if(id==="thorns")thorns+=2;if(id==="regen")regen+=.35;if(id==="vampire")vampire+=.05;if(id==="chain")chain++;if(id==="time_slow")slow*=.9;if(id==="glass_cannon"){damage+=3;hp-=1}if(id==="berserk")damage*=1.04;
     };
     outer:
@@ -349,26 +352,30 @@ function simulate(balance,opts){
         const expectedHits=incomingPerSec*targetTime,effectiveHp=hp+shields+regen*targetTime/3+vampire*kills,randomHits=expectedHits*(.72+.56*rng()),lethal=randomHits>=effectiveHp,stageDamage=Math.max(0,randomHits);
         damageTaken+=stageDamage;elapsed+=targetTime;
         const stageKills=Math.max(0,Math.floor(killRate*targetTime*(.82+.3*rng())));kills+=stageKills;gold+=Math.floor(stageKills*(2+levels*.4));if(stageKills>=8)levels+=Math.floor(stageKills/8);
-        for(let n=0;n<stageKills;n++){const k=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[k].killed++;if(rng()<.18)crystals++}
+        const stageDetail={planet,stage:si+1,objective:kind,target,seconds:targetTime,kills:stageKills,damageTaken:stageDamage,status:"passed",enemiesKilled:{}};
+        for(let n=0;n<stageKills;n++){const k=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[k].killed++;stageDetail.enemiesKilled[k]=(stageDetail.enemiesKilled[k]||0)+1;runDetail.killsByEnemy[k]=(runDetail.killsByEnemy[k]||0)+1;if(rng()<.18)crystals++}
+        runDetail.stages.push(stageDetail);
         for(const k of pool)result.enemies[k].spawned+=Math.max(0,Math.floor(spawnRate*targetTime/pool.length));
         if(stageDamage>0)for(const k of pool)result.enemies[k].damageTaken+=stageDamage/pool.length;
         while(upgrades<Math.floor(kills/8))pickUpgrade();
-        if(lethal){alive=false;row.deaths++;result.summary.deaths++;const dk=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[dk].deaths++;totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;break outer}
+        if(lethal){alive=false;row.deaths++;result.summary.deaths++;const dk=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[dk].deaths++;const lastStage=runDetail.stages[runDetail.stages.length-1];if(lastStage)lastStage.status="death";runDetail.death={by:dk,stage:si+1,planet,reason:"Враг нанёс смертельный урон",message:"Игрок погиб на этапе "+(si+1)+" планеты "+planet+" от врага «"+dk+"»."};runDetail.result="death";totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;break outer}
         hp=Math.min(baseHp+shields,Math.max(1,hp-stageDamage*.55+regen*targetTime/4+vampire*stageKills));row.completed++;row.avgSeconds+=targetTime;row.avgKills+=stageKills;row.avgDamageTaken+=stageDamage;result.summary.stagesCompleted++;
       }
       if(alive){
         result.summary.planetCompleted++;const bossKey=pi===0?"dragon":pi===1?"titan":"devourer",b=balance.rogue.bosses[bossKey];
-        if(b){result.summary.bossesAttempted++;result.bosses[bossKey].attempted++;const bossDps=Math.max(.1,(2+damage)*8*(1+crit*.6)*.42),fight=Math.max(1,b.hp/bossDps),bossHits=fight*(.06+profile.contact*.35)*(1-dodge*.55),bossEffectiveHp=hp+shields+regen*fight/3+vampire*kills;result.bosses[bossKey].avgFightSeconds+=fight;
-          if(bossHits>=bossEffectiveHp){alive=false;result.bosses[bossKey].deaths++;result.summary.deaths++;elapsed+=fight;totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken+bossHits;break outer}
+        if(b){result.summary.bossesAttempted++;result.bosses[bossKey].attempted++;const bossDps=Math.max(.1,(2+damage)*8*(1+crit*.6)*.42),fight=Math.max(1,b.hp/bossDps),bossHits=fight*(.06+profile.contact*.35)*(1-dodge*.55),bossEffectiveHp=hp+shields+regen*fight/3+vampire*kills;runDetail.bosses.push({boss:bossKey,seconds:fight,status:"defeated"});result.bosses[bossKey].avgFightSeconds+=fight;
+          if(bossHits>=bossEffectiveHp){alive=false;runDetail.bosses[runDetail.bosses.length-1].status="death";result.bosses[bossKey].deaths++;result.summary.deaths++;runDetail.death={by:bossKey,stage:si+1,planet,reason:"Босс нанёс смертельный урон",message:"Игрок погиб в бою с боссом «"+bossKey+"»."};runDetail.result="death";elapsed+=fight;totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken+bossHits;break outer}
           elapsed+=fight;result.bosses[bossKey].defeated++;result.summary.bossesDefeated++;gold+=b.rewardGold||0;crystals+=b.rewardCrystals||0;hp=Math.min(baseHp+shields,Math.max(1,hp-bossHits*.6+regen*fight/3));
         }
       }
     }
-    if(alive)result.summary.completed++;totalSurvival+=alive?elapsed:0;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;
+    if(alive){result.summary.completed++;runDetail.result="completed";}totalSurvival+=alive?elapsed:0;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;
+    runDetail.durationSec=elapsed;runDetail.level=levels;runDetail.kills=kills;runDetail.gold=gold;runDetail.crystals=crystals;runDetail.damageTaken=damageTaken;result.runDetails.length<200&&result.runDetails.push(runDetail);
   }
   const denom=runs||1;result.summary.avgSurvivalSeconds=totalSurvival/denom;result.summary.avgKills=totalKills/denom;result.summary.avgGold=totalGold/denom;result.summary.avgCrystals=totalCrystals/denom;result.summary.avgLevels=totalLevels/denom;result.summary.avgUpgrades=totalUpgrades/denom;result.summary.avgDamageTaken=totalDamage/denom;
   for(const r of result.stages)if(r.completed){r.avgSeconds/=r.completed;r.avgKills/=r.completed;r.avgDamageTaken/=r.completed}
   for(const k of Object.keys(result.bosses))if(result.bosses[k].defeated)result.bosses[k].avgFightSeconds/=result.bosses[k].defeated;
+  result.detailsMeta.storedRuns=result.runDetails.length;
   return result;
 }
 

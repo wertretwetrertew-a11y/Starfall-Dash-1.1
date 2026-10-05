@@ -32,7 +32,7 @@
           "hpMult": 1.02,
           "objective": {
             "kind": "time",
-            "target": 90
+            "target": 60
           },
           "pool": [
             "normal",
@@ -48,7 +48,7 @@
           "hpMult": 1.06,
           "objective": {
             "kind": "kills",
-            "target": 25
+            "target": 15
           },
           "pool": [
             "normal",
@@ -334,5 +334,5 @@
       }
     }
   },
-  "gameVersion": "3.3.9"
+  "gameVersion": "3.3.10"
 }

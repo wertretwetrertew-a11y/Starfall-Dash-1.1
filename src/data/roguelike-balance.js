@@ -33,7 +33,7 @@ var STARFALL_BALANCE = {
           "hpMult": 1.02,
           "objective": {
             "kind": "time",
-            "target": 90
+            "target": 60
           },
           "pool": [
             "normal",
@@ -49,7 +49,7 @@ var STARFALL_BALANCE = {
           "hpMult": 1.06,
           "objective": {
             "kind": "kills",
-            "target": 25
+            "target": 15
           },
           "pool": [
             "normal",
@@ -335,7 +335,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.9"
+  "gameVersion": "3.3.10"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

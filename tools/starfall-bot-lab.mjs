@@ -16,7 +16,7 @@ const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
 const TOKEN=randomBytes(18).toString("hex");
 
 function load(){return JSON.parse(fs.readFileSync(CONFIG,"utf8"))}
-function gameVersion(){try{const index=fs.readFileSync(path.join(ROOT,"index.html"),"utf8");const m=index.match(/class=["']game-version["'][^>]*>\\s*v?([^<\\s]+)\\s*</i);return m?m[1]:"неизвестна"}catch(e){return "неизвестна"}}
+function gameVersion(){try{const index=fs.readFileSync(path.join(ROOT,"index.html"),"utf8");const m=index.match(/class=["']game-version["'][^>]*>\s*v?([^<\s]+)\s*</i);return m?m[1]:"неизвестна"}catch(e){return "неизвестна"}}
 function loadAnalytics(){
   try{const d=JSON.parse(fs.readFileSync(ANALYTICS,"utf8"));return Array.isArray(d.events)?d.events:[]}catch{return []}
 }

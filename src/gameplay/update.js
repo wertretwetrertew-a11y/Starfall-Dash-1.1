@@ -1764,11 +1764,22 @@ function draw() {
     }
 
     // Частицы
+    // v3.2.2: particle geometry is cached per color. Only drawImage,
+    // alpha and destination size remain per-particle.
     for (var i = 0; i < particles.length; i++) {
         var p = particles[i];
-        ctx.globalAlpha = p.life;
-        ctx.fillStyle = p.color;
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill();
+        var particleLife = p.life;
+        if (particleLife <= 0) continue;
+        var particleDiameter = p.size * particleLife * 2;
+        var particleSprite = sfGetParticleSprite(p.color);
+        ctx.globalAlpha = particleLife;
+        ctx.drawImage(
+            particleSprite,
+            p.x - particleDiameter * 0.5,
+            p.y - particleDiameter * 0.5,
+            particleDiameter,
+            particleDiameter
+        );
     }
     ctx.globalAlpha = 1;
 

@@ -53,36 +53,12 @@ CHARACTER_CLASSES = {
 
 /* ---------- RUN BUILD ---------- */
 UPGRADE_POOL = {
-    poison: {
-        id:'poison', name:'Яд', icon:'☠️', rarity:'common', stacks:true, maxStacks:4,
-        desc:'Контакт накладывает яд. Яд наносит периодический урон.',
-        tags:['status','contact']
-    },
-    propagation: {
-        id:'propagation', name:'Распространение', icon:'🦠', rarity:'rare', stacks:true, maxStacks:3,
-        desc:'Отравленный враг при смерти заражает ближайших врагов.',
-        tags:['status','chain']
-    },
-    singularity: {
-        id:'singularity', name:'Сингулярность', icon:'🕳️', rarity:'epic', stacks:true, maxStacks:3,
-        desc:'Убийства создают гравитационные точки, притягивающие врагов к месту смерти.',
-        tags:['control','kills']
-    },
-    echo: {
-        id:'echo', name:'Эхо', icon:'👻', rarity:'rare', stacks:true, maxStacks:3,
-        desc:'После смерти врага остаётся Эхо. Следующий враг, коснувшийся его, получает дополнительный эффект.',
-        tags:['chain','kills']
-    },
-    shield: {
-        id:'shield', name:'Щит', icon:'🛡', rarity:'common', stacks:true, maxStacks:3,
-        desc:'Блокирует один контактный или снарядный удар. Когда щит полностью пробит, следующий полученный урон восстанавливает запас щитов.',
-        tags:['defense']
-    },
-    orbit: {
-        id:'orbit', name:'Орбита', icon:'🪐', rarity:'epic', stacks:true, maxStacks:3,
-        desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',
-        tags:['contact','area']
-    }
+ poison:{id:'poison',name:'Яд',icon:'☠️',rarity:'common',stacks:true,maxStacks:4,desc:'Контакт накладывает яд. Яд наносит периодический урон.',tags:['status','contact']},
+ propagation:{id:'propagation',name:'Распространение',icon:'🦠',rarity:'rare',stacks:true,maxStacks:3,desc:'Отравленный враг при смерти заражает ближайших врагов.',tags:['status','chain']},
+ singularity:{id:'singularity',name:'Сингулярность',icon:'🕳️',rarity:'epic',stacks:true,maxStacks:3,desc:'Убийства создают гравитационные точки, притягивающие врагов к месту смерти.',tags:['control','kills']},
+ echo:{id:'echo',name:'Эхо',icon:'👻',rarity:'rare',stacks:true,maxStacks:3,desc:'После смерти врага остаётся Эхо. Следующий враг, коснувшийся его, получает дополнительный эффект.',tags:['chain','kills']},
+ shield:{id:'shield',name:'Щит',icon:'🛡',rarity:'common',stacks:true,maxStacks:3,desc:'Блокирует один контактный или снарядный удар. Когда щит полностью пробит, следующий полученный урон восстанавливает запас щитов.',tags:['defense']},
+ orbit:{id:'orbit',name:'Орбита',icon:'🪐',rarity:'epic',stacks:true,maxStacks:3,desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',tags:['contact','area']}
 };
 
 /* ---------- RUN STATE ---------- */
@@ -439,7 +415,7 @@ function playerTakeDamage() {
         showToast('🛡 ЩИТ ВОССТАНОВЛЕН!', 'info');
     }
     if (getClass(selectedClass).skillId === 'impact_core') rogueImpactReady = true;
-    var cls = getClass(selectedClass);    var cls = getClass(selectedClass);
+    var cls = getClass(selectedClass);
     if (cls.skillId === 'blood_rush') {
         rogueBloodCharges = Math.min(3, rogueBloodCharges + getClassSkillLevel(selectedClass));
     }
@@ -490,16 +466,7 @@ function applyUpgrade(upgradeId) {
     updateHUD();
 }
 
-function pickUpgrade(upgradeId) {
-    applyUpgrade(upgradeId);
-    closeUpgradeModal();
-}
-
-function pickUpgrade(upgradeId) {
-    applyUpgrade(upgradeId);
-    checkSynergies();
-    closeUpgradeModal();
-}
+function pickUpgrade(upgradeId){ applyUpgrade(upgradeId); closeUpgradeModal(); }
 
 /* ---------- SMART DRAFT ---------- */
 function pickRandomUpgrades(count, exclude) {
@@ -839,11 +806,6 @@ function renderUpgradeCards() {
             card.appendChild(info);
         }
 
-        if(hint){
-            var h=document.createElement('div');
-            h.className='upgrade-hint'; h.textContent='⚡ '+hint; card.appendChild(h);
-        }
-
         card.addEventListener('click',function(){pickUpgrade(id);});
         upgradeCardsEl.appendChild(card);
     });
@@ -889,7 +851,7 @@ finishRun = function finishRun() {
 /* ---------- CLASS-ONLY PERSISTENCE RULE ---------- */
 function clearRogueRunState() {
     runUpgrades={};
-    runRelics=[];
+        runRelics=[];
     rogueXP=0;
     rogueXPOrbs=[];
     rogueHeat=0;

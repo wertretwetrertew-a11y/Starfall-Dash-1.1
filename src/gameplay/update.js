@@ -1544,17 +1544,21 @@ function sfGetMonsterSprite(e, t) {
         sc.fill();
     }
 
-    // Глаза статичны относительно спрайта — тоже кэшируем их.
-    sc.fillStyle = '#fff';
-    sc.beginPath();
-    sc.arc(cx - 4, cy - 2, 2.5, 0, Math.PI * 2);
-    sc.arc(cx + 4, cy - 2, 2.5, 0, Math.PI * 2);
-    sc.fill();
-    sc.fillStyle = '#000';
-    sc.beginPath();
-    sc.arc(cx - 4, cy - 1, 1.2, 0, Math.PI * 2);
-    sc.arc(cx + 4, cy - 1, 1.2, 0, Math.PI * 2);
-    sc.fill();
+    // Глаза статичны относительно спрайта — кэшируем их для обычных форм.
+    // У barrier тело высотой 15px, а глаза в legacy-рендере привязаны к e.size,
+    // поэтому их оставляем динамическими, чтобы не менять исходную геометрию.
+    if (shape !== 'barrier') {
+        sc.fillStyle = '#fff';
+        sc.beginPath();
+        sc.arc(cx - 4, cy - 2, 2.5, 0, Math.PI * 2);
+        sc.arc(cx + 4, cy - 2, 2.5, 0, Math.PI * 2);
+        sc.fill();
+        sc.fillStyle = '#000';
+        sc.beginPath();
+        sc.arc(cx - 4, cy - 1, 1.2, 0, Math.PI * 2);
+        sc.arc(cx + 4, cy - 1, 1.2, 0, Math.PI * 2);
+        sc.fill();
+    }
 
     cached = {
         canvas: sprite,
@@ -1584,6 +1588,20 @@ function drawMonster(e) {
     var sprite = sfGetMonsterSprite(e, t);
     ctx.shadowBlur = sfShadow(e.hitFlash > 0 ? 30 : 14);
     ctx.drawImage(sprite.canvas, e.x, e.y, sprite.width, sprite.height);
+
+    if (t.shape === 'barrier') {
+        ctx.shadowBlur = sfShadow(0);
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(cx - 4, cy - 2, 2.5, 0, Math.PI * 2);
+        ctx.arc(cx + 4, cy - 2, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(cx - 4, cy - 1, 1.2, 0, Math.PI * 2);
+        ctx.arc(cx + 4, cy - 1, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+    }
     ctx.restore();
 }
 

@@ -19,6 +19,36 @@ const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
 const TOKEN=randomBytes(18).toString("hex");
 
 function load(){return JSON.parse(fs.readFileSync(CONFIG,"utf8"))}
+function gitText(args){
+  return execFileSync("git",args,{cwd:ROOT,encoding:"utf8",stdio:["ignore","pipe","pipe"]}).trim();
+}
+function updateBotLabFromGitHub(){
+  ensureRemote();
+  gitText(["fetch","origin","main"]);
+  const local=gitText(["rev-parse","HEAD"]);
+  const remote=gitText(["rev-parse","origin/main"]);
+  if(local===remote)return {updated:false,version:gameVersion(),reason:"already-current",local,remote};
+  const counts=gitText(["rev-list","--left-right","--count",local+"..."+remote]).split(/\s+/).map(Number);
+  const ahead=counts[0]||0, behind=counts[1]||0;
+  if(ahead>0&&behind>0)throw new Error("Локальная ветка и GitHub разошлись. Автообновление остановлено, чтобы не перезаписать локальные изменения.");
+  if(ahead>0&&behind===0)return {updated:false,version:gameVersion(),reason:"local-ahead",local,remote};
+  const dirty=gitText(["status","--porcelain"]);
+  if(dirty){
+    try{gitText(["stash","push","-u","-m","Bot Lab auto-backup before update "+new Date().toISOString()])}
+    catch(e){throw new Error("Не удалось безопасно сохранить локальные изменения перед обновлением: "+e.message)}
+  }
+  gitText(["reset","--hard","origin/main"]);
+  const updated=gitText(["rev-parse","HEAD"]);
+  return {updated:true,version:gameVersion(),reason:"updated",local,remote,commit:updated,backupCreated:!!dirty};
+}
+function scheduleBotLabRestart(){
+  const script=process.argv[1];
+  const env={...process.env,STARFALL_BOTLAB_RESTART_DELAY:"1200"};
+  const child=execFile(process.execPath,[script],{cwd:ROOT,env,windowsHide:true,stdio:"ignore"});
+  child.unref();
+  setTimeout(()=>process.exit(0),500);
+}
+
 function gameVersion(){
   try{
     const cfg=load();
@@ -355,6 +385,19 @@ const server=http.createServer(async(req,res)=>{
     if(u.pathname==="/api/analytics/sessions"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const session=JSON.parse(body);if(!session||typeof session.sessionId!=="string")return send(res,400,"application/json",JSON.stringify({error:"sessionId required"}));const sessions=loadSessions().filter(x=>x.sessionId!==session.sessionId);sessions.push(session);saveSessions(sessions);return send(res,200,"application/json",JSON.stringify({success:true,stored:sessions.length}))}
     if(u.pathname==="/api/analytics"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;let batch=JSON.parse(body);if(!Array.isArray(batch))batch=[batch];batch=batch.filter(e=>e&&typeof e.event==="string"&&e.data&&typeof e.data==="object").slice(0,500);const events=loadAnalytics();events.push(...batch);saveAnalytics(events);return send(res,200,"application/json",JSON.stringify({success:true,accepted:batch.length,total:Math.min(events.length,30000)}))}
     if(u.pathname==="/api/analytics"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(analyticsSummary(loadAnalytics())));
+    if(u.pathname==="/api/update"&&req.method==="POST"){
+      try{
+        const result=updateBotLabFromGitHub();
+        if(result.updated){
+          send(res,200,"application/json",JSON.stringify(result));
+          scheduleBotLabRestart();
+          return;
+        }
+        return send(res,200,"application/json",JSON.stringify(result));
+      }catch(e){
+        return send(res,200,"application/json",JSON.stringify({success:false,updated:false,version:gameVersion(),message:e.message}));
+      }
+    }
     if(u.pathname==="/api/version"&&req.method==="GET"){const v=gameVersion();return send(res,200,"application/json",JSON.stringify({version:v,balanceVersion:v,source:"config/roguelike-balance.json + index.html"}));}
     if(u.pathname==="/api/updates"&&req.method==="GET"){const h=loadUpdateHistory();return send(res,200,"application/json",JSON.stringify({currentVersion:gameVersion(),updates:h.updates.slice().reverse()}));}
     if(u.pathname==="/api/balance"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(load()));
@@ -428,4 +471,6 @@ const server=http.createServer(async(req,res)=>{
     return send(res,404,"application/json",JSON.stringify({error:"Not found"}));
   }catch(e){return send(res,500,"application/json",JSON.stringify({error:e.message}))}
 });
-server.listen(PORT,"127.0.0.1",()=>{const url="http://127.0.0.1:"+PORT+"/?token="+TOKEN;console.log("🤖 Starfall Dash Bot Lab: "+url);});
+const startServer=()=>server.listen(PORT,"127.0.0.1",()=>{const url="http://127.0.0.1:"+PORT+"/?token="+TOKEN;console.log("🤖 Starfall Dash Bot Lab: "+url);});
+const restartDelay=Number(process.env.STARFALL_BOTLAB_RESTART_DELAY||0);
+if(restartDelay>0)setTimeout(startServer,restartDelay);else startServer();

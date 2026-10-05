@@ -54,8 +54,7 @@ var STARFALL_BALANCE = {
           "pool": [
             "normal",
             "ghost",
-            "spider",
-            "laser"
+            "spider"
           ]
         },
         {

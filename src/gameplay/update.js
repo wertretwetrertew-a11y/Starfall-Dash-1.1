@@ -186,14 +186,18 @@ function update() {
         var px = player.x + player.size/2;
         var py = player.y + player.size/2;
         if (frame % 30 === 0) {
-            enemies.forEach(function(e) {
+            // v3.1.8: быстрый проход без callback/Math.hypot.
+            var auraR2 = auraR * auraR;
+            for (var ai = 0; ai < enemies.length; ai++) {
+                var e = enemies[ai];
                 var ex = e.x + e.size/2, ey = e.y + e.size/2;
-                if (Math.hypot(px - ex, py - ey) < auraR) {
+                var adx = px - ex, ady = py - ey;
+                if (adx * adx + ady * ady < auraR2) {
                     e.hp -= 0.5;
                     e.hitFlash = 6;
                     addParticles(ex, ey, '#e040fb', 3, 4);
                 }
-            });
+            }
         }
     }
 
@@ -207,14 +211,18 @@ function update() {
             var oy = pyc + Math.sin(o.angle) * o.distance;
             o.x = ox; o.y = oy;
             if (frame % 15 === 0) {
-                enemies.forEach(function(e) {
+                // v3.1.8: тот же радиус/урон, но без callback и Math.hypot.
+                for (var oi = 0; oi < enemies.length; oi++) {
+                    var e = enemies[oi];
                     var ex = e.x + e.size/2, ey = e.y + e.size/2;
-                    if (Math.hypot(ox - ex, oy - ey) < e.size/2 + o.size) {
+                    var odx = ox - ex, ody = oy - ey;
+                    var oradius = e.size/2 + o.size;
+                    if (odx * odx + ody * ody < oradius * oradius) {
                         e.hp -= 1;
                         e.hitFlash = 6;
                         addParticles(ex, ey, '#7c4dff', 5, 6);
                     }
-                });
+                }
                 bosses.forEach(function(b) {
                     var bx = b.x + b.size/2, by = b.y + b.size/2;
                     if (Math.hypot(ox - bx, oy - by) < b.size/2 + o.size) {
@@ -426,13 +434,17 @@ if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7 && !(current
             if (mode.isRoguelike && explosiveCoins) {
                 var ex = c.x + c.size/2, ey = c.y + c.size/2;
                 addParticles(ex, ey, '#ff9800', 15, 12);
-                enemies.forEach(function(en) {
+                // v3.1.8: взрыв монеты — тот же радиус, дешёвая проверка расстояния.
+                var coinBlastR2 = 60 * 60;
+                for (var ci = 0; ci < enemies.length; ci++) {
+                    var en = enemies[ci];
                     var enx = en.x + en.size/2, eny = en.y + en.size/2;
-                    if (Math.hypot(ex - enx, ey - eny) < 60) {
+                    var cdx = ex - enx, cdy = ey - eny;
+                    if (cdx * cdx + cdy * cdy < coinBlastR2) {
                         en.hp -= 1;
                         en.hitFlash = 6;
                     }
-                });
+                }
                 screenShake = 4;
             }
 
@@ -822,24 +834,28 @@ if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7 && !(current
 
     // Chain lightning
     if (mode.isRoguelike && chainLightning > 0 && frame % 20 === 0) {
-        enemies.forEach(function(e) {
+        // v3.1.8: Chain Lightning без вложенных forEach/Math.hypot.
+        for (var cli = 0; cli < enemies.length; cli++) {
+            var e = enemies[cli];
             if (e.hp <= 0 && !e._chainDone) {
                 e._chainDone = true;
-                var best = null, bestD = 200;
+                var best = null, bestD2 = 200 * 200;
                 var ex = e.x + e.size/2, ey = e.y + e.size/2;
-                enemies.forEach(function(other) {
-                    if (other === e) return;
+                for (var clj = 0; clj < enemies.length; clj++) {
+                    var other = enemies[clj];
+                    if (other === e) continue;
                     var ox = other.x + other.size/2, oy = other.y + other.size/2;
-                    var d = Math.hypot(ex - ox, ey - oy);
-                    if (d < bestD) { bestD = d; best = other; }
-                });
+                    var ldx = ex - ox, ldy = ey - oy;
+                    var d2 = ldx * ldx + ldy * ldy;
+                    if (d2 < bestD2) { bestD2 = d2; best = other; }
+                }
                 if (best) {
                     best.hp -= chainLightning;
                     best.hitFlash = 8;
                     addParticles(best.x + best.size/2, best.y + best.size/2, '#fff59d', 6, 6);
                 }
             }
-        });
+        }
     }
 
     // Вражеские пули

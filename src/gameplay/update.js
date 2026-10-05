@@ -1487,50 +1487,103 @@ function drawWeb(w) {
     ctx.restore();
 }
 
+// v3.2.0: cache static enemy sprites so gradients/path geometry are not
+// rebuilt for every enemy on every render frame.
+var SF_MONSTER_RENDER_CACHE = Object.create(null);
+
+function sfGetMonsterSprite(e, t) {
+    var size = Math.max(1, Math.round(e.size || 1));
+    var shape = t.shape || 'circle';
+    var barWidth = shape === 'barrier' ? Math.round(t.barWidth || 60) : size;
+    var width = shape === 'barrier' ? barWidth : size;
+    var height = shape === 'barrier' ? 15 : size;
+    var key = [
+        shape, width, height, t.c1 || '', t.c2 || ''
+    ].join('|');
+
+    var cached = SF_MONSTER_RENDER_CACHE[key];
+    if (cached) return cached;
+
+    var sprite = document.createElement('canvas');
+    sprite.width = width;
+    sprite.height = height;
+    var sc = sprite.getContext('2d');
+    var cx = size / 2, cy = size / 2, r = size / 2;
+
+    var g = sc.createLinearGradient(0, 0, 0, height);
+    g.addColorStop(0, t.c1);
+    g.addColorStop(1, t.c2);
+    sc.fillStyle = g;
+
+    if (shape === 'square' || shape === 'hex' || shape === 'boss' || shape === 'crystal') {
+        sc.beginPath();
+        sc.arc(cx, cy, r, 0, Math.PI * 2);
+        sc.fill();
+    } else if (shape === 'barrier') {
+        sc.beginPath();
+        sc.roundRect(0, 0, width, 15, 4);
+        sc.fill();
+    } else if (shape === 'diamond') {
+        sc.beginPath();
+        sc.moveTo(cx, 0);
+        sc.lineTo(size, cy);
+        sc.lineTo(cx, size);
+        sc.lineTo(0, cy);
+        sc.closePath();
+        sc.fill();
+    } else if (shape === 'triangle') {
+        sc.beginPath();
+        sc.moveTo(0, 0);
+        sc.lineTo(size, 0);
+        sc.lineTo(cx, size);
+        sc.closePath();
+        sc.fill();
+    } else {
+        sc.beginPath();
+        sc.arc(cx, cy, r, 0, Math.PI * 2);
+        sc.fill();
+    }
+
+    // Глаза статичны относительно спрайта — тоже кэшируем их.
+    sc.fillStyle = '#fff';
+    sc.beginPath();
+    sc.arc(cx - 4, cy - 2, 2.5, 0, Math.PI * 2);
+    sc.arc(cx + 4, cy - 2, 2.5, 0, Math.PI * 2);
+    sc.fill();
+    sc.fillStyle = '#000';
+    sc.beginPath();
+    sc.arc(cx - 4, cy - 1, 1.2, 0, Math.PI * 2);
+    sc.arc(cx + 4, cy - 1, 1.2, 0, Math.PI * 2);
+    sc.fill();
+
+    cached = {
+        canvas: sprite,
+        width: width,
+        height: height
+    };
+    SF_MONSTER_RENDER_CACHE[key] = cached;
+    return cached;
+}
+
 function drawMonster(e) {
     var t = e.t;
+    var cx = e.x + e.size / 2, cy = e.y + e.size / 2, r = e.size / 2;
     ctx.save();
     ctx.shadowColor = t.glow;
     ctx.shadowBlur = sfShadow(e.hitFlash > 0 ? 30 : 14);
-    var cx = e.x + e.size / 2, cy = e.y + e.size / 2, r = e.size / 2;
+
     if (t.shape === 'ghost') ctx.globalAlpha = e.ghostAlpha;
+
     if (e.hitFlash > 0) {
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.beginPath(); ctx.arc(cx, cy, r + 4, 0, Math.PI * 2); ctx.fill();
-    }
-    var g = ctx.createLinearGradient(e.x, e.y, e.x, e.y + e.size);
-    g.addColorStop(0, t.c1);
-    g.addColorStop(1, t.c2);
-    ctx.fillStyle = g;
-    if (t.shape === 'square' || t.shape === 'hex' || t.shape === 'boss' || t.shape === 'crystal') {
-        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
-    } else if (t.shape === 'barrier') {
         ctx.beginPath();
-        ctx.roundRect(e.x, e.y, t.barWidth || 60, 15, 4);
+        ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
         ctx.fill();
-    } else if (t.shape === 'diamond') {
-        ctx.beginPath();
-        ctx.moveTo(cx, e.y); ctx.lineTo(e.x + e.size, cy); ctx.lineTo(cx, e.y + e.size); ctx.lineTo(e.x, cy);
-        ctx.closePath(); ctx.fill();
-    } else if (t.shape === 'triangle') {
-        ctx.beginPath();
-        ctx.moveTo(e.x, e.y); ctx.lineTo(e.x + e.size, e.y); ctx.lineTo(cx, e.y + e.size);
-        ctx.closePath(); ctx.fill();
-    } else {
-        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
     }
-    // Глаза
-    ctx.shadowBlur = sfShadow(0);
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(cx - 4, cy - 2, 2.5, 0, Math.PI * 2);
-    ctx.arc(cx + 4, cy - 2, 2.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.arc(cx - 4, cy - 1, 1.2, 0, Math.PI * 2);
-    ctx.arc(cx + 4, cy - 1, 1.2, 0, Math.PI * 2);
-    ctx.fill();
+
+    var sprite = sfGetMonsterSprite(e, t);
+    ctx.shadowBlur = sfShadow(e.hitFlash > 0 ? 30 : 14);
+    ctx.drawImage(sprite.canvas, e.x, e.y, sprite.width, sprite.height);
     ctx.restore();
 }
 

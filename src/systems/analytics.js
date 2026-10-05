@@ -31,7 +31,7 @@
             mode:window.currentMode||null,
             character:window.selectedClass||null,
             level:Number(window.level)||0,
-            gameVersion:'3.2.9',
+            gameVersion:'3.3.0',
             ts:new Date().toISOString()
         };
         if(extra) Object.keys(extra).forEach(function(k){o[k]=extra[k];});

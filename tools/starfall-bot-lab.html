@@ -26,7 +26,7 @@
 </section>
 <section id="stats">
   <div class="hero-title"><div class="title-left"><div class="hero-icon">▤</div><div><h2>Статистика теста</h2><p>Разбор последнего запуска симулятора.</p></div></div></div>
-  <div class="panel"><div id="sum" class="metric-grid"></div></div>
+  <div class="panel"><div id="statsSum" class="metric-grid"></div></div>
   <div class="panel"><h3>Этапы</h3><div class="table-wrap"><table class="table" id="st"></table></div></div>
   <div class="panel"><h3>Враги</h3><div class="table-wrap"><table class="table" id="en"></table></div></div>
   <div class="panel"><h3>Боссы</h3><div class="table-wrap"><table class="table" id="bo"></table></div></div>
@@ -68,6 +68,8 @@
     const j=await r.json();
     $('gameVersion').textContent='Игра v'+j.version;
     $('balanceVersion').textContent='v'+j.version;
+    if($('rightVersion'))$('rightVersion').textContent='v'+j.version;
+    if($('navVersion'))$('navVersion').textContent='v'+j.version;
   }catch(e){
     $('gameVersion').textContent='Версия недоступна';
     $('balanceVersion').textContent='—';
@@ -153,7 +155,7 @@ function renderAnalytics(a){
 $('analyticsRefresh').onclick=loadAnalytics;
 $('analyticsClear').onclick=async()=>{if(!confirm('Удалить локальную игровую аналитику?'))return;try{let r=await fetch('/api/analytics?token='+encodeURIComponent(t),{method:'DELETE'});let j=await r.json();$('analyticsMsg').textContent=j.success?'✅ Аналитика очищена.':'❌ Не удалось очистить';loadAnalytics()}catch(e){$('analyticsMsg').textContent='❌ '+e.message}};
 loadAnalyticsSessions();
-function metric(a,b){return '<div class="metric">'+a+'<b>'+b+'</b></div>'}function pct(a,b){return b?(a/b*100).toFixed(1):0}function fmt(x){x=+x||0;return Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0')}async function run(profile){$('msg').textContent='⏳ Тест...';let r=await fetch('/api/run?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile,runs:+$('n').value,baseDamage:+$('d').value,baseHp:+$('hp').value,seed:20260929})});last=await r.json();$('msg').textContent='✅ Готово';render(last);document.querySelector('[data-x="stats"]').click()}$('go').onclick=()=>run($('p').value);$('all').onclick=async()=>{let z=[];for(let p of ['novice','average','optimal']){let r=await fetch('/api/run?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile:p,runs:+$('n').value,baseDamage:+$('d').value,baseHp:+$('hp').value,seed:20260929})});z.push(await r.json())}$('msg').innerHTML=z.map(x=>x.meta.profile+': <b>'+pct(x.summary.completed,x.summary.started)+'%</b>').join(' · ');last=z[1];render(last);document.querySelector('[data-x="stats"]').click()};function render(r){$('sum').innerHTML=metric('Полное прохождение',pct(r.summary.completed,r.summary.started)+'%')+metric('Смерти',r.summary.deaths)+metric('Этапы',r.summary.stagesCompleted)+metric('Боссы (победы / встречи)',r.summary.bossesDefeated+'/'+r.summary.bossesAttempted)+metric('Время',fmt(r.summary.avgSurvivalSeconds))+metric('Убитые враги',r.summary.avgKills.toFixed(1))+metric('Урон',r.summary.avgDamageTaken.toFixed(1));$('st').innerHTML='<tr><th>Планета</th><th>Этап</th><th>Попытки</th><th>Прошли</th><th>%</th></tr>'+r.stages.map(s=>'<tr><td>'+s.planet+'</td><td>'+s.stage+'</td><td>'+s.attempts+'</td><td>'+s.completed+'</td><td>'+pct(s.completed,s.attempts)+'%</td></tr>').join('');$('en').innerHTML='<tr><th>Враг</th><th>Убит</th><th>Смерти бота</th><th>Урон</th></tr>'+Object.entries(r.enemies).map(([k,e])=>'<tr><td>'+k+'</td><td>'+e.killed+'</td><td class="'+(e.deaths?'bad':'')+'">'+e.deaths+'</td><td>'+e.damageTaken.toFixed(1)+'</td></tr>').join('');$('bo').innerHTML='<tr><th>Босс</th><th>Попытки</th><th>Победы</th><th>Смерти</th></tr>'+Object.entries(r.bosses).map(([k,e])=>'<tr><td>'+k+'</td><td>'+e.attempted+'</td><td>'+e.defeated+'</td><td>'+e.deaths+'</td></tr>').join('');$('up').innerHTML=Object.values(r.upgrades).sort((a,b)=>b.picked-a.picked).map(e=>'<span class="pill">'+e.label+': '+e.picked+'</span>').join('')}function inp(p,l,v){return '<label class="field"><span>'+l+'</span><input data-p="'+p+'" value="'+v+'" type="number"></label>'}function tx(p,l,v){let value=Array.isArray(v)?v.join(', '):(v??'');return '<label class="field"><span>'+l+'</span><input data-p="'+p+'" data-t="1" value="'+String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" type="text"></label>'}const enemyNames={normal:'Обычный',flyer:'Летун',zigzag:'Зигзаг',ghost:'Призрак',hunter:'Охотник',snake:'Змея',bomber:'Бомбардировщик',splitter:'Разделитель',spider:'Паук',ice:'Лёд',star:'Звезда',miniboss:'Мини-босс',crystal:'Кристалл',barrier:'Барьер',teleporter:'Телепортёр',magnet_enemy:'Магнит',doppel:'Двойник',laser:'Лазер'};function enhanceCollapsibles(){document.querySelectorAll('.card').forEach(card=>{const h=card.querySelector(':scope > h2');if(!h||h.dataset.collapseReady)return;h.dataset.collapseReady='1';card.classList.add('collapsible');h.onclick=()=>card.classList.toggle('collapsed')})}
+function metric(a,b){return '<div class="metric">'+a+'<b>'+b+'</b></div>'}function pct(a,b){return b?(a/b*100).toFixed(1):0}function fmt(x){x=+x||0;return Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0')}async function run(profile){$('msg').textContent='⏳ Тест...';let r=await fetch('/api/run?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile,runs:+$('n').value,baseDamage:+$('d').value,baseHp:+$('hp').value,seed:20260929})});last=await r.json();$('msg').textContent='✅ Готово';render(last);document.querySelector('[data-x="stats"]').click()}$('go').onclick=()=>run($('p').value);$('all').onclick=async()=>{let z=[];for(let p of ['novice','average','optimal']){let r=await fetch('/api/run?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile:p,runs:+$('n').value,baseDamage:+$('d').value,baseHp:+$('hp').value,seed:20260929})});z.push(await r.json())}$('msg').innerHTML=z.map(x=>x.meta.profile+': <b>'+pct(x.summary.completed,x.summary.started)+'%</b>').join(' · ');last=z[1];render(last);document.querySelector('[data-x="stats"]').click()};function render(r){$('sum').innerHTML=metric('Полное прохождение',pct(r.summary.completed,r.summary.started)+'%')+metric('Смерти',r.summary.deaths)+metric('Этапы',r.summary.stagesCompleted)+metric('Боссы (победы / встречи)',r.summary.bossesDefeated+'/'+r.summary.bossesAttempted)+metric('Время',fmt(r.summary.avgSurvivalSeconds))+metric('Убитые враги',r.summary.avgKills.toFixed(1))+metric('Урон',r.summary.avgDamageTaken.toFixed(1));if($('statsSum'))$('statsSum').innerHTML=$('sum').innerHTML;$('st').innerHTML='<tr><th>Планета</th><th>Этап</th><th>Попытки</th><th>Прошли</th><th>%</th></tr>'+r.stages.map(s=>'<tr><td>'+s.planet+'</td><td>'+s.stage+'</td><td>'+s.attempts+'</td><td>'+s.completed+'</td><td>'+pct(s.completed,s.attempts)+'%</td></tr>').join('');$('en').innerHTML='<tr><th>Враг</th><th>Убит</th><th>Смерти бота</th><th>Урон</th></tr>'+Object.entries(r.enemies).map(([k,e])=>'<tr><td>'+k+'</td><td>'+e.killed+'</td><td class="'+(e.deaths?'bad':'')+'">'+e.deaths+'</td><td>'+e.damageTaken.toFixed(1)+'</td></tr>').join('');$('bo').innerHTML='<tr><th>Босс</th><th>Попытки</th><th>Победы</th><th>Смерти</th></tr>'+Object.entries(r.bosses).map(([k,e])=>'<tr><td>'+k+'</td><td>'+e.attempted+'</td><td>'+e.defeated+'</td><td>'+e.deaths+'</td></tr>').join('');$('up').innerHTML=Object.values(r.upgrades).sort((a,b)=>b.picked-a.picked).map(e=>'<span class="pill">'+e.label+': '+e.picked+'</span>').join('')}function inp(p,l,v){return '<label class="field"><span>'+l+'</span><input data-p="'+p+'" value="'+v+'" type="number"></label>'}function tx(p,l,v){let value=Array.isArray(v)?v.join(', '):(v??'');return '<label class="field"><span>'+l+'</span><input data-p="'+p+'" data-t="1" value="'+String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" type="text"></label>'}const enemyNames={normal:'Обычный',flyer:'Летун',zigzag:'Зигзаг',ghost:'Призрак',hunter:'Охотник',snake:'Змея',bomber:'Бомбардировщик',splitter:'Разделитель',spider:'Паук',ice:'Лёд',star:'Звезда',miniboss:'Мини-босс',crystal:'Кристалл',barrier:'Барьер',teleporter:'Телепортёр',magnet_enemy:'Магнит',doppel:'Двойник',laser:'Лазер'};function enhanceCollapsibles(){document.querySelectorAll('.card').forEach(card=>{const h=card.querySelector(':scope > h2');if(!h||h.dataset.collapseReady)return;h.dataset.collapseReady='1';card.classList.add('collapsible');h.onclick=()=>card.classList.toggle('collapsed')})}
 document.getElementById('collapseAll').onclick=()=>document.querySelectorAll('.collapsible').forEach(x=>x.classList.add('collapsed'));
 document.getElementById('expandAll').onclick=()=>document.querySelectorAll('.collapsible').forEach(x=>x.classList.remove('collapsed'));
 
@@ -261,6 +263,56 @@ function renderEditor(){
   const search=$('enemySearch');
   if(search)search.oninput=()=>document.querySelectorAll('.enemy-row').forEach(row=>row.style.display=row.textContent.toLowerCase().includes(search.value.toLowerCase())?'grid':'none');
   const reset=$('enemyReset'); if(reset)reset.onclick=()=>{if(search)search.value='';document.querySelectorAll('.enemy-row').forEach(row=>row.style.display='grid')};
+}
+
+
+async function save(push){
+  collect();
+  if(!push){
+    saveDraft(true);
+    return;
+  }
+  const b=$('gh');
+  b.disabled=true;
+  b.textContent='⏳ Сохраняем в GitHub…';
+  $('bs').textContent='';
+  try{
+    const r=await fetch('/api/save?token='+encodeURIComponent(t),{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({data,commit:true,push:true})
+    });
+    const j=await r.json();
+    if(j.success){
+      clearDraft();
+      $('bs').className='good';
+      $('bs').innerHTML='✅ Версия <b>v'+esc(j.version||'—')+'</b> создана и реально сохранена в GitHub. Commit: '+esc(String(j.sha||'').slice(0,7))+' · <a target="_blank" href="'+esc(j.commitUrl||'#')+'">Открыть commit</a><br><small>Эта же версия теперь используется игрой и отображается в Bot Lab.</small>';
+      loadVersion();
+      load();
+    }else{
+      $('bs').innerHTML=j.message||j.error||'Ошибка сохранения';
+    }
+  }catch(e){
+    $('bs').textContent='❌ Ошибка: '+e.message;
+  }finally{
+    b.disabled=false;
+    b.textContent='☁️ Сохранить в GitHub';
+  }
+}
+$('gh').onclick=()=>save(true);
+$('loc').onclick=()=>save(false);
+document.getElementById('editor').addEventListener('input',e=>{
+  if(e.target&&e.target.matches('[data-p]')){try{syncFieldFromInput(e.target)}catch{}}
+});
+document.getElementById('editor').addEventListener('change',e=>{
+  try{collect();localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}
+});
+function syncFieldFromInput(el){
+  const path=el.dataset.p;if(!path)return;
+  const a=path.split('.');let x=data;
+  for(let i=0;i<a.length-1;i++)x=x[a[i]];
+  x[a[a.length-1]]=readInputValue(el);
+  try{localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}
 }
 
 loadVersion();

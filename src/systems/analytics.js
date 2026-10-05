@@ -147,18 +147,16 @@
         track('boss_defeated',{planet:Number(r.planetIndex)+1,bossId:window.bossDuelId||null});
     });
 
-    function sendSession(){
-        if(sessionEnded)return;
-        sessionEnded=true;
-        flush();
+    function persistSession(finalize){
+        if(finalize){if(sessionEnded)return;sessionEnded=true;}
         var now=new Date();
         var record={
             sessionId:SESSION,
             playerId:profileId(),
             startedAt:sessionStartedAt,
-            endedAt:now.toISOString(),
+            endedAt:finalize?now.toISOString():null,
             durationSec:Math.max(0,(now.getTime()-new Date(sessionStartedAt).getTime())/1000),
-            gameVersion:'3.2.9',
+            gameVersion:'3.3.0',
             lastMode:window.currentMode||null,
             lastCharacter:window.selectedClass||null,
             eventCount:Object.values(sessionEventCounts).reduce(function(a,b){return a+b},0),
@@ -170,8 +168,9 @@
         try{
             fetch(ENDPOINT+'/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(record),keepalive:true}).catch(function(){});
         }catch(e){}
+        if(finalize)flush();
     }
-
+    function sendSession(){persistSession(true);}
     function poll(){
         if(!started){
             if(window.running && !window.gameOver) startRun();
@@ -193,6 +192,7 @@
     window.sfdAnalytics={track:track,flush:flush,session:SESSION};
     window.addEventListener('beforeunload',function(){sendSession();});
     window.addEventListener('pagehide',function(){sendSession();});
+    setInterval(function(){if(!sessionEnded)persistSession(false);},30000);
     setTimeout(function(){
         track('session_started');
         poll();

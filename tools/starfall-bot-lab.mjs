@@ -11,6 +11,7 @@ const GAME_RUNTIME=path.join(ROOT,"src","data","roguelike-balance.js");
 const BUGS=path.join(ROOT,"config","bugs.json");
 const IDEAS=path.join(ROOT,"config","ideas.json");
 const ANALYTICS=path.join(ROOT,"config","analytics-events.json");
+const ANALYTICS_SESSIONS=path.join(ROOT,"config","analytics-sessions.json");
 const PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-lab.html"),"utf8");
 const IDEAS_PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-ideas.html"),"utf8");
 const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
@@ -24,6 +25,13 @@ function loadAnalytics(){
 function saveAnalytics(events){
   const trimmed=events.slice(-30000);
   fs.writeFileSync(ANALYTICS,JSON.stringify({version:1,events:trimmed},null,2)+"\n");
+}
+function loadSessions(){
+  try{const d=JSON.parse(fs.readFileSync(ANALYTICS_SESSIONS,"utf8"));return Array.isArray(d.sessions)?d.sessions:[]}catch{return []}
+}
+function saveSessions(sessions){
+  const trimmed=sessions.slice(-10000);
+  fs.writeFileSync(ANALYTICS_SESSIONS,JSON.stringify({version:1,sessions:trimmed},null,2)+"\\n");
 }
 function analyticsSummary(events){
   const count={}; const byMode={}; const byStage={}; const byCharacter={}; const byUpgrade={}; const byDeath={};
@@ -51,7 +59,8 @@ function analyticsSummary(events){
     if(e.event==="upgrade_selected"){const k=d.upgradeId||"unknown";byUpgrade[k]=(byUpgrade[k]||0)+1;}
   }
   const safe=(obj)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,20);
-  return {events:events.length,sessions:sessions.size,runs:runs.size,completed,deaths,completionRate:runs?completed/runs:0,avgRunTime:levelN?totalTime/levelN:0,avgLevel:levelN?totalLevel/levelN:0,totalKills,totalXP,totalGold,bosses,bossWins,counts:count,byMode:safe(byMode),byStage:safe(byStage),byCharacter:safe(byCharacter),byUpgrade:safe(byUpgrade),byDeath:safe(byDeath),updatedAt:new Date().toISOString()};
+  const storedSessions=loadSessions();
+  return {events:events.length,sessions:Math.max(sessions.size,storedSessions.length),storedSessions:storedSessions.length,runs:runs.size,completed,deaths,completionRate:runs?completed/runs:0,avgRunTime:levelN?totalTime/levelN:0,avgLevel:levelN?totalLevel/levelN:0,totalKills,totalXP,totalGold,bosses,bossWins,counts:count,byMode:safe(byMode),byStage:safe(byStage),byCharacter:safe(byCharacter),byUpgrade:safe(byUpgrade),byDeath:safe(byDeath),updatedAt:new Date().toISOString()};
 }
 function loadBugs(){
   const data=JSON.parse(fs.readFileSync(BUGS,"utf8"));
@@ -217,7 +226,9 @@ const server=http.createServer(async(req,res)=>{
     const localRequest=req.socket.remoteAddress==="127.0.0.1"||req.socket.remoteAddress==="::1"||req.socket.remoteAddress==="::ffff:127.0.0.1";
     if(!localRequest&&u.searchParams.get("token")!==TOKEN)return send(res,403,"application/json",JSON.stringify({error:"Forbidden"}));
     if(u.pathname==="/api/analytics"&&req.method==="OPTIONS")return send(res,204,"text/plain","");
-    if(u.pathname==="/api/analytics"&&req.method==="DELETE"){saveAnalytics([]);return send(res,200,"application/json",JSON.stringify({success:true}))}
+    if(u.pathname==="/api/analytics"&&req.method==="DELETE"){saveAnalytics([]);saveSessions([]);return send(res,200,"application/json",JSON.stringify({success:true}))}
+    if(u.pathname==="/api/analytics/sessions"&&req.method==="GET"){const sessions=loadSessions().slice().reverse();return send(res,200,"application/json",JSON.stringify({sessions:sessions.slice(0,500),total:sessions.length}))}
+    if(u.pathname==="/api/analytics/sessions"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const session=JSON.parse(body);if(!session||typeof session.sessionId!=="string")return send(res,400,"application/json",JSON.stringify({error:"sessionId required"}));const sessions=loadSessions().filter(x=>x.sessionId!==session.sessionId);sessions.push(session);saveSessions(sessions);return send(res,200,"application/json",JSON.stringify({success:true,stored:sessions.length}))}
     if(u.pathname==="/api/analytics"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;let batch=JSON.parse(body);if(!Array.isArray(batch))batch=[batch];batch=batch.filter(e=>e&&typeof e.event==="string"&&e.data&&typeof e.data==="object").slice(0,500);const events=loadAnalytics();events.push(...batch);saveAnalytics(events);return send(res,200,"application/json",JSON.stringify({success:true,accepted:batch.length,total:Math.min(events.length,30000)}))}
     if(u.pathname==="/api/analytics"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(analyticsSummary(loadAnalytics())));
     if(u.pathname==="/api/version"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify({version:gameVersion(),source:"index.html"}));

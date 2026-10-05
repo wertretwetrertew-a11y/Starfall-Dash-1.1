@@ -1036,7 +1036,14 @@ function update() {
         p.vx *= 0.94; p.vy *= 0.94;
         p.vy += p.gravity || 0;
         p.life -= 0.028;
-        if (p.life <= 0) particles.splice(pi, 1);
+        if (p.life <= 0) {
+            // v3.1.6: возвращаем объект в пул вместо splice/new allocation.
+            var lastParticle = particles.pop();
+            if (lastParticle !== p) {
+                particles[pi] = lastParticle;
+            }
+            sfReleaseParticle(p);
+        }
     }
 
     // Тексты

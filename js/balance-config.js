@@ -22,7 +22,7 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "normal",
-            "flyer"
+            "spider"
           ]
         },
         {
@@ -85,8 +85,8 @@ var STARFALL_BALANCE = {
             "target": 15000
           },
           "pool": [
-            "ice",
-            "hunter"
+            "hunter",
+            "ice"
           ]
         },
         {
@@ -132,9 +132,9 @@ var STARFALL_BALANCE = {
             "target": 7
           },
           "pool": [
+            "barrier",
             "magnet_enemy",
-            "doppel",
-            "barrier"
+            "doppel"
           ]
         }
       ],
@@ -150,9 +150,9 @@ var STARFALL_BALANCE = {
             "target": 18000
           },
           "pool": [
+            "star",
             "crystal",
-            "teleporter",
-            "star"
+            "teleporter"
           ]
         },
         {
@@ -183,8 +183,8 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "barrier",
-            "laser",
-            "teleporter"
+            "teleporter",
+            "laser"
           ]
         },
         {
@@ -198,9 +198,9 @@ var STARFALL_BALANCE = {
             "target": 90
           },
           "pool": [
+            "magnet_enemy",
             "doppel",
-            "laser",
-            "magnet_enemy"
+            "laser"
           ]
         }
       ]

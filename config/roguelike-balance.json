@@ -21,7 +21,7 @@
           },
           "pool": [
             "normal",
-            "flyer"
+            "spider"
           ]
         },
         {
@@ -84,8 +84,8 @@
             "target": 15000
           },
           "pool": [
-            "ice",
-            "hunter"
+            "hunter",
+            "ice"
           ]
         },
         {
@@ -131,9 +131,9 @@
             "target": 7
           },
           "pool": [
+            "barrier",
             "magnet_enemy",
-            "doppel",
-            "barrier"
+            "doppel"
           ]
         }
       ],
@@ -149,9 +149,9 @@
             "target": 18000
           },
           "pool": [
+            "star",
             "crystal",
-            "teleporter",
-            "star"
+            "teleporter"
           ]
         },
         {
@@ -182,8 +182,8 @@
           },
           "pool": [
             "barrier",
-            "laser",
-            "teleporter"
+            "teleporter",
+            "laser"
           ]
         },
         {
@@ -197,9 +197,9 @@
             "target": 90
           },
           "pool": [
+            "magnet_enemy",
             "doppel",
-            "laser",
-            "magnet_enemy"
+            "laser"
           ]
         }
       ]

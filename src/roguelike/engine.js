@@ -617,7 +617,8 @@ function rogueTickSystems() {
     enemies.forEach(function(e){
         if (e._poisonTimer > 0) {
             e._poisonTimer--;
-            if (frame % 30 === 0) {
+            var poisonDamageTick = [0, 30, 24, 18][Math.max(1, Math.min(3, runUpgrades.poison || 1))];
+            if (poisonDamageTick > 0 && frame % poisonDamageTick === 0) {
                 e.hp -= Math.max(1, runUpgrades.poison || 1);
                 e.hitFlash = 4;
             }

@@ -59,7 +59,7 @@ UPGRADE_POOL = {
  echo:{id:'echo',name:'Эхо',icon:'👻',rarity:'rare',stacks:true,maxStacks:3,desc:'После смерти врага остаётся Эхо. Следующий враг, коснувшийся его, получает дополнительный эффект.',tags:['chain','kills']},
  shield:{id:'shield',name:'Щит',icon:'🛡',rarity:'common',stacks:true,maxStacks:3,desc:'Блокирует один контактный или снарядный удар. Когда щит полностью пробит, следующий полученный урон восстанавливает запас щитов.',tags:['defense']},
  orbit:{id:'orbit',name:'Орбита',icon:'🪐',rarity:'epic',stacks:true,maxStacks:3,desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',tags:['contact','area']},
- lightning:{id:'lightning',name:'Молния',icon:'⚡',rarity:'epic',stacks:true,maxStacks:3,desc:'Автоматически бьёт ближайшего врага и цепляется к следующим целям. С каждым прыжком урон уменьшается.',tags:['auto','chain']}
+ lightning:{id:'lightning',name:'Молния',icon:'⚡',rarity:'epic',stacks:true,maxStacks:3,desc:'Автоматически бьёт ближайшего врага и цепляется к следующим целям. С каждым прыжком урон уменьшается.',tags:['auto','chain']},
  vampirism:{id:'vampirism',name:'Вампиризм',icon:'🩸',rarity:'rare',stacks:true,maxStacks:3,desc:'Возвращает часть фактически нанесённого врагам урона. Максимум лечения от Вампиризма — 100 HP в секунду.',tags:['sustain','damage']}
 };
 

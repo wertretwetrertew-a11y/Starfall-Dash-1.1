@@ -572,7 +572,7 @@ function rogueTickSystems() {
     // Poison zone: the run-only Poison upgrade creates a timed area that follows the player.
     if (runUpgrades.poison) {
         var poisonLevel = Math.max(1, Math.min(3, runUpgrades.poison));
-        var poisonActiveFrames = [0, 180, 270, 360][poisonLevel]; // 3s / 4.5s / 6s
+        var poisonActiveFrames = [0, 210, 300, 390][poisonLevel]; // 3.5s / 5s / 6.5s
         var poisonCooldownFrames = [0, 360, 300, 240][poisonLevel]; // 6s / 5s / 4s
         if (roguePoisonZoneActive) {
             roguePoisonZoneTimer--;

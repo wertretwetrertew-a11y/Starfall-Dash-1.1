@@ -1,5 +1,4 @@
 // AUTO-GENERATED FROM config/roguelike-balance.json
-// Edit the JSON with: node tools/balance-editor.mjs
 var STARFALL_BALANCE = {
   "version": 1,
   "notes": "Developer-only balance source for Roguelike. Edit through tools/balance-editor.mjs.",

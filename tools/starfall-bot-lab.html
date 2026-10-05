@@ -325,7 +325,9 @@ function renderEditor(){
 
 
 function readInputValue(el){
-  return el.dataset.t ? el.value.split(',').map(s=>s.trim()).filter(Boolean) : Number(el.value);
+  if(el.dataset.t) return el.value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(el.dataset.s) return String(el.value);
+  return Number(el.value);
 }
 function collect(){
   document.querySelectorAll('[data-p]').forEach(e=>{

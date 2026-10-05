@@ -68,9 +68,7 @@ var STARFALL_BALANCE = {
             "target": 6
           },
           "pool": [
-            "snake",
-            "spider",
-            "barrier"
+            "miniboss"
           ]
         }
       ],

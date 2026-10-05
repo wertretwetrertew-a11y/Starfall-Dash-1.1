@@ -36,10 +36,40 @@ small{color:#8298ca}a{color:#8eb4ff}
 <div class="card"><h2>🗺️ Этапы</h2><div class="scroll"><table id="analyticsStages"></table></div></div>
 <div class="card"><h2>✨ Улучшения</h2><div class="scroll"><table id="analyticsUpgrades"></table></div></div>
 <div class="card"><h2>💀 Причины смерти и опасности</h2><div class="scroll"><table id="analyticsDeaths"></table></div></div>
-</section><section id="bal" style="display:none"><div class="card"><button id="gh">☁️ Сохранить в GitHub</button> <button id="loc">💾 Локально</button><p id="bs"></p></div><div id="editor"></div></section><section id="bugs" style="display:none"><div class="card"><h2>🐞 Баги</h2><button class="primary" id="toggleAddBug">➕ Добавить новый баг</button> <button type="button" id="refreshBugs">🔄 Обновить список</button><div id="addBugForm" style="display:none;margin-top:14px"><div class="grid"><label class="field"><span>Название</span><input id="bugTitle"></label><label class="field"><span>Приоритет</span><select id="bugPriority"><option value="critical">🔴 Критический</option><option value="high">🟠 Высокий</option><option value="medium" selected>🟡 Средний</option><option value="low">🟢 Низкий</option></select></label></div><label class="field"><span>Описание</span><textarea id="bugDescription" style="width:100%;box-sizing:border-box;min-height:70px;background:#080d1d;color:#fff;border:1px solid #2d3b5d;border-radius:8px;padding:9px"></textarea><br><button class="primary" id="addBug">➕ Создать баг</button></div><button id="saveBugs" style="margin-top:10px">☁️ Сохранить в GitHub</button><p id="bugMsg"></p></div><div class="card bug-filters"><h2>🔎 Фильтрация багов</h2><div class="grid">
+</section><section id="bal" style="display:none"><div class="card"><button id="gh">☁️ Сохранить в GitHub</button> <button id="loc">💾 Сохранить черновик</button><p id="bs"></p></div><div id="editor"></div></section><section id="bugs" style="display:none"><div class="card"><h2>🐞 Баги</h2><button class="primary" id="toggleAddBug">➕ Добавить новый баг</button> <button type="button" id="refreshBugs">🔄 Обновить список</button><div id="addBugForm" style="display:none;margin-top:14px"><div class="grid"><label class="field"><span>Название</span><input id="bugTitle"></label><label class="field"><span>Приоритет</span><select id="bugPriority"><option value="critical">🔴 Критический</option><option value="high">🟠 Высокий</option><option value="medium" selected>🟡 Средний</option><option value="low">🟢 Низкий</option></select></label></div><label class="field"><span>Описание</span><textarea id="bugDescription" style="width:100%;box-sizing:border-box;min-height:70px;background:#080d1d;color:#fff;border:1px solid #2d3b5d;border-radius:8px;padding:9px"></textarea><br><button class="primary" id="addBug">➕ Создать баг</button></div><button id="saveBugs" style="margin-top:10px">☁️ Сохранить в GitHub</button><p id="bugMsg"></p></div><div class="card bug-filters"><h2>🔎 Фильтрация багов</h2><div class="grid">
 <label class="field"><span>Статус</span><select id="bugFilterStatus"><option value="all">Все статусы</option><option value="open" selected>❌ Не исправлен</option><option value="fixed">✅ Исправлен</option></select></label>
 <label class="field"><span>Приоритет</span><select id="bugFilterPriority"><option value="all">Все приоритеты</option><option value="critical">🔴 Критический</option><option value="high">🟠 Высокий</option><option value="medium">🟡 Средний</option><option value="low">🟢 Низкий</option></select></label><label class="field"><span>Версия исправления</span><select id="bugFilterVersion"><option value="all">Все версии</option></select></label>
-</div><small>Можно выбрать статус, приоритет, оба фильтра или оставить оба без фильтра.</small><div id="bugFilterSummary" style="margin-top:10px"></div></div><div id="bugList"></div></section></main><script>const t=new URLSearchParams(location.search).get('token'),$=x=>document.getElementById(x);let data,last;document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-x]').forEach(x=>x.classList.remove('on'));b.classList.add('on');['test','stats','analytics','bal','bugs'].forEach(x=>$(x).style.display=x==b.dataset.x?'block':'none');if(b.dataset.x==='bugs')loadBugs();if(b.dataset.x==='analytics')loadAnalytics()});async function loadVersion(){try{const r=await fetch('/api/version?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});const j=await r.json();$('gameVersion').textContent='Игра v'+j.version}catch(e){$('gameVersion').textContent='Версия недоступна'}}async function load(){data=await(await fetch('/api/balance?token='+encodeURIComponent(t))).json();renderEditor()}
+</div><small>Можно выбрать статус, приоритет, оба фильтра или оставить оба без фильтра.</small><div id="bugFilterSummary" style="margin-top:10px"></div></div><div id="bugList"></div></section></main><script>const t=new URLSearchParams(location.search).get('token'),$=x=>document.getElementById(x);let data,last;document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-x]').forEach(x=>x.classList.remove('on'));b.classList.add('on');['test','stats','analytics','bal','bugs'].forEach(x=>$(x).style.display=x==b.dataset.x?'block':'none');if(b.dataset.x==='bugs')loadBugs();if(b.dataset.x==='analytics')loadAnalytics()});async function loadVersion(){try{const r=await fetch('/api/version?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});const j=await r.json();$('gameVersion').textContent='Игра v'+j.version}catch(e){$('gameVersion').textContent='Версия недоступна'}}const BALANCE_DRAFT_KEY='starfall-bot-lab-balance-draft-v1';
+function cloneData(v){return JSON.parse(JSON.stringify(v))}
+function saveDraft(showMessage=true){
+  try{
+    collect();
+    localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
+    if(showMessage){$('bs').className='good';$('bs').textContent='✅ Черновик сохранён в этом браузере. Его можно потом отправить в GitHub.'}
+    return true;
+  }catch(e){
+    if(showMessage){$('bs').className='';$('bs').textContent='❌ Не удалось сохранить черновик: '+e.message}
+    return false;
+  }
+}
+function clearDraft(){try{localStorage.removeItem(BALANCE_DRAFT_KEY)}catch{}}
+function restoreDraft(base){
+  try{
+    const raw=localStorage.getItem(BALANCE_DRAFT_KEY);
+    if(!raw)return base;
+    const draft=JSON.parse(raw);
+    if(!draft||!draft.data)return base;
+    data=draft.data;
+    $('bs').className='good';
+    $('bs').textContent='📝 Восстановлен локальный черновик от '+new Date(draft.savedAt||Date.now()).toLocaleString('ru-RU')+'. Нажми «Сохранить в GitHub», когда всё будет готово.';
+    return data;
+  }catch(e){clearDraft();return base}
+}
+async function load(){
+  const base=await(await fetch('/api/balance?token='+encodeURIComponent(t))).json();
+  data=restoreDraft(base);
+  renderEditor();
+}
 let bugData={version:1,nextId:1,bugs:[]};
 const bugPriority={critical:'🔴 Критический',high:'🟠 Высокий',medium:'🟡 Средний',low:'🟢 Низкий'};
 const bugStatus={open:'❌ Не исправлен',fixed:'✅ Исправлен'};
@@ -108,6 +138,7 @@ function bindStageEnemyEditors(){
       btn.onclick=(ev)=>{
         ev.preventDefault();
         ev.stopPropagation();
+        collect();
         const key=cb.value;
         const e=data.rogue.enemies[key];
         const wasOpen=editor.classList.contains('open');
@@ -170,4 +201,44 @@ function renderEditor(){
   bindStageEnemyEditors();
   document.querySelectorAll('#editor .collapsible').forEach(x=>x.classList.add('collapsed'));
 }
-function collect(){document.querySelectorAll('[data-p]').forEach(e=>{let a=e.dataset.p.split('.'),x=data;for(let i=0;i<a.length-1;i++)x=x[a[i]];x[a[a.length-1]]=e.dataset.t?e.value.split(',').map(s=>s.trim()).filter(Boolean):Number(e.value)});document.querySelectorAll('[data-stage-pool]').forEach(e=>{let a=e.dataset.stagePool.split('.'),s=data.rogue.stages[a[0]][Number(a[1])];s.pool=[...document.querySelectorAll('[data-stage-pool="'+e.dataset.stagePool+'"]:checked')].map(x=>x.value)})}async function save(push){collect();let b=push?$('gh'):$('loc');b.disabled=true;b.textContent=push?'⏳ Сохраняем в GitHub…':'⏳ Сохраняем…';$('bs').className='';$('bs').textContent='';try{let r=await fetch('/api/save?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({data,commit:push,push})}),j=await r.json();if(j.success&&push){sessionStorage.setItem('botLabTab','bal');$('bs').className='good';$('bs').innerHTML='✅ Изменения реально сохранены в GitHub. Commit: '+j.sha.slice(0,7)+' · <a target="_blank" href="'+j.commitUrl+'">Открыть commit</a><br><small>Страница обновится автоматически…</small>';setTimeout(()=>location.reload(),900)}else if(j.message&&!push){$('bs').className='good';$('bs').textContent='✅ Изменения сохранены локально.';b.disabled=false;b.textContent='💾 Локально'}else{$('bs').innerHTML=j.message||j.error||'Ошибка сохранения';b.disabled=false;b.textContent=push?'☁️ Сохранить в GitHub':'💾 Локально'}}catch(e){$('bs').innerHTML='❌ Ошибка: '+e.message;b.disabled=false;b.textContent=push?'☁️ Сохранить в GitHub':'💾 Локально'}}$('gh').onclick=()=>save(true);$('loc').onclick=()=>save(false);enhanceCollapsibles();bindStageEnemyEditors();loadVersion();load().then(()=>{let tab=sessionStorage.getItem('botLabTab');if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}})</script></html>
+function collect(){document.querySelectorAll('[data-p]').forEach(e=>{let a=e.dataset.p.split('.'),x=data;for(let i=0;i<a.length-1;i++)x=x[a[i]];x[a[a.length-1]]=e.dataset.t?e.value.split(',').map(s=>s.trim()).filter(Boolean):Number(e.value)});document.querySelectorAll('[data-stage-pool]').forEach(e=>{let a=e.dataset.stagePool.split('.'),s=data.rogue.stages[a[0]][Number(a[1])];s.pool=[...document.querySelectorAll('[data-stage-pool="'+e.dataset.stagePool+'"]:checked')].map(x=>x.value)})}async function save(push){
+  collect();
+  if(!push){
+    saveDraft(true);
+    $('loc').disabled=false;
+    $('loc').textContent='💾 Сохранить черновик';
+    return;
+  }
+  let b=$('gh');
+  b.disabled=true;
+  b.textContent='⏳ Сохраняем в GitHub…';
+  $('bs').className='';
+  $('bs').textContent='';
+  try{
+    let r=await fetch('/api/save?token='+encodeURIComponent(t),{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({data,commit:true,push:true})
+    });
+    let j=await r.json();
+    if(j.success){
+      clearDraft();
+      sessionStorage.setItem('botLabTab','bal');
+      $('bs').className='good';
+      $('bs').innerHTML='✅ Изменения реально сохранены в GitHub. Черновик очищен. Commit: '+j.sha.slice(0,7)+' · <a target="_blank" href="'+j.commitUrl+'">Открыть commit</a><br><small>Страница обновится автоматически…</small>';
+      setTimeout(()=>location.reload(),900);
+    }else{
+      $('bs').innerHTML=j.message||j.error||'Ошибка сохранения';
+      b.disabled=false;
+      b.textContent='☁️ Сохранить в GitHub';
+    }
+  }catch(e){
+    $('bs').innerHTML='❌ Ошибка: '+e.message;
+    b.disabled=false;
+    b.textContent='☁️ Сохранить в GitHub';
+  }
+}
+$('gh').onclick=()=>save(true);$('loc').onclick=()=>save(false);enhanceCollapsibles();bindStageEnemyEditors();loadVersion();load().then(()=>{let tab=sessionStorage.getItem('botLabTab');if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}})</script></html>$('gh').onclick=()=>save(true);$('loc').onclick=()=>save(false);
+document.getElementById('editor').addEventListener('input',()=>{try{collect();localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}});
+document.getElementById('editor').addEventListener('change',()=>{try{collect();localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}});
+enhanceCollapsibles();bindStageEnemyEditors();loadVersion();load().then(()=>{let tab=sessionStorage.getItem('botLabTab');if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}})</script></html>

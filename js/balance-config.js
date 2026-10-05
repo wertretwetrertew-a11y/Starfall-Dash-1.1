@@ -36,8 +36,9 @@ var STARFALL_BALANCE = {
             "target": 90
           },
           "pool": [
-            "zigzag",
-            "ghost"
+            "normal",
+            "ghost",
+            "spider"
           ]
         },
         {
@@ -207,7 +208,7 @@ var STARFALL_BALANCE = {
     },
     "enemies": {
       "normal": {
-        "hp": 5,
+        "hp": 8,
         "speed": 2.5,
         "size": 25
       },
@@ -222,8 +223,8 @@ var STARFALL_BALANCE = {
         "size": 24
       },
       "ghost": {
-        "hp": 4,
-        "speed": 3.2,
+        "hp": 12,
+        "speed": 2,
         "size": 26
       },
       "hunter": {
@@ -247,7 +248,7 @@ var STARFALL_BALANCE = {
         "size": 30
       },
       "spider": {
-        "hp": 5,
+        "hp": 10,
         "speed": 2.4,
         "size": 26
       },

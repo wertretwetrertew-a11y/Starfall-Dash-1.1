@@ -12,8 +12,8 @@ var STARFALL_BALANCE = {
       "arden": [
         {
           "spawnInterval": 82,
-          "maxAlive": 5,
-          "minAlive": 3,
+          "maxAlive": 7,
+          "minAlive": 4,
           "speedMult": 0.9,
           "hpMult": 1,
           "objective": {

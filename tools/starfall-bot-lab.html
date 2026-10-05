@@ -1,59 +1,68 @@
-<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Starfall Dash Bot Lab</title><style>
-:root{--bg:#050918;--panel:rgba(8,18,48,.82);--panel2:rgba(10,25,62,.72);--line:#254caa;--cyan:#48d9ff;--blue:#557cff;--violet:#8a4dff;--pink:#d65cff;--text:#eef4ff;--muted:#91a4d4;--good:#36efb1}
-*{box-sizing:border-box}html{min-height:100%;background:var(--bg)}body{margin:0;min-height:100vh;color:var(--text);font:14px Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:
-radial-gradient(circle at 78% 18%,rgba(65,100,255,.20),transparent 26%),
-radial-gradient(circle at 18% 86%,rgba(147,54,255,.16),transparent 24%),
-linear-gradient(180deg,#030717 0%,#07102a 58%,#040817 100%);overflow-x:hidden}
-body:before,body:after{content:"";position:fixed;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(1px)}
-body:before{width:360px;height:360px;right:-120px;top:120px;background:radial-gradient(circle,#234fb5 0 4%,transparent 5% 100%);box-shadow:-170px 210px 0 -130px #7954ff, -510px 480px 0 -165px #1d8bcb}
-body:after{inset:0;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:120px 120px;opacity:.16}
-main{max-width:1320px;margin:auto;padding:30px 28px 60px}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px}
-.brand{display:flex;align-items:center;gap:14px}.brand-icon{width:54px;height:54px;border-radius:15px;display:grid;place-items:center;font-size:30px;background:linear-gradient(145deg,#162e72,#0b1739);border:1px solid #3564e8;box-shadow:0 0 26px rgba(65,123,255,.35),inset 0 0 22px rgba(89,65,255,.18)}
-.brand h1{margin:0;font-size:28px;letter-spacing:.2px}.brand h1 span{display:block;color:#9a70ff;font-size:18px;letter-spacing:2px;margin-top:2px}.subtitle{margin-top:5px;color:var(--muted)}
-.status{display:flex;align-items:center;gap:10px;padding:12px 18px;border:1px solid #24489d;border-radius:14px;background:rgba(7,18,46,.72);box-shadow:0 0 22px rgba(54,108,255,.15)}.dot{width:10px;height:10px;border-radius:50%;background:var(--good);box-shadow:0 0 12px var(--good)}
-.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
-.tabs button{position:relative;justify-content:center;align-items:center;min-height:58px;border:1px solid #244a9f;border-radius:13px;padding:12px 16px;background:linear-gradient(145deg,rgba(12,29,71,.94),rgba(8,18,46,.9));color:#cbd8ff;font-size:16px;transition:.18s;box-shadow:inset 0 1px rgba(255,255,255,.05),0 8px 25px rgba(0,0,0,.18)}
-.tabs button:hover{transform:translateY(-2px);border-color:#5684ff;box-shadow:0 0 22px rgba(75,110,255,.22)}.tabs button.on{background:linear-gradient(135deg,#7148ff,#496cff);border-color:#a98aff;color:#fff;box-shadow:0 0 28px rgba(115,76,255,.45)}.tabs button.on:after{content:"";position:absolute;bottom:-7px;left:42%;width:16px;height:16px;background:#6b50ff;transform:rotate(45deg);border-right:1px solid #a98aff;border-bottom:1px solid #a98aff}
-section{animation:fade .2s ease}@keyframes fade{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}
-.card{position:relative;background:linear-gradient(145deg,rgba(13,29,67,.88),rgba(6,16,40,.9));border:1px solid #244a9f;border-radius:16px;padding:22px;margin:14px 0;box-shadow:0 18px 50px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.035);overflow:hidden}.card:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(70,125,255,.05),transparent);transform:translateX(-100%);animation:scan 7s linear infinite}@keyframes scan{to{transform:translateX(100%)}}
-.card h2{margin:0 0 18px;font-size:22px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field span{font-size:12px;color:#9cafdf;font-weight:700;letter-spacing:.2px}
-input,select,textarea{width:100%;background:#050d21;color:#f4f7ff;border:1px solid #29457f;border-radius:10px;padding:11px 12px;outline:none;transition:.15s}input:focus,select:focus,textarea:focus{border-color:#6d8fff;box-shadow:0 0 0 3px rgba(82,112,255,.14)}
-button{border:1px solid #294a9e;border-radius:10px;padding:11px 15px;background:#17264e;color:#fff;font-weight:800;cursor:pointer;transition:.15s}button:hover{transform:translateY(-1px);filter:brightness(1.12)}button.primary{background:linear-gradient(135deg,#7b4dff,#4d73ff);border-color:#a58cff;box-shadow:0 0 22px rgba(105,76,255,.35);font-size:15px}
-#test>.card:first-child{padding:28px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.metric{background:linear-gradient(145deg,#0d1d43,#09142e);padding:16px;border:1px solid #203d7b;border-radius:12px;color:#9fb1df}.metric b{display:block;color:#fff;font-size:25px;margin-top:6px}
-table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden}td,th{padding:11px;border-bottom:1px solid #1d315c;text-align:left}th{color:#9eb4ed;background:#0b1835}.scroll{overflow:auto}.good{color:#70ffc1}.bad{color:#ff819b}.pill{display:inline-block;padding:6px 9px;background:#132348;border:1px solid #29477f;border-radius:20px;margin:3px}.bug{background:rgba(5,14,34,.8);border:1px solid #263d70;border-radius:12px;padding:14px;margin:10px 0}.bug-title{font-size:16px;font-weight:800}.bug-meta{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.bug select,.bug input,.bug textarea{width:100%;box-sizing:border-box}.bug textarea{min-height:60px}.critical{border-left:4px solid #ff5c5c}.high{border-left:4px solid #ff9d45}.medium{border-left:4px solid #f5d34f}.low{border-left:4px solid #65d68a}
-.balance-version-card{padding:14px 18px;margin:10px 0 12px;border-radius:14px;background:linear-gradient(135deg,rgba(16,35,78,.94),rgba(8,18,43,.94));border:1px solid #315dbb;box-shadow:0 10px 30px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.04)}
-.balance-version-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.balance-version-title{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:800}
-.balance-version-title small{font-size:11px;color:#8298ca;font-weight:600}
-.balance-version-stats{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.balance-version-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:10px;background:linear-gradient(135deg,#6f49ff,#4d70ff);border:1px solid #9e87ff;color:#fff;font-weight:900;font-size:16px;box-shadow:0 0 18px rgba(105,76,255,.25)}
-.balance-version-date{display:flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid #29477f;border-radius:10px;background:#0a1735;color:#9fb1df;font-size:12px}
-.balance-version-history{margin-top:10px}
-.balance-version-history summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 2px 2px;color:#cbd8ff;font-weight:800}
-.balance-version-history summary::-webkit-details-marker{display:none}
-.balance-version-history summary:after{content:"▸";opacity:.7}
-.balance-version-history[open] summary:after{content:"▾"}
-.balance-version-history summary:hover{color:#fff}
-@media(max-width:760px){.balance-version-head{align-items:flex-start;flex-direction:column;gap:10px}.balance-version-stats{justify-content:flex-start;width:100%}.balance-version-badge,.balance-version-date{flex:1}.balance-version-date{justify-content:center}}
-#editor>.card{border-color:#315dbb}#editor>.card>.card{background:rgba(7,18,43,.7)}
-small{color:#8298ca}a{color:#8eb4ff}
-@media(max-width:760px){main{padding:18px 12px 40px}.topbar{align-items:flex-start}.status{display:none}.tabs{grid-template-columns:repeat(2,1fr)}.tabs button{min-height:50px}.brand h1{font-size:22px}.brand h1 span{font-size:14px}.grid{grid-template-columns:1fr}}
-.bug-actions{display:flex;gap:8px}.bug-edit textarea{width:100%;box-sizing:border-box;min-height:80px;background:#080d1d;color:#fff;border:1px solid #2d3b5d;border-radius:8px;padding:9px;resize:vertical}.bug-edit input,.bug-edit select{width:100%;box-sizing:border-box}
-.bug-collapsed{padding:0!important;overflow:hidden}.bug-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;background:transparent;border:0;color:#fff;text-align:left;padding:14px 16px;cursor:pointer;font:inherit}.bug-toggle-title{font-weight:700}.bug-toggle-icon{font-size:18px;opacity:.8}.bug-content{display:none;padding:0 16px 16px}.bug-open .bug-content{display:block}.bug-open .bug-toggle{border-bottom:1px solid rgba(80,110,180,.35)}.bug-toggle:hover{background:rgba(90,110,220,.08)}.enemy-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:8px}.enemy-stage-quick{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;margin:0}.enemy-stage-quick label{min-width:0;margin:0!important}.enemy-stage-quick .enemy-edit-btn{padding:6px 9px;font-size:13px;min-width:38px}.enemy-stage-editor{display:none;margin:0 0 8px 0;padding:12px;border:1px solid #315dbb;border-radius:10px;background:rgba(5,14,34,.8)}.enemy-stage-editor.open{display:block}.enemy-stage-editor h3{margin:0 0 10px}.collapse-tools{display:flex;justify-content:flex-end;gap:8px;margin:-8px 0 14px}.collapse-tools button{font-size:12px;padding:7px 10px}.collapsible>h2{cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:10px}.collapsible>h2:after{content:"▾";font-size:16px;opacity:.7}.collapsible.collapsed>h2:after{content:"▸"}.collapsible.collapsed>h2~*{display:none!important}.collapsible.collapsed>h2{margin-bottom:0}.collapse-tools{display:flex;justify-content:flex-end;gap:8px;margin:-8px 0 14px}.collapse-tools button{font-size:12px;padding:7px 10px}.collapsible>h2{cursor:pointer;user-select:none;display:flex;align-items:center;justify-content:space-between;gap:10px}.collapsible>h2:after{content:"▾";font-size:16px;opacity:.7}.collapsible.collapsed>h2:after{content:"▸"}.collapsible.collapsed>h2~*{display:none!important}.collapsible.collapsed>h2{margin-bottom:0}
-</style><main>
-<div class="topbar"><div class="brand"><div class="brand-icon">🤖</div><div><h1>Starfall Dash <span>ЛАБОРАТОРИЯ БОТА</span></h1><div class="subtitle">Тестирование игры, статистика, аналитика и ручная настройка баланса</div></div></div><div class="status"><i class="dot"></i><span>Лаборатория бота запущена</span><b id="gameVersion" style="margin-left:10px;color:#70ffc1">Игра v—</b></div></div>
-<div class="collapse-tools"><button type="button" id="collapseAll">▾ Свернуть всё</button><button type="button" id="expandAll">▸ Развернуть всё</button></div><div class="tabs"><button class="on" data-x="test">🤖 Тест</button><button data-x="stats">📊 Статистика</button><button data-x="analytics">📡 Аналитика</button><button data-x="bal">⚙️ Баланс</button><button data-x="bugs">🐞 Баги</button><button type="button" onclick="location.href='/ideas'">💡 Идеи обновлений</button></div><section id="test"><div class="card"><h2>Запуск</h2><div class="grid"><label class="field"><span>Профиль</span><select id="p"><option value="novice">Новичок</option><option value="average" selected>Обычный</option><option value="optimal">Оптимальный</option></select></label><label class="field"><span>Забегов</span><input id="n" value="500" type="number" min="1" max="10000"></label><label class="field"><span>Стартовый урон</span><input id="d" value="1" type="number" step=".1"></label><label class="field"><span>Стартовое HP</span><input id="hp" value="3" type="number"></label></div><br><button class="primary" id="go">▶ Запустить бота</button> <button id="all">⚡ Все профили</button><p id="msg"></p><small>Симулятор использует текущий Roguelike-баланс и ничего не меняет автоматически.</small></div></section><section id="stats" style="display:none"><div class="card"><h2>📊 Статистика</h2><div id="sum" class="cards"></div></div><div class="card"><h2>Этапы</h2><div class="scroll"><table id="st"></table></div></div><div class="card"><h2>Враги</h2><div class="scroll"><table id="en"></table></div></div><div class="card"><h2>Боссы (победы / встречи)</h2><div class="scroll"><table id="bo"></table></div></div><div class="card"><h2>Апгрейды</h2><div id="up"></div></div></section><section id="analytics" style="display:none">
-<div class="card"><h2>📡 Аналитика реальных игроков</h2><div class="cards" id="analyticsSum"></div><div style="margin-top:12px"><button class="primary" id="analyticsRefresh">🔄 Обновить данные</button> <button id="analyticsClear">🗑 Очистить сохранённую аналитику</button></div><p id="analyticsMsg"></p><small>Данные собираются из реальной игры. Они сохраняются прямо в этом боте.</small></div>
-<div class="card"><h2>🧾 История игровых сессий</h2><div class="scroll"><table id="analyticsSessions"></table></div><small>Здесь сохраняется отдельная запись каждого открытия игры. Внутри сессии видны все забеги и их итог.</small></div><div class="card"><h2>🎮 Режим игрыы</h2><div class="scroll"><table id="analyticsModes"></table></div></div>
-<div class="card"><h2>🧙 Персонажи</h2><div class="scroll"><table id="analyticsCharacters"></table></div></div>
-<div class="card"><h2>🗺️ Этапы</h2><div class="scroll"><table id="analyticsStages"></table></div></div>
-<div class="card"><h2>✨ Улучшения</h2><div class="scroll"><table id="analyticsUpgrades"></table></div></div>
-<div class="card"><h2>💀 Причины смерти и опасности</h2><div class="scroll"><table id="analyticsDeaths"></table></div></div>
-</section><section id="bal" style="display:none"><div class="balance-version-card"><div class="balance-version-head"><div class="balance-version-title">📦 Версия баланса <small>синхронизирована с игрой</small></div><div class="balance-version-stats"><div class="balance-version-badge">● <span id="balanceVersion">v—</span></div><div class="balance-version-date">🕒 <span id="balanceUpdated">—</span></div></div></div><details class="balance-version-history"><summary>📜 История обновлений <span id="updateHistoryCount" style="opacity:.6;font-weight:600">0</span></summary><div id="updateHistory" style="padding-top:4px"></div></details></div><div class="card"><button id="gh">☁️ Сохранить в GitHub</button> <button id="loc">💾 Сохранить черновик</button><p id="bs"></p></div><div id="editor"></div></section><section id="bugs" style="display:none"><div class="card"><h2>🐞 Баги</h2><button class="primary" id="toggleAddBug">➕ Добавить новый баг</button> <button type="button" id="refreshBugs">🔄 Обновить список</button><div id="addBugForm" style="display:none;margin-top:14px"><div class="grid"><label class="field"><span>Название</span><input id="bugTitle"></label><label class="field"><span>Приоритет</span><select id="bugPriority"><option value="critical">🔴 Критический</option><option value="high">🟠 Высокий</option><option value="medium" selected>🟡 Средний</option><option value="low">🟢 Низкий</option></select></label></div><label class="field"><span>Описание</span><textarea id="bugDescription" style="width:100%;box-sizing:border-box;min-height:70px;background:#080d1d;color:#fff;border:1px solid #2d3b5d;border-radius:8px;padding:9px"></textarea><br><button class="primary" id="addBug">➕ Создать баг</button></div><button id="saveBugs" style="margin-top:10px">☁️ Сохранить в GitHub</button><p id="bugMsg"></p></div><div class="card bug-filters"><h2>🔎 Фильтрация багов</h2><div class="grid">
-<label class="field"><span>Статус</span><select id="bugFilterStatus"><option value="all">Все статусы</option><option value="open" selected>❌ Не исправлен</option><option value="fixed">✅ Исправлен</option></select></label>
-<label class="field"><span>Приоритет</span><select id="bugFilterPriority"><option value="all">Все приоритеты</option><option value="critical">🔴 Критический</option><option value="high">🟠 Высокий</option><option value="medium">🟡 Средний</option><option value="low">🟢 Низкий</option></select></label><label class="field"><span>Версия исправления</span><select id="bugFilterVersion"><option value="all">Все версии</option></select></label>
-</div><small>Можно выбрать статус, приоритет, оба фильтра или оставить оба без фильтра.</small><div id="bugFilterSummary" style="margin-top:10px"></div></div><div id="bugList"></div></section></main><script>const t=new URLSearchParams(location.search).get('token'),$=x=>document.getElementById(x);let data,last;document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-x]').forEach(x=>x.classList.remove('on'));b.classList.add('on');['test','stats','analytics','bal','bugs'].forEach(x=>$(x).style.display=x==b.dataset.x?'block':'none');if(b.dataset.x==='bugs')loadBugs();if(b.dataset.x==='analytics')loadAnalytics();if(b.dataset.x==='bal')loadVersion()});async function loadVersion(){
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Starfall Dash — Bot Lab</title><style>
+:root{--bg:#030817;--panel:#071532;--panel2:#0a1b40;--panel3:#0d2350;--line:#2457bb;--line2:#3474ef;--text:#f2f6ff;--muted:#8fa6d8;--violet:#6f4cff;--violet2:#9a6cff;--cyan:#39ddff;--good:#25efb1;--danger:#ff557b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:14px Inter,system-ui,-apple-system,Segoe UI,sans-serif}body{background:radial-gradient(circle at 78% 15%,rgba(67,94,255,.18),transparent 25%),radial-gradient(circle at 18% 90%,rgba(119,55,255,.13),transparent 25%),linear-gradient(180deg,#020613,#06112c 60%,#020611);overflow-x:hidden}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:110px 110px}.app{max-width:1520px;margin:auto;padding:18px 24px 26px}.topbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid #183873;padding-bottom:14px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:13px;min-width:250px}.brand-icon{width:58px;height:58px;border-radius:17px;display:grid;place-items:center;font-size:32px;background:linear-gradient(145deg,#16347a,#0a1739);border:1px solid #3b72ed;box-shadow:0 0 28px rgba(71,105,255,.38)}.brand h1{margin:0;font-size:27px;line-height:1.05}.brand h1 span{display:block;color:#9d6cff;font-size:17px;letter-spacing:2px;margin-top:4px}.crumbs{color:#7f9cdb;font-size:13px;flex:1}.top-status{display:flex;align-items:center;gap:9px}.status,.top-chip{padding:9px 13px;border:1px solid #2457bb;border-radius:13px;background:rgba(7,19,48,.84);white-space:nowrap}.status{display:flex;gap:9px;align-items:center}.dot{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 12px var(--good)}.layout{display:grid;grid-template-columns:230px minmax(0,1fr) 260px;gap:18px;align-items:start}.sidebar,.rightbar,.workspace{min-width:0}.side-card,.right-card,.panel{background:linear-gradient(145deg,rgba(9,27,65,.92),rgba(4,13,34,.94));border:1px solid #2457bb;border-radius:16px;box-shadow:0 16px 45px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.04)}.side-card{padding:10px}.nav-btn{width:100%;border:0;background:transparent;color:#b8c9f1;padding:13px 14px;border-radius:12px;display:flex;align-items:center;gap:12px;font-size:15px;font-weight:800;text-align:left;cursor:pointer}.nav-btn:hover{background:#0b2451;color:#fff}.nav-btn.on{background:linear-gradient(135deg,#6f45ff,#4e66ff);color:#fff;box-shadow:0 0 22px rgba(101,73,255,.34)}.nav-icon{width:26px;text-align:center;font-size:18px}.nav-count{margin-left:auto;background:#254fd6;border-radius:10px;padding:3px 8px;font-size:11px}.side-art{height:210px;margin-top:12px;display:grid;place-items:center;text-align:center;padding:18px;color:#8ea8df;background:radial-gradient(circle at 50% 40%,rgba(77,80,255,.28),transparent 38%);border-top:1px solid #17366e}.planet-art{font-size:65px;filter:drop-shadow(0 0 20px #5e55ff);margin-bottom:8px}.right-card{padding:17px;margin-bottom:14px}.version-box{display:flex;align-items:center;gap:13px}.cube{width:55px;height:55px;border-radius:16px;display:grid;place-items:center;font-size:28px;background:linear-gradient(145deg,#6d3fff,#245fd9);box-shadow:0 0 28px rgba(101,66,255,.4)}.right-card h3{margin:0 0 6px}.version-big{font-size:27px;font-weight:900}.goodline{color:var(--good);font-size:12px;margin-top:8px}.quick{display:grid;gap:8px;margin-top:13px}.quick button,.action-btn{border:1px solid #2556ad;background:#071b42;color:#d7e4ff;border-radius:11px;padding:11px 12px;text-align:left;font-weight:750;cursor:pointer}.quick button:hover,.action-btn:hover{border-color:#5e85ff;background:#0b2452}.workspace section{display:none}.workspace section.active{display:block}.hero-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.hero-title h2{margin:0;font-size:24px}.hero-title p{margin:5px 0 0;color:var(--muted)}.hero-icon{width:43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#7044ff,#4f75ff);display:grid;place-items:center;font-size:22px}.title-left{display:flex;align-items:center;gap:12px}.panel{padding:17px;margin-bottom:14px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.panel-head h3{margin:0;font-size:16px}.panel-head small{color:var(--muted)}.balance-version{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}.sync-badge{color:var(--good);border:1px solid #1c9879;border-radius:10px;padding:6px 10px;font-size:11px}.version-pill{font-size:20px;font-weight:900;background:linear-gradient(135deg,#6f49ff,#566cff);padding:9px 15px;border-radius:12px;box-shadow:0 0 20px rgba(102,72,255,.35)}.history-summary{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #183568;padding-top:12px;margin-top:13px}.history-list .bug{margin:8px 0}.actions{display:flex;gap:10px;flex-wrap:wrap}.primary{border:1px solid #a38aff!important;background:linear-gradient(135deg,#7044ff,#5268ff)!important;color:#fff!important;box-shadow:0 0 20px rgba(101,70,255,.28)}button{font-family:inherit}.actions button{padding:11px 15px;border-radius:11px;font-weight:800;cursor:pointer}.balance-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}.balance-nav-btn{border:1px solid #2457bb;background:#071a40;color:#aec5f5;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}.balance-nav-btn.active{background:linear-gradient(135deg,#7044ff,#4f6dff);color:#fff;border-color:#a98cff}.hidden{display:none!important}.balance-split{display:grid;grid-template-columns:310px minmax(0,1fr);gap:12px;min-height:560px}.entity-list,.entity-editor{background:rgba(4,15,38,.55);border:1px solid #173d83;border-radius:13px;overflow:hidden}.list-tools{display:flex;gap:7px;padding:10px;border-bottom:1px solid #173d83}.list-tools input{flex:1}.enemy-row{width:100%;border:0;border-bottom:1px solid #132f65;background:transparent;color:#dbe7ff;padding:10px;display:grid;grid-template-columns:35px 1fr 18px;gap:9px;align-items:center;text-align:left;cursor:pointer}.enemy-row:hover{background:#0b2452}.enemy-row.active{background:linear-gradient(90deg,#193e9c,#172d72);box-shadow:inset 3px 0 #8b63ff}.enemy-avatar{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#102d66;font-size:17px}.enemy-row small,.planet-title small,.stage-row small,.boss-card small,.modifier-card small{display:block;color:#829bd0;font-size:11px;margin-top:3px}.chev{color:#7fa0e5;font-size:21px}.entity-editor{padding:19px}.editor-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.eyebrow{font-size:10px;letter-spacing:1.5px;color:#8b6cff}.editor-head h2{margin:4px 0;font-size:22px}.editor-head p{color:var(--muted);margin:0}.entity-badge{border:1px solid #315fbf;border-radius:10px;padding:7px 10px;color:#bcd1ff}.subtabs{display:flex;gap:7px;margin:18px 0 14px}.subtab{border:1px solid #244f9f;background:#081a3e;color:#9fb7eb;border-radius:9px;padding:8px 12px}.subtab.active{background:#6944f5;color:#fff}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field{display:flex;flex-direction:column;gap:6px}.field span{color:#91a8d9;font-size:11px;font-weight:800}.field input,.field select,.field textarea,.list-tools input{width:100%;border:1px solid #294d95;border-radius:9px;background:#040d22;color:#f3f7ff;padding:10px 11px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#6e86ff;box-shadow:0 0 0 2px rgba(102,88,255,.13)}.hint-card{margin-top:14px;padding:11px 13px;border:1px solid #1d427f;background:#081a3c;color:#9eb5e7;border-radius:10px}.editor-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:16px}.editor-actions button{padding:10px 13px;border-radius:10px;cursor:pointer}.secondary{border:1px solid #2b56a5;background:#081a3e;color:#bcd0f4}.planet-card{border:1px solid #204b9b;border-radius:13px;background:#07183a;margin-bottom:11px;overflow:hidden}.planet-title{display:flex;justify-content:space-between;align-items:center;padding:14px 15px}.planet-title>div{display:flex;align-items:center;gap:10px}.planet-orb{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#183878;color:#a98aff}.stage-row{border-top:1px solid #16366f}.stage-row summary{list-style:none;display:grid;grid-template-columns:35px 1fr 20px;align-items:center;gap:10px;padding:12px 15px;cursor:pointer}.stage-row summary::-webkit-details-marker{display:none}.stage-row[open] .stage-arrow{transform:rotate(180deg)}.stage-num{width:28px;height:28px;border-radius:8px;background:#183b7b;display:grid;place-items:center;color:#b8d0ff;font-weight:900}.stage-body{padding:0 15px 15px;border-top:1px solid #102e63}.pool-title{font-size:12px;color:#92a9db;font-weight:800;margin:13px 0 8px}.pool-grid{display:flex;flex-wrap:wrap;gap:6px}.pool-chip{border:1px solid #234b96;border-radius:8px;padding:6px 8px;background:#081a3c;color:#bcd0f3;font-size:11px}.pool-chip:has(input:checked){border-color:#785cff;background:#201759;color:#fff}.pool-chip input{margin-right:5px}.boss-card{display:grid;grid-template-columns:48px 1fr;gap:12px;border:1px solid #214d9c;border-radius:13px;padding:13px;margin-bottom:10px;background:#071a3d}.boss-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:#1b2c67;font-size:24px}.boss-main>b{font-size:16px}.compact-settings{display:grid;grid-template-columns:48px 1fr;gap:12px;border:1px solid #214d9c;border-radius:13px;padding:16px}.compact-settings .form-grid{grid-column:1/-1}.settings-icon{width:44px;height:44px;border-radius:12px;background:#183b7b;display:grid;place-items:center;font-size:22px}.compact-settings h3{margin:2px 0 5px}.compact-settings p{margin:0;color:var(--muted)}.modifier-grid,.overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.modifier-card,.overview-card{border:1px solid #214d9c;border-radius:13px;padding:14px;background:#071a3d}.modifier-card>b,.overview-card>b{display:block;font-size:16px}.modifier-card small,.overview-card small{margin-bottom:10px}.overview-card strong{display:block;margin-top:10px}.mini-bars{height:70px;display:flex;align-items:end;gap:7px;margin-top:12px}.mini-bars i{flex:1;background:linear-gradient(180deg,#8b61ff,#315fe5);border-radius:5px 5px 2px 2px}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{border:1px solid #204b97;background:#071a3d;border-radius:12px;padding:12px;color:#91a8d8}.metric b{display:block;color:#fff;font-size:19px;margin-top:5px}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:9px;border-bottom:1px solid #16356b;text-align:left}.table th{color:#8fa9dc;font-size:11px}.bug{border:1px solid #204b97;background:#071a3d;border-radius:11px;padding:12px}.bug-title{font-weight:850}.bug-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pill{display:inline-block;border:1px solid #2a57a8;border-radius:8px;padding:4px 7px;color:#bcd0f4;font-size:11px}.bug-content{margin-top:10px;color:#b7c9ec}.bug-actions{display:flex;gap:7px;flex-wrap:wrap}.bug-actions button{border:1px solid #2b56a5;background:#091d43;color:#cbd9f6;padding:7px 9px;border-radius:8px;cursor:pointer}.filter-row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.footer-note{margin-top:14px;text-align:center;color:#718bc2;font-size:11px}@media(max-width:1150px){.layout{grid-template-columns:190px minmax(0,1fr)}.rightbar{display:none}.metric-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:800px){.app{padding:10px}.topbar{align-items:flex-start}.crumbs{display:none}.top-status .top-chip{display:none}.layout{display:block}.sidebar{margin-bottom:10px}.side-card{display:flex;overflow:auto}.nav-btn{min-width:120px;justify-content:center}.side-art{display:none}.balance-split{grid-template-columns:1fr}.entity-list{max-height:310px;overflow:auto}.modifier-grid,.overview-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}.balance-version{grid-template-columns:1fr}.filter-row{grid-template-columns:1fr 1fr}}
+</style></head><body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="brand-icon">🤖</div><div><h1>Starfall Dash <span>BOT LAB</span></h1></div></div>
+  <div class="crumbs">Лаборатория бота　›　Управление игрой　›　Баланс</div>
+  <div class="top-status"><div class="status"><i class="dot"></i><b id="gameVersion">Игра v—</b></div><div class="top-chip"><i class="dot"></i> Bot Lab онлайн</div><button class="top-chip" type="button">⚙</button><button class="top-chip" type="button">☾</button></div>
+</header>
+<div class="layout">
+<aside class="sidebar"><div class="side-card">
+  <button class="nav-btn" data-x="test"><span class="nav-icon">⌂</span>Главная</button>
+  <button class="nav-btn on" data-x="bal"><span class="nav-icon">⚗</span>Баланс <span class="nav-count" id="navVersion">v3.3.5</span></button>
+  <button class="nav-btn" data-x="analytics"><span class="nav-icon">▥</span>Аналитика</button>
+  <button class="nav-btn" data-x="stats"><span class="nav-icon">▤</span>Статистика</button>
+  <button class="nav-btn" data-x="bugs"><span class="nav-icon">☣</span>Баги <span class="nav-count">2</span></button>
+  <button class="nav-btn" type="button" onclick="location.href='/ideas?token='+encodeURIComponent(t)"><span class="nav-icon">♧</span>Идеи</button>
+  <div class="side-art"><div><div class="planet-art">🪐</div><b>Управляй игрой<br>создавай будущее</b><div style="margin-top:10px">🚀</div></div></div>
+</div></aside>
+<main class="workspace">
+<section id="test" class="active">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">⚗</div><div><h2>Главная</h2><p>Быстрый доступ к тестированию и инструментам Bot Lab</p></div></div></div>
+  <div class="panel"><div class="panel-head"><div><h3>Быстрый тест баланса</h3><small>Симулятор использует текущий баланс игры.</small></div></div><div class="form-grid"><label class="field"><span>Профиль</span><select id="p"><option value="average">Обычный</option><option value="novice">Новичок</option><option value="optimal">Оптимальный</option></select></label><label class="field"><span>Количество прогонов</span><input id="n" type="number" value="100"></label><label class="field"><span>Базовый урон</span><input id="d" type="number" value="1"></label><label class="field"><span>Базовое HP</span><input id="hp" type="number" value="3"></label></div><div class="actions" style="margin-top:12px"><button id="go" class="primary">▶ Запустить тест</button><button id="all">▦ Сравнить профили</button></div><div id="msg" style="margin-top:10px;color:#8fa9dc"></div></div>
+  <div class="panel"><div class="panel-head"><h3>Последний результат</h3></div><div id="sum" class="metric-grid"></div></div>
+</section>
+<section id="stats">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">▤</div><div><h2>Статистика теста</h2><p>Разбор последнего запуска симулятора.</p></div></div></div>
+  <div class="panel"><div id="sum" class="metric-grid"></div></div>
+  <div class="panel"><h3>Этапы</h3><div class="table-wrap"><table class="table" id="st"></table></div></div>
+  <div class="panel"><h3>Враги</h3><div class="table-wrap"><table class="table" id="en"></table></div></div>
+  <div class="panel"><h3>Боссы</h3><div class="table-wrap"><table class="table" id="bo"></table></div></div>
+  <div class="panel"><h3>Улучшения</h3><div id="up"></div></div>
+</section>
+<section id="analytics">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">▥</div><div><h2>Аналитика игры</h2><p>Реальные игровые сессии, забеги и результаты игроков.</p></div></div><div class="actions"><button id="analyticsRefresh">↻ Обновить</button><button id="analyticsClear">Очистить</button></div></div>
+  <div id="analyticsMsg" class="footer-note"></div><div id="analyticsSum" class="metric-grid"></div>
+  <div class="panel"><h3>Сессии</h3><div class="table-wrap"><table class="table" id="analyticsSessions"></table></div></div>
+  <div class="panel"><div class="form-grid"><div><h3>Режимы</h3><div id="analyticsModes"></div></div><div><h3>Персонажи</h3><div id="analyticsCharacters"></div></div><div><h3>Этапы</h3><div id="analyticsStages"></div></div><div><h3>Улучшения</h3><div id="analyticsUpgrades"></div></div></div><h3 style="margin-top:18px">Причины смерти</h3><div id="analyticsDeaths"></div></div>
+</section>
+<section id="bal">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">⚗</div><div><h2>Баланс игры</h2><p>Настройка врагов, этапов, планет и механик игры</p></div></div></div>
+  <div class="panel">
+    <div class="balance-version"><div><b>📦 Версия баланса</b> <span class="sync-badge">● Синхронизирована с игрой</span><div style="margin-top:8px;color:#829bd0;font-size:12px">Последнее обновление: <span id="balanceUpdated">—</span></div></div><div class="version-pill" id="balanceVersion">v—</div><button class="action-btn" onclick="document.getElementById('historyPanel').scrollIntoView({behavior:'smooth'})">История обновлений <span id="updateHistoryCount">(0)</span>　›</button></div>
+  </div>
+  <div class="panel"><div class="actions"><button id="gh" class="primary">☁️ Сохранить в GitHub</button><button id="loc">💾 Сохранить черновик</button></div><div id="bs" style="margin-top:10px;color:#91a8d8"></div></div>
+  <div id="editor"></div>
+  <div class="panel" id="historyPanel"><div class="panel-head"><h3>📜 История обновлений</h3><span id="updateHistoryCount">(0)</span></div><div id="updateHistory" class="history-list"></div></div>
+</section>
+<section id="bugs">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">☣</div><div><h2>Баги</h2><p>Отслеживание проблем игры и их исправлений.</p></div></div><div class="actions"><button id="refreshBugs">↻ Обновить</button><button id="toggleAddBug">➕ Добавить новый баг</button></div></div>
+  <div class="panel"><div class="filter-row"><label class="field"><span>Статус</span><select id="bugFilterStatus"><option value="all">Все</option><option value="open">Не исправлен</option><option value="fixed">Исправлен</option></select></label><label class="field"><span>Приоритет</span><select id="bugFilterPriority"><option value="all">Все</option><option value="critical">Критический</option><option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option></select></label><label class="field"><span>Версия</span><select id="bugFilterVersion"><option value="all">Все версии</option></select></label><div style="align-self:end;color:#829bd0;padding:10px 0" id="bugFilterSummary">Показано: —</div></div></div>
+  <div class="panel" id="addBugForm" style="display:none"><div class="form-grid"><label class="field"><span>Название</span><input id="bugTitle"></label><label class="field"><span>Приоритет</span><select id="bugPriority"><option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option><option value="critical">Критический</option></select></label></div><label class="field" style="margin-top:10px"><span>Описание</span><textarea id="bugDescription"></textarea></label><button id="addBug" class="primary" style="margin-top:10px">Добавить</button></div>
+  <div id="bugList"></div><div id="bugMsg" class="footer-note"></div><div class="actions" style="margin-top:10px"><button id="saveBugs" class="primary">☁️ Сохранить баги в GitHub</button></div>
+</section>
+</main>
+<aside class="rightbar">
+  <div class="right-card"><div class="version-box"><div class="cube">◇</div><div><small style="color:#8ea8df">Текущая версия игры</small><div class="version-big" id="rightVersion">v3.3.5</div></div></div><div class="goodline">● Синхронизирована с Bot Lab</div></div>
+  <div class="right-card"><h3>🎮 Быстрый доступ</h3><div class="quick"><button onclick="location.href='/'">🔗 Открыть игру　↗</button><button onclick="document.querySelector('[data-x=bal]').click()">↻ Обновить баланс</button><button onclick="document.querySelector('[data-x=analytics]').click()">▥ Просмотр аналитики</button><button onclick="loadVersion()">⟳ Проверить обновления</button></div></div>
+  <div class="right-card" style="text-align:center"><div style="font-size:56px">🪐</div><b>Каждое обновление<br>делает игру лучше</b><div style="margin-top:12px">🚀</div></div>
+</aside>
+</div>
+<div class="footer-note">Starfall Dash Bot Lab · Баланс, аналитика, баги и тестирование в одном рабочем пространстве</div>
+</div>
+<script>const t=new URLSearchParams(location.search).get('token'),$=x=>document.getElementById(x);let data,last;document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-x]').forEach(x=>x.classList.remove('on'));b.classList.add('on');['test','stats','analytics','bal','bugs'].forEach(x=>$(x).style.display=x==b.dataset.x?'block':'none');if(b.dataset.x==='bugs')loadBugs();if(b.dataset.x==='analytics')loadAnalytics();if(b.dataset.x==='bal')loadVersion()});async function loadVersion(){
   try{
     const r=await fetch('/api/version?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});
     const j=await r.json();
@@ -193,134 +202,69 @@ function bindStageEnemyEditors(){
 }
 
 function renderEditor(){
-  let h='<div class="card"><h2>Система спавна</h2><div class="grid">'+
-    inp('rogue.spawn.minIntervalFrames','Мин. интервал',data.rogue.spawn.minIntervalFrames)+
-    inp('rogue.spawn.pressureIntervalFrames','Интервал давления',data.rogue.spawn.pressureIntervalFrames)+
-    inp('rogue.spawn.pressureMaxPerTick','Макс. за тик',data.rogue.spawn.pressureMaxPerTick)+
-    '</div></div>';
-  for(let [pl,ss] of Object.entries(data.rogue.stages)){
-    h+='<div class="card"><h2>'+pl.toUpperCase()+'</h2>';
+  const enemyNames={normal:'Обычный',flyer:'Летун',zigzag:'Зигзаг',ghost:'Призрак',hunter:'Охотник',snake:'Змея',bomber:'Бомбардировщик',splitter:'Разделитель',spider:'Паук',ice:'Лёд',star:'Звезда',miniboss:'Мини-босс',crystal:'Кристалл',barrier:'Барьер',teleporter:'Телепортёр',magnet_enemy:'Магнит',doppel:'Двойник',laser:'Лазер'};
+  const objectiveNames={coreFragments:'Осколки ядра',time:'Выжить по времени',kills:'Убить врагов',strongKills:'Сильные убийства',distance:'Пройти дистанцию'};
+  const planetNames={arden:'ARDEN',nivara:'NIVARA',exor:'EXOR'};
+  const escLocal=esc;
+  let selected=window.__balanceEnemy||Object.keys(data.rogue.enemies)[0]||'normal';
+  window.__balanceEnemy=selected;
+  const enemy=e=>data.rogue.enemies[e]||{hp:1,speed:1,size:24};
+  const enemyButtons=Object.keys(data.rogue.enemies).map(k=>{
+    const e=enemy(k), active=k===selected;
+    return '<button type="button" class="enemy-row '+(active?'active':'')+'" data-enemy-select="'+escLocal(k)+'"><span class="enemy-avatar">'+(k==='miniboss'?'👹':k==='laser'?'🔴':k==='crystal'?'💎':k==='spider'?'🕷️':k==='ghost'?'👻':k==='bomber'?'💣':k==='hunter'?'🎯':'◆')+'</span><span><b>'+escLocal(enemyNames[k]||k)+'</b><small>HP '+e.hp+' · скорость '+e.speed+'</small></span><span class="chev">›</span></button>';
+  }).join('');
+  const e=enemy(selected);
+  const enemyEditor='<div class="editor-head"><div><span class="eyebrow">ВРАГ</span><h2>'+(enemyNames[selected]||selected)+'</h2><p>Параметры применяются ко всем этапам, где выбран этот враг.</p></div><span class="entity-badge">👾 '+escLocal(selected)+'</span></div>'+
+    '<div class="subtabs"><button class="subtab active">Основные</button><button class="subtab">Поведение</button><button class="subtab">Награды</button></div>'+
+    '<div class="form-grid">'+inp('rogue.enemies.'+selected+'.hp','Здоровье (HP)',e.hp)+inp('rogue.enemies.'+selected+'.speed','Скорость',e.speed)+inp('rogue.enemies.'+selected+'.size','Размер',e.size)+'</div>'+
+    '<div class="hint-card">💡 Изменения попадут в новый баланс только после «Сохранить в GitHub». Черновик сохраняется автоматически.</div>'+
+    '<div class="editor-actions"><button type="button" class="secondary" onclick="renderEditor()">↻ Сбросить вид</button><button type="button" class="primary" onclick="save(true)">💾 Сохранить изменения</button></div>';
+
+  let stages='';
+  for(const [pl,ss] of Object.entries(data.rogue.stages)){
+    stages+='<div class="planet-card"><div class="planet-title"><div><span class="planet-orb">◈</span><b>'+planetNames[pl]+'</b><small>'+ss.length+' этапа · настройка состава и сложности</small></div><span>›</span></div>';
     ss.forEach((s,i)=>{
-      let selected=Array.isArray(s.pool)?s.pool:[];
-      h+='<div class="card stage-card collapsed"><h2>Этап '+(i+1)+' · '+s.objective.kind+'</h2>'+
-        '<div class="grid">'+
-        inp('rogue.stages.'+pl+'.'+i+'.spawnInterval','Спавн',s.spawnInterval)+
-        inp('rogue.stages.'+pl+'.'+i+'.maxAlive','Макс. врагов',s.maxAlive)+
-        inp('rogue.stages.'+pl+'.'+i+'.minAlive','Мин. врагов',s.minAlive)+
+      const pool=Array.isArray(s.pool)?s.pool:[];
+      stages+='<details class="stage-row" '+(i===0?'':'')+'><summary><span class="stage-num">'+(i+1)+'</span><span><b>Этап '+(i+1)+'</b><small>'+escLocal(objectiveNames[s.objective?.kind]||s.objective?.kind||'Цель')+' · '+Number(s.objective?.target||0)+'</small></span><span class="stage-arrow">⌄</span></summary><div class="stage-body"><div class="form-grid">'+
+        inp('rogue.stages.'+pl+'.'+i+'.spawnInterval','Интервал спавна',s.spawnInterval)+
+        inp('rogue.stages.'+pl+'.'+i+'.maxAlive','Максимум врагов',s.maxAlive)+
+        inp('rogue.stages.'+pl+'.'+i+'.minAlive','Минимум врагов',s.minAlive)+
         inp('rogue.stages.'+pl+'.'+i+'.speedMult','Скорость ×',s.speedMult)+
         inp('rogue.stages.'+pl+'.'+i+'.hpMult','HP ×',s.hpMult)+
-        inp('rogue.stages.'+pl+'.'+i+'.objective.target','Цель',s.objective.target)+
-        '</div><div style="margin-top:10px"><b>👾 Какие враги могут появляться на этом этапе:</b>'+
-        '<div class="enemy-picker">'+
-        Object.keys(data.rogue.enemies).map(k=>'<label style="display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #254caa;border-radius:8px;background:#0a193e"><input type="checkbox" data-stage-pool="'+pl+'.'+i+'" value="'+k+'" '+(selected.includes(k)?'checked':'')+'>'+((enemyNames[k]||k))+'</label>').join('')+
-        '</div></div></div>';
+        inp('rogue.stages.'+pl+'.'+i+'.objective.target','Цель',s.objective?.target||0)+
+        '</div><label class="field"><span>Тип цели</span><select data-p="rogue.stages.'+pl+'.'+i+'.objective.kind" data-s="1">'+Object.keys(objectiveNames).map(k=>'<option value="'+k+'" '+(k===(s.objective?.kind||'time')?'selected':'')+'>'+objectiveNames[k]+'</option>').join('')+'</select></label><div class="pool-title">Враги этапа</div><div class="pool-grid">'+
+        Object.keys(data.rogue.enemies).map(k=>'<label class="pool-chip"><input type="checkbox" data-stage-pool="'+pl+'.'+i+'" value="'+k+'" '+(pool.includes(k)?'checked':'')+'><span>'+escLocal(enemyNames[k]||k)+'</span></label>').join('')+
+        '</div></div></details>';
     });
-    h+='</div>';
+    stages+='</div>';
   }
-  h+='<div class="card collapsed"><h2>Враги</h2><div class="grid">';
-  for(let[k,e]of Object.entries(data.rogue.enemies))
-    h+='<div class="card collapsed"><h2>'+((enemyNames[k]||k))+'</h2><div class="grid">'+
-      inp('rogue.enemies.'+k+'.hp','HP',e.hp)+
-      inp('rogue.enemies.'+k+'.speed','Скорость',e.speed)+
-      inp('rogue.enemies.'+k+'.size','Размер',e.size)+
-      '</div></div>';
-  h+='</div></div><div class="card collapsed"><h2>Боссы (победы / встречи)</h2><div class="grid">';
-  for(let[k,e]of Object.entries(data.rogue.bosses))
-    h+='<div class="card collapsed"><h2>'+k+'</h2><div class="grid">'+
-      inp('rogue.bosses.'+k+'.hp','HP',e.hp)+
-      inp('rogue.bosses.'+k+'.size','Размер',e.size)+
-      inp('rogue.bosses.'+k+'.rewardGold','Золото',e.rewardGold)+
-      inp('rogue.bosses.'+k+'.rewardCrystals','Кристаллы',e.rewardCrystals)+
-      '</div></div>';
-  h+='</div></div>';
-  $('editor').innerHTML=h;
-  enhanceCollapsibles();
-  bindStageEnemyEditors();
-  document.querySelectorAll('#editor .collapsible').forEach(x=>x.classList.add('collapsed'));
-}
-function collect(){
-  document.querySelectorAll('[data-p]').forEach(e=>{
-    let path=e.dataset.p;
-    let a=path.split('.'),x=data;
-    for(let i=0;i<a.length-1;i++)x=x[a[i]];
-    x[a[a.length-1]]=e.dataset.t?e.value.split(',').map(s=>s.trim()).filter(Boolean):Number(e.value);
-  });
-  document.querySelectorAll('[data-stage-pool]').forEach(e=>{
-    let a=e.dataset.stagePool.split('.'),s=data.rogue.stages[a[0]][Number(a[1])];
-    s.pool=[...document.querySelectorAll('[data-stage-pool="'+e.dataset.stagePool+'"]:checked')].map(x=>x.value);
-  });
-  // Keep duplicated global/inline fields visually and logically identical.
-  document.querySelectorAll('[data-p]').forEach(e=>{
-    document.querySelectorAll('[data-p="'+e.dataset.p.replace(/"/g,'\\\"')+'"]').forEach(other=>{if(other!==e)other.value=e.value});
-  });
-}async function save(push){
-  collect();
-  if(!push){
-    saveDraft(true);
-    $('loc').disabled=false;
-    $('loc').textContent='💾 Сохранить черновик';
-    return;
+  let bosses='';
+  for(const [k,b] of Object.entries(data.rogue.bosses)){
+    bosses+='<div class="boss-card"><div class="boss-icon">👹</div><div class="boss-main"><b>'+escLocal(k)+'</b><small>Босс планеты · победа / встреча</small><div class="form-grid">'+inp('rogue.bosses.'+k+'.hp','HP',b.hp)+inp('rogue.bosses.'+k+'.size','Размер',b.size)+inp('rogue.bosses.'+k+'.rewardGold','Награда: золото',b.rewardGold)+inp('rogue.bosses.'+k+'.rewardCrystals','Награда: кристаллы',b.rewardCrystals)+'</div></div></div>';
   }
-  let b=$('gh');
-  b.disabled=true;
-  b.textContent='⏳ Сохраняем в GitHub…';
-  $('bs').className='';
-  $('bs').textContent='';
-  try{
-    let r=await fetch('/api/save?token='+encodeURIComponent(t),{
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify({data,commit:true,push:true})
-    });
-    let j=await r.json();
-    if(j.success){
-      clearDraft();
-      sessionStorage.setItem('botLabTab','bal');
-      $('bs').className='good';
-      $('bs').innerHTML='✅ Версия <b>v'+esc(j.version||'—')+'</b> создана и реально сохранена в GitHub. Черновик очищен. Commit: '+j.sha.slice(0,7)+' · <a target="_blank" href="'+j.commitUrl+'">Открыть commit</a><br><small>Эта же версия теперь используется игрой и отображается в Bot Lab.</small>';
-      setTimeout(()=>location.reload(),900);
-    }else{
-      $('bs').innerHTML=j.message||j.error||'Ошибка сохранения';
-      b.disabled=false;
-      b.textContent='☁️ Сохранить в GitHub';
-    }
-  }catch(e){
-    $('bs').innerHTML='❌ Ошибка: '+e.message;
-    b.disabled=false;
-    b.textContent='☁️ Сохранить в GitHub';
-  }
-}
-$('gh').onclick=()=>save(true);
-$('loc').onclick=()=>save(false);
-function readInputValue(el){
-  return el.dataset.t ? el.value.split(',').map(s=>s.trim()).filter(Boolean) : Number(el.value);
-}
-function syncFieldFromInput(el){
-  const path=el.dataset.p;
-  if(!path)return;
-  const a=path.split('.');
-  let x=data;
-  for(let i=0;i<a.length-1;i++)x=x[a[i]];
-  x[a[a.length-1]]=readInputValue(el);
-  document.querySelectorAll('[data-p="'+path.replace(/"/g,'\\\"')+'"]').forEach(other=>{
-    if(other!==el)other.value=el.value;
+  const spawn='<div class="compact-settings"><div class="settings-icon">⚙</div><div><h3>Система спавна</h3><p>Глобальные ограничения давления врагов.</p></div><div class="form-grid">'+inp('rogue.spawn.minIntervalFrames','Минимальный интервал',data.rogue.spawn.minIntervalFrames)+inp('rogue.spawn.pressureIntervalFrames','Интервал давления',data.rogue.spawn.pressureIntervalFrames)+inp('rogue.spawn.pressureMaxPerTick','Макс. за тик',data.rogue.spawn.pressureMaxPerTick)+'</div></div>';
+  const mods='<div class="modifier-grid">'+Object.entries(data.rogue.modifiers||{}).map(([k,v])=>'<div class="modifier-card"><b>'+escLocal(k)+'</b><small>Модификатор сложности</small><div class="form-grid">'+inp('rogue.modifiers.'+k+'.hpMult','HP ×',v.hpMult)+inp('rogue.modifiers.'+k+'.speedMult','Скорость ×',v.speedMult)+'</div></div>').join('')+'</div>';
+
+  $('editor').innerHTML='<div class="balance-nav"><button class="balance-nav-btn active" data-balance-view="enemies">👾 Враги</button><button class="balance-nav-btn" data-balance-view="stages">▦ Этапы</button><button class="balance-nav-btn" data-balance-view="planets">◈ Планеты</button><button class="balance-nav-btn" data-balance-view="bosses">👹 Боссы</button><button class="balance-nav-btn" data-balance-view="spawn">⚙ Спавн</button><button class="balance-nav-btn" data-balance-view="mods">✦ Модификаторы</button></div>'+
+    '<div class="balance-view" data-balance-panel="enemies"><div class="balance-split"><div class="entity-list"><div class="list-tools"><input id="enemySearch" placeholder="Поиск врага…"><button type="button" id="enemyReset">↻</button></div>'+enemyButtons+'</div><div class="entity-editor">'+enemyEditor+'</div></div></div>'+
+    '<div class="balance-view hidden" data-balance-panel="stages">'+stages+'</div>'+
+    '<div class="balance-view hidden" data-balance-panel="planets"><div class="overview-grid">'+Object.entries(data.rogue.stages).map(([pl,ss])=>'<div class="overview-card"><span class="planet-orb">◈</span><b>'+planetNames[pl]+'</b><strong>'+ss.length+' этапа</strong><small>от '+Number(ss[0]?.speedMult||1).toFixed(2)+'× до '+Number(ss[ss.length-1]?.speedMult||1).toFixed(2)+'× скорости</small><div class="mini-bars">'+ss.map(s=>'<i style="height:'+Math.max(20,Math.min(100,Number(s.hpMult||1)*55))+'%"></i>').join('')+'</div></div>').join('')+'</div><div class="hint-card">Планеты объединяют этапы. Все реальные параметры этапов редактируются во вкладке «Этапы».</div></div>'+
+    '<div class="balance-view hidden" data-balance-panel="bosses">'+bosses+'</div>'+
+    '<div class="balance-view hidden" data-balance-panel="spawn">'+spawn+'</div>'+
+    '<div class="balance-view hidden" data-balance-panel="mods">'+mods+'</div>';
+
+  document.querySelectorAll('[data-balance-view]').forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll('[data-balance-view]').forEach(x=>x.classList.toggle('active',x===btn));
+    document.querySelectorAll('[data-balance-panel]').forEach(x=>x.classList.toggle('hidden',x.dataset.balancePanel!==btn.dataset.balanceView));
   });
-  localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
+  document.querySelectorAll('[data-enemy-select]').forEach(btn=>btn.onclick=()=>{window.__balanceEnemy=btn.dataset.enemySelect;renderEditor()});
+  const search=$('enemySearch');
+  if(search)search.oninput=()=>document.querySelectorAll('.enemy-row').forEach(row=>row.style.display=row.textContent.toLowerCase().includes(search.value.toLowerCase())?'grid':'none');
+  const reset=$('enemyReset'); if(reset)reset.onclick=()=>{if(search)search.value='';document.querySelectorAll('.enemy-row').forEach(row=>row.style.display='grid')};
 }
-document.getElementById('editor').addEventListener('input',e=>{
-  try{if(e.target&&e.target.matches('[data-p]'))syncFieldFromInput(e.target)}catch{}
-});
-document.getElementById('editor').addEventListener('change',e=>{
-  try{
-    if(e.target&&e.target.matches('[data-p]'))syncFieldFromInput(e.target);
-    else collect();
-    localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
-  }catch{}
-});
-enhanceCollapsibles();
-bindStageEnemyEditors();
+
 loadVersion();
 load().then(()=>{
   let tab=sessionStorage.getItem('botLabTab');
   if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}
-})</script></html>
+})</script></body></html>

@@ -5,7 +5,7 @@ var STARFALL_BALANCE = {
   "notes": "Developer-only balance source for Roguelike. Edit through tools/balance-editor.mjs.",
   "rogue": {
     "spawn": {
-      "minIntervalFrames": 55,
+      "minIntervalFrames": 45,
       "pressureIntervalFrames": 45,
       "pressureMaxPerTick": 2
     },
@@ -23,7 +23,7 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "normal",
-            "flyer"
+            "spider"
           ]
         },
         {
@@ -86,8 +86,8 @@ var STARFALL_BALANCE = {
             "target": 15000
           },
           "pool": [
-            "ice",
-            "hunter"
+            "hunter",
+            "ice"
           ]
         },
         {
@@ -133,9 +133,9 @@ var STARFALL_BALANCE = {
             "target": 7
           },
           "pool": [
+            "barrier",
             "magnet_enemy",
-            "doppel",
-            "barrier"
+            "doppel"
           ]
         }
       ],
@@ -151,9 +151,9 @@ var STARFALL_BALANCE = {
             "target": 18000
           },
           "pool": [
+            "star",
             "crystal",
-            "teleporter",
-            "star"
+            "teleporter"
           ]
         },
         {
@@ -184,8 +184,8 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "barrier",
-            "laser",
-            "teleporter"
+            "teleporter",
+            "laser"
           ]
         },
         {
@@ -199,9 +199,9 @@ var STARFALL_BALANCE = {
             "target": 90
           },
           "pool": [
+            "magnet_enemy",
             "doppel",
-            "laser",
-            "magnet_enemy"
+            "laser"
           ]
         }
       ]
@@ -333,10 +333,9 @@ var STARFALL_BALANCE = {
       }
     }
   }
-}
-;
-function sfBalance(){ return (typeof STARFALL_BALANCE==='object' && STARFALL_BALANCE) ? STARFALL_BALANCE : null; }
-function sfRogueBalance(){ var b=sfBalance(); return b && b.rogue ? b.rogue : null; }
-function sfRogueStageBalance(planetKey, stageIndex){ var b=sfRogueBalance(); var list=b && b.stages && b.stages[planetKey]; return list && list[stageIndex] ? list[stageIndex] : null; }
-function sfGetEnemyBalance(typeKey){ var b=sfRogueBalance(); return b&&b.enemies&&b.enemies[typeKey] ? b.enemies[typeKey] : null; }
-function sfGetBossBalance(bossKey){ var b=sfRogueBalance(); return b&&b.bosses&&b.bosses[bossKey] ? b.bosses[bossKey] : null; }
+};
+function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
+function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}
+function sfRogueStageBalance(planetKey,stageIndex){var b=sfRogueBalance();var list=b&&b.stages&&b.stages[planetKey];return list&&list[stageIndex]?list[stageIndex]:null;}
+function sfGetEnemyBalance(typeKey){var b=sfRogueBalance();return b&&b.enemies&&b.enemies[typeKey]?b.enemies[typeKey]:null;}
+function sfGetBossBalance(bossKey){var b=sfRogueBalance();return b&&b.bosses&&b.bosses[bossKey]?b.bosses[bossKey]:null;}

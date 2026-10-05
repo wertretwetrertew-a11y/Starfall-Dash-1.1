@@ -31,7 +31,7 @@ function loadSessions(){
 }
 function saveSessions(sessions){
   const trimmed=sessions.slice(-10000);
-  fs.writeFileSync(ANALYTICS_SESSIONS,JSON.stringify({version:1,sessions:trimmed},null,2)+"\\n");
+  fs.writeFileSync(ANALYTICS_SESSIONS,JSON.stringify({version:1,sessions:trimmed},null,2)+"\n");
 }
 function analyticsSummary(events){
   const count={}; const byMode={}; const byStage={}; const byCharacter={}; const byUpgrade={}; const byDeath={};

@@ -22,6 +22,20 @@
       ],
       "commit": "aa18bd448623806ac1a93b2dfa58e3a5e069c442",
       "summary": "Изменён баланс врагов для этапа 3 планеты Арден."
+    },
+    {
+      "version": "3.3.6",
+      "date": "2026-10-05T20:28:46.465Z",
+      "type": "balance",
+      "title": "Обновление баланса через Bot Lab",
+      "summary": "Изменения: баланс: stages → arden; баланс: stages → nivara; баланс: stages → exor.",
+      "changes": [
+        "rogue.stages.arden",
+        "rogue.stages.nivara",
+        "rogue.stages.exor"
+      ],
+      "source": "Bot Lab",
+      "commit": "ee088a804208249d6302c74c6d5b9cbcc2bdfe65"
     }
   ]
 }

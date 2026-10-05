@@ -52,7 +52,7 @@
           },
           "pool": [
             "normal",
-            "ghost",
+            "flyer",
             "spider"
           ]
         },

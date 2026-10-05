@@ -45,7 +45,7 @@
   </div>
   <div class="panel"><div class="actions"><button id="gh" class="primary">☁️ Сохранить в GitHub</button><button id="loc">💾 Сохранить черновик</button></div><div id="bs" style="margin-top:10px;color:#91a8d8"></div></div>
   <div id="editor"></div>
-  <div class="panel" id="historyPanel"><div class="panel-head"><h3>📜 История обновлений</h3><span id="updateHistoryCount">(0)</span></div><div id="updateHistory" class="history-list"></div></div>
+  <div class="panel" id="historyPanel"><div class="panel-head"><h3>📜 История обновлений</h3><span id="updateHistoryCountBottom">(0)</span></div><div id="updateHistory" class="history-list"></div></div>
 </section>
 <section id="bugs">
   <div class="hero-title"><div class="title-left"><div class="hero-icon">☣</div><div><h2>Баги</h2><p>Отслеживание проблем игры и их исправлений.</p></div></div><div class="actions"><button id="refreshBugs">↻ Обновить</button><button id="toggleAddBug">➕ Добавить новый баг</button></div></div>
@@ -56,7 +56,7 @@
 </main>
 <aside class="rightbar">
   <div class="right-card"><div class="version-box"><div class="cube">◇</div><div><small style="color:#8ea8df">Текущая версия игры</small><div class="version-big" id="rightVersion">v3.3.5</div></div></div><div class="goodline">● Синхронизирована с Bot Lab</div></div>
-  <div class="right-card"><h3>🎮 Быстрый доступ</h3><div class="quick"><button onclick="location.href='/'">🔗 Открыть игру　↗</button><button onclick="document.querySelector('[data-x=bal]').click()">↻ Обновить баланс</button><button onclick="document.querySelector('[data-x=analytics]').click()">▥ Просмотр аналитики</button><button onclick="loadVersion()">⟳ Проверить обновления</button></div></div>
+  <div class="right-card"><h3>🎮 Быстрый доступ</h3><div class="quick"><button onclick="window.open('https://wertretwetrertew-a11y.github.io/Starfall-Dash-1.1/','_blank')">🔗 Открыть игру　↗</button><button onclick="document.querySelector('[data-x=bal]').click()">↻ Обновить баланс</button><button onclick="document.querySelector('[data-x=analytics]').click()">▥ Просмотр аналитики</button><button onclick="loadVersion()">⟳ Проверить обновления</button></div></div>
   <div class="right-card" style="text-align:center"><div style="font-size:56px">🪐</div><b>Каждое обновление<br>делает игру лучше</b><div style="margin-top:12px">🚀</div></div>
 </aside>
 </div>
@@ -81,6 +81,7 @@
     $('balanceVersion').textContent='v'+(j.currentVersion||'—');
     $('balanceUpdated').textContent=list.length?new Date(list[0].date).toLocaleString('ru-RU'):'—';
     $('updateHistoryCount').textContent='('+list.length+')';
+    if($('updateHistoryCountBottom'))$('updateHistoryCountBottom').textContent='('+list.length+')';
     $('updateHistory').innerHTML=list.length?list.slice(0,20).map(x=>'<div class="bug" style="margin:7px 0"><div class="bug-title">📦 v'+esc(x.version)+' — '+esc(x.title||'Обновление')+'</div><div class="bug-meta"><span class="pill">'+esc(new Date(x.date).toLocaleString('ru-RU'))+'</span>'+(x.commit?'<span class="pill">commit '+esc(String(x.commit).slice(0,7))+'</span>':'')+'</div>'+(x.summary?'<div style="margin-top:6px;color:#d7e2ff;font-size:12px">📝 '+esc(x.summary)+'</div>':'')+(Array.isArray(x.changes)&&x.changes.length?'<small style="opacity:.62">Технически: '+esc(x.changes.slice(0,8).join(', '))+(x.changes.length>8?'…':'')+'</small>':'')+'</div>').join(''):'<small>История пока пуста.</small>';
   }catch(e){$('updateHistory').innerHTML='<small>Не удалось загрузить историю обновлений: '+esc(e.message)+'</small>'}
 }const BALANCE_DRAFT_KEY='starfall-bot-lab-balance-draft-v1';

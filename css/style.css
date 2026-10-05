@@ -6604,3 +6604,120 @@ body.manual-orientation-portrait #game-wrap {
         margin:0 auto !important;
     }
 }
+
+
+/* v3.0.6 — RESPONSIVE ADAPTATION */
+/* Единая адаптивная сетка: телефон / планшет / desktop, без изменения игрового canvas. */
+:root{
+  --safe-top: max(8px, env(safe-area-inset-top));
+  --safe-right: max(8px, env(safe-area-inset-right));
+  --safe-bottom: max(8px, env(safe-area-inset-bottom));
+  --safe-left: max(8px, env(safe-area-inset-left));
+}
+html,body,#game-wrap{width:100%;height:100%;min-width:0;min-height:0;}
+#game-wrap{overflow:hidden;padding:0 var(--safe-right) 0 var(--safe-left);}
+
+@media (max-width:800px){
+  #hud{
+    top:var(--safe-top)!important;
+    width:calc(100vw - var(--safe-left) - var(--safe-right) - 12px);
+    max-width:none!important;
+    min-width:0;
+    gap:clamp(4px,1.8vw,8px)!important;
+    padding:5px clamp(7px,2.4vw,10px)!important;
+    font-size:clamp(9px,2.7vw,11px)!important;
+    overflow:hidden;
+  }
+  #hud-top-row{
+    min-width:0;
+    display:flex;
+    align-items:center;
+    gap:inherit;
+  }
+  #hud-score,#hud-mode,#hud-timer,#buff-strip,#btn-pause{
+    flex:0 1 auto;
+    min-width:0;
+  }
+  #hud-mode{max-width:27vw;overflow:hidden;text-overflow:ellipsis;}
+  #hud-timer{min-width:0!important;width:auto!important;}
+  #buff-strip{max-width:20vw;overflow:hidden;}
+  #hud-bars-row{
+    min-width:0;
+    gap:6px;
+  }
+  #hud-progress{width:clamp(38px,12vw,60px);}
+  #hud-combo{top:clamp(58px,9vh,76px)!important;max-width:80vw;font-size:clamp(14px,4vw,18px);}
+  #level-toast{top:clamp(72px,11vh,105px);left:var(--safe-left);min-width:0;max-width:calc(100vw - 24px);}
+  canvas{
+    width:min(94vw,600px)!important;
+    max-width:calc(100vw - 24px)!important;
+    max-height:calc(100dvh - 190px)!important;
+  }
+  #mobile-controls{
+    height:clamp(150px,28dvh,210px)!important;
+  }
+  #joystick-zone{
+    left:var(--safe-left)!important;
+    bottom:var(--safe-bottom)!important;
+  }
+}
+
+@media (max-width:430px){
+  #hud{font-size:9px!important;gap:4px!important;padding:4px 6px!important;}
+  #hud-mode{font-size:8px!important;padding:2px 5px!important;max-width:24vw;}
+  #hud-timer{font-size:11px!important;}
+  #hud-icon{font-size:12px;}
+  #hud-progress{width:38px!important;}
+  #hud-combo{top:58px!important;padding:5px 11px!important;}
+  .hud-bars{min-width:0!important;}
+  #hud-hp-row,#hud-progress{min-width:0;}
+}
+
+@media (max-height:650px) and (max-width:800px){
+  #hud{top:4px!important;}
+  #hud-combo{top:52px!important;}
+  #level-toast{top:68px;}
+  canvas{max-height:calc(100dvh - 150px)!important;}
+  #mobile-controls{height:140px!important;}
+  #joystick-zone{width:min(120px,28vw)!important;height:min(120px,28vw)!important;}
+  #joystick-knob{width:min(52px,12vw)!important;height:min(52px,12vw)!important;margin-left:min(-26px,-6vw)!important;margin-top:min(-26px,-6vw)!important;}
+}
+
+@media (min-width:801px) and (max-height:760px){
+  canvas{max-height:calc(100vh - 150px);}
+  #hud{top:10px;}
+}
+
+/* Landscape phone/tablet: use the available height, keep HUD and controls inside safe areas. */
+@media (orientation:landscape) and (max-width:1000px){
+  #game-wrap{padding-left:var(--safe-left);padding-right:var(--safe-right);}
+  canvas{
+    width:min(78vw,720px)!important;
+    max-width:calc(100vw - 220px)!important;
+    max-height:calc(100dvh - 24px)!important;
+    margin:auto!important;
+  }
+  #hud{
+    top:var(--safe-top)!important;
+    width:auto!important;
+    max-width:calc(100vw - 24px)!important;
+  }
+  #mobile-controls{height:100%!important;pointer-events:none;}
+  #joystick-zone{
+    left:var(--safe-left)!important;
+    bottom:var(--safe-bottom)!important;
+    width:min(130px,20vw)!important;
+    height:min(130px,20vw)!important;
+  }
+  #joystick-knob{
+    width:min(58px,9vw)!important;height:min(58px,9vw)!important;
+    margin-left:min(-29px,-4.5vw)!important;margin-top:min(-29px,-4.5vw)!important;
+  }
+}
+
+/* Manual orientation fallback: same responsive rules after visual rotation. */
+body.manual-orientation-landscape #game-wrap,
+body.manual-orientation-portrait #game-wrap{
+  overflow:hidden!important;
+}
+

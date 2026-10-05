@@ -24,26 +24,33 @@ function rectsCollide(a, b) {
 
 var SF_PARTICLE_COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 var SF_PARTICLE_CAP = SF_PARTICLE_COARSE ? 140 : 200;
+var SF_PARTICLE_POOL_CAP = SF_PARTICLE_COARSE ? 180 : 260;
+var SF_PARTICLE_POOL = [];
+
+function sfAcquireParticle() {
+    return SF_PARTICLE_POOL.length ? SF_PARTICLE_POOL.pop() : {};
+}
+
+function sfReleaseParticle(p) {
+    if (SF_PARTICLE_POOL.length < SF_PARTICLE_POOL_CAP) SF_PARTICLE_POOL.push(p);
+}
 
 function addParticles(x, y, color, count, spread) {
     count = count || 12;
     spread = spread || 6;
-
-    // Mobile Safari/Chrome can spend a disproportionate amount of time
-    // drawing large particle batches. Keep the normal visual effect, but
-    // prevent burst effects from growing into an expensive queue.
-    if (particles.length > SF_PARTICLE_CAP) count = Math.min(count, 3);
-    else if (particles.length > SF_PARTICLE_CAP - 25) count = Math.min(count, 5);
-
+    if (particles.length >= SF_PARTICLE_CAP) return;
+    if (particles.length > SF_PARTICLE_CAP - 25) count = Math.min(count, 5);
+    var room = SF_PARTICLE_CAP - particles.length;
+    count = Math.min(count, room);
     for (var i = 0; i < count; i++) {
-        particles.push({
-            x: x, y: y,
-            vx: (Math.random() - 0.5) * spread,
-            vy: (Math.random() - 0.5) * spread,
-            life: 1, color: color,
-            size: 2 + Math.random() * 4,
-            gravity: Math.random() * 0.1
-        });
+        var p = sfAcquireParticle();
+        p.x = x; p.y = y;
+        p.vx = (Math.random() - 0.5) * spread;
+        p.vy = (Math.random() - 0.5) * spread;
+        p.life = 1; p.color = color;
+        p.size = 2 + Math.random() * 4;
+        p.gravity = Math.random() * 0.1;
+        particles.push(p);
     }
 }
 

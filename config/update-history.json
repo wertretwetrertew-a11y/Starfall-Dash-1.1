@@ -36,6 +36,16 @@
       ],
       "source": "Bot Lab",
       "commit": "ee088a804208249d6302c74c6d5b9cbcc2bdfe65"
+    },
+    {
+      "version": "3.3.7",
+      "date": "2026-10-05T20:55:52.562Z",
+      "type": "balance",
+      "title": "Обновление баланса через Bot Lab",
+      "summary": "Изменён баланс игры.",
+      "changes": [],
+      "source": "Bot Lab",
+      "commit": "cdda9b28ec4978cf669a3afa36eb5e5c2b0e6da9"
     }
   ]
 }

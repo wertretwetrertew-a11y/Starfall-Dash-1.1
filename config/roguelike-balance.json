@@ -20,8 +20,8 @@
             "target": 3
           },
           "pool": [
-            "ice",
-            "laser"
+            "barrier",
+            "magnet_enemy"
           ]
         },
         {

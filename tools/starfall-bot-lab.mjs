@@ -104,8 +104,20 @@ function save(data){
   fs.writeFileSync(RUNTIME,runtime(data));
   fs.writeFileSync(GAME_RUNTIME,runtime(data));
 }
+function updateBalanceCacheVersion(){
+  const indexPath=path.join(ROOT,"index.html");
+  let index=fs.readFileSync(indexPath,"utf8");
+  const stamp=new Date().toISOString().replace(/\D/g,"").slice(0,14);
+  const next=index.replace(
+    /(src\/data\/roguelike-balance\.js\?v=)[^"']+/,
+    "$1balance-"+stamp
+  );
+  if(next!==index) fs.writeFileSync(indexPath,next);
+  return "balance-"+stamp;
+}
+
 function commit(){
-  execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js","src/data/roguelike-balance.js"],{cwd:ROOT,stdio:"pipe"});
+  execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js","src/data/roguelike-balance.js","index.html"],{cwd:ROOT,stdio:"pipe"});
   return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"});
 }
 function ensureRemote(){
@@ -238,7 +250,7 @@ const server=http.createServer(async(req,res)=>{
     if(u.pathname==="/api/ideas"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(loadIdeas()));
     if(u.pathname==="/api/ideas"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const data=JSON.parse(body);saveIdeas(data);let commitSha=headSha();try{commitIdeas();commitSha=headSha()}catch(e){if(!String(e.message).includes("nothing to commit"))throw e}try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,ideas:data.ideas}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Идеи сохранены локально, но push не выполнен: "+e.message,ideas:data.ideas}))}}
     if(u.pathname==="/api/run"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const p=JSON.parse(body);const data=load();return send(res,200,"application/json",JSON.stringify(simulate(data,p)))}
-    if(u.pathname==="/api/save"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const p=JSON.parse(body);save(p.data);let message="Баланс сохранён.";if(p.push||p.commit){try{commit();message+=" Git commit создан."}catch(e){if(!p.push)message+=" Git commit не создан: "+e.message;else if(!String(e.message).includes("nothing to commit"))throw e}}if(p.push){try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,message:message+" Изменения отправлены в GitHub.",sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,data:p.data}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:p.data}))}}return send(res,200,"application/json",JSON.stringify({message,data:p.data}))}
+    if(u.pathname==="/api/save"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const p=JSON.parse(body);save(p.data);let message="Баланс сохранён.";if(p.push||p.commit){try{const balanceVersion=updateBalanceCacheVersion();commit();message+=" Git commit создан. Версия кэша: "+balanceVersion+"."}catch(e){if(!p.push)message+=" Git commit не создан: "+e.message;else if(!String(e.message).includes("nothing to commit"))throw e}}if(p.push){try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,message:message+" Изменения отправлены в GitHub.",sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,data:p.data}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:p.data}))}}return send(res,200,"application/json",JSON.stringify({message,data:p.data}))}
     return send(res,404,"application/json",JSON.stringify({error:"Not found"}));
   }catch(e){return send(res,500,"application/json",JSON.stringify({error:e.message}))}
 });

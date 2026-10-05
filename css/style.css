@@ -6554,3 +6554,53 @@ body.manual-orientation-portrait #mode-screen .mode-card::after {
 }
 
 /* v3.0.5 manual orientation fallback */
+
+body.manual-orientation-landscape #game-wrap,
+body.manual-orientation-portrait #game-wrap {
+    width:100vw !important;
+    height:100vh !important;
+}
+
+/* Physical portrait -> manually present a landscape game. */
+@media (orientation: portrait) and (max-width: 1000px) {
+    body.manual-orientation-landscape #game-wrap {
+        width:100dvw !important;
+        height:100dvh !important;
+        transform:translate(-50%, -50%) rotate(90deg) !important;
+    }
+    body.manual-orientation-landscape.playing #game {
+        width:min(96dvw, 600px) !important;
+        height:auto !important;
+        aspect-ratio:9 / 16 !important;
+        margin:0 auto !important;
+    }
+
+    body.manual-orientation-portrait #game-wrap {
+        transform:translate(-50%, -50%) !important;
+    }
+}
+
+/* Physical landscape -> manually present a portrait game. */
+@media (orientation: landscape) and (max-width: 1000px) {
+    body.manual-orientation-landscape #game-wrap {
+        transform:translate(-50%, -50%) !important;
+    }
+    body.manual-orientation-landscape.playing #game {
+        width:min(96dvw, 600px) !important;
+        height:auto !important;
+        aspect-ratio:16 / 9 !important;
+        margin:0 auto !important;
+    }
+
+    body.manual-orientation-portrait #game-wrap {
+        width:100dvw !important;
+        height:100dvh !important;
+        transform:translate(-50%, -50%) rotate(-90deg) !important;
+    }
+    body.manual-orientation-portrait.playing #game {
+        width:min(96dvh, 600px) !important;
+        height:auto !important;
+        aspect-ratio:16 / 9 !important;
+        margin:0 auto !important;
+    }
+}

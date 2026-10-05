@@ -168,6 +168,27 @@ function updateBalanceCacheVersion(v){
   return "balance-v"+v;
 }
 
+function snapshotBalanceFiles(){
+  const files=["config/roguelike-balance.json","js/balance-config.js","src/data/roguelike-balance.js","config/update-history.json","index.html"];
+  const out={};
+  for(const rel of files){
+    const p=path.join(ROOT,rel);
+    out[rel]=fs.existsSync(p)?fs.readFileSync(p,"utf8"):null;
+  }
+  return out;
+}
+function restoreBalanceFiles(snapshot){
+  Object.keys(snapshot).forEach(rel=>{
+    const p=path.join(ROOT,rel);
+    if(snapshot[rel]===null){if(fs.existsSync(p))fs.unlinkSync(p);}
+    else fs.writeFileSync(p,snapshot[rel]);
+  });
+}
+function rollbackBalanceUpdate(snapshot,originalHead){
+  try{execFileSync("git",["reset",originalHead],{cwd:ROOT,stdio:"pipe"});}catch(e){}
+  restoreBalanceFiles(snapshot);
+  try{execFileSync("git",["reset"],{cwd:ROOT,stdio:"pipe"});}catch(e){}
+}
 function commit(){
   execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js","src/data/roguelike-balance.js","config/update-history.json","index.html"],{cwd:ROOT,stdio:"pipe"});
   return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"});
@@ -307,18 +328,21 @@ const server=http.createServer(async(req,res)=>{
       let body="";for await(const chunk of req)body+=chunk;
       const p=JSON.parse(body);
       const before=load();
+      const snapshot=snapshotBalanceFiles();
+      const originalHead=headSha();
       const nextVersion=bumpVersion(gameVersion());
       const nextData=p.data&&typeof p.data==="object"?p.data:before;
       nextData.gameVersion=nextVersion;
-      save(nextData);
-      updateVisibleVersion(nextVersion);
       const changed=summarizeBalanceChanges(before,nextData);
-      let message="Баланс сохранён. Создана новая версия v"+nextVersion+".";
-      if(p.push||p.commit){
-        try{
+
+      try{
+        save(nextData);
+        updateVisibleVersion(nextVersion);
+
+        if(p.push||p.commit){
           updateBalanceCacheVersion(nextVersion);
           commit();
-          const firstSha=headSha();
+
           const history=loadUpdateHistory();
           history.updates.push({
             version:nextVersion,
@@ -326,34 +350,39 @@ const server=http.createServer(async(req,res)=>{
             type:"balance",
             title:"Обновление баланса через Bot Lab",
             changes:changed,
-            commit:firstSha
+            commit:headSha()
           });
           saveUpdateHistory(history);
           execFileSync("git",["add","config/update-history.json"],{cwd:ROOT,stdio:"pipe"});
           execFileSync("git",["commit","-m","Bot Lab: record update v"+nextVersion],{cwd:ROOT,encoding:"utf8",stdio:"pipe"});
-          message+=" Изменения закоммичены.";
-        }catch(e){
-          if(!p.push&&!String(e.message).includes("nothing to commit"))message+=" Git commit не создан: "+e.message;
-          else if(p.push&&!String(e.message).includes("nothing to commit"))throw e;
+
+          if(p.push){
+            push();
+          }
         }
+
+        const sha=headSha();
+        const commitUrl="https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha;
+        const message="Баланс сохранён. Версия v"+nextVersion+" успешно создана"+(p.push?" и отправлена в GitHub.":".");
+
+        return send(res,200,"application/json",JSON.stringify({
+          success:true,
+          version:nextVersion,
+          message,
+          sha,
+          commitUrl,
+          data:nextData
+        }));
+      }catch(e){
+        rollbackBalanceUpdate(snapshot,originalHead);
+        return send(res,200,"application/json",JSON.stringify({
+          success:false,
+          version:gameVersion(),
+          requestedVersion:nextVersion,
+          message:"❌ Сохранение не завершено. Версия игры НЕ изменена. Все изменения этой попытки отменены.\n"+e.message,
+          data:before
+        }));
       }
-      if(p.push){
-        try{
-          push();
-          const sha=headSha();
-          return send(res,200,"application/json",JSON.stringify({
-            success:true,
-            version:nextVersion,
-            message:message+" Изменения отправлены в GitHub.",
-            sha,
-            commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,
-            data:nextData
-          }));
-        }catch(e){
-          return send(res,200,"application/json",JSON.stringify({success:false,version:nextVersion,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:nextData}));
-        }
-      }
-      return send(res,200,"application/json",JSON.stringify({success:true,version:nextVersion,message,data:nextData}));
     }
     return send(res,404,"application/json",JSON.stringify({error:"Not found"}));
   }catch(e){return send(res,500,"application/json",JSON.stringify({error:e.message}))}

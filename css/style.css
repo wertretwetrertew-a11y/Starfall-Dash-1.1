@@ -6077,3 +6077,51 @@ body.rogue-hud #hud-top-row #hud-combo.pulse{
         letter-spacing: .7px;
     }
 }
+
+
+/* MODE SELECT — framed sci-fi group */
+#mode-screen .mode-grid{
+  position:relative !important;
+  box-sizing:border-box !important;
+  padding:30px 12px 28px !important;
+  border:1px solid rgba(108,154,255,.22) !important;
+  border-radius:24px !important;
+  background:
+    linear-gradient(180deg,rgba(20,29,67,.24),rgba(5,8,27,.10)) !important;
+  box-shadow:
+    0 0 34px rgba(64,112,255,.08),
+    inset 0 0 28px rgba(104,146,255,.045) !important;
+}
+#mode-screen .mode-grid::before,
+#mode-screen .mode-grid::after{
+  content:"" !important;
+  position:absolute !important;
+  pointer-events:none !important;
+}
+#mode-screen .mode-grid::before{
+  inset:8px !important;
+  border:1px solid rgba(119,170,255,.07) !important;
+  border-radius:18px !important;
+}
+#mode-screen .mode-grid::after{
+  width:42px !important;
+  height:42px !important;
+  top:-1px !important;
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  border-top:2px solid rgba(108,194,255,.58) !important;
+  border-left:2px solid transparent !important;
+  border-right:2px solid transparent !important;
+  border-radius:10px 10px 0 0 !important;
+  filter:drop-shadow(0 0 6px rgba(108,194,255,.35)) !important;
+}
+#mode-screen .mode-card{position:relative !important;z-index:2 !important;}
+
+@media(max-width:380px){
+  #mode-screen .mode-grid{padding:26px 8px 24px !important;border-radius:21px !important;}
+}
+@media(max-height:680px){
+  #mode-screen .mode-grid{padding-top:24px !important;padding-bottom:22px !important;}
+}
+
+/* VERSION BUMP — v3.0.2 */

@@ -11,6 +11,10 @@
     var started=false;
     var pendingDeathReason=null;
     var last={xp:0,gold:0,level:1,stage:null};
+    var sessionStartedAt=new Date().toISOString();
+    var sessionEnded=false;
+    var sessionEventCounts={};
+    var sessionRuns=[];
 
     function hash(s){
         s=String(s||'guest'); var h=0;
@@ -27,13 +31,14 @@
             mode:window.currentMode||null,
             character:window.selectedClass||null,
             level:Number(window.level)||0,
-            gameVersion:'2.6',
+            gameVersion:'3.2.9',
             ts:new Date().toISOString()
         };
         if(extra) Object.keys(extra).forEach(function(k){o[k]=extra[k];});
         return o;
     }
     function track(event,props){
+        sessionEventCounts[event]=(sessionEventCounts[event]||0)+1;
         QUEUE.push({event:event,data:context(props)});
         if(QUEUE.length>=12) flush();
     }
@@ -73,8 +78,25 @@
     wrap('finishRun',function(){
         if(!started && window.runStartTime) startRun();
         if(!started)return;
+        var runResult=window.gameOver?'death':'completed';
+        var runSummary={
+            result:runResult,
+            mode:window.currentMode||null,
+            character:window.selectedClass||null,
+            level:Number(window.level)||0,
+            runTime:Number(window.runTime)||0,
+            score:Number(window.score)||0,
+            gold:Number(window.goldEarned)||0,
+            crystals:Number(window.crystalsEarned)||0,
+            kills:(function(){try{return Number(getSave().totalKills)||0}catch(e){return 0}})(),
+            deathReason:pendingDeathReason||null,
+            upgrades:Object.assign({},window.runUpgrades||{}),
+            relics:(window.runRelics||[]).slice(),
+            endedAt:new Date().toISOString()
+        };
+        sessionRuns.push(runSummary);
         track('run_finished',{
-            result:window.gameOver?'death':'completed',
+            result:runResult,
             score:Number(window.score)||0,
             gold:Number(window.goldEarned)||0,
             crystals:Number(window.crystalsEarned)||0,
@@ -125,6 +147,31 @@
         track('boss_defeated',{planet:Number(r.planetIndex)+1,bossId:window.bossDuelId||null});
     });
 
+    function sendSession(){
+        if(sessionEnded)return;
+        sessionEnded=true;
+        flush();
+        var now=new Date();
+        var record={
+            sessionId:SESSION,
+            playerId:profileId(),
+            startedAt:sessionStartedAt,
+            endedAt:now.toISOString(),
+            durationSec:Math.max(0,(now.getTime()-new Date(sessionStartedAt).getTime())/1000),
+            gameVersion:'3.2.9',
+            lastMode:window.currentMode||null,
+            lastCharacter:window.selectedClass||null,
+            eventCount:Object.values(sessionEventCounts).reduce(function(a,b){return a+b},0),
+            eventTypes:Object.assign({},sessionEventCounts),
+            runs:sessionRuns.slice(),
+            userAgent:navigator.userAgent,
+            screen:{width:window.innerWidth||0,height:window.innerHeight||0,devicePixelRatio:window.devicePixelRatio||1}
+        };
+        try{
+            fetch(ENDPOINT+'/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(record),keepalive:true}).catch(function(){});
+        }catch(e){}
+    }
+
     function poll(){
         if(!started){
             if(window.running && !window.gameOver) startRun();
@@ -144,7 +191,8 @@
     }
 
     window.sfdAnalytics={track:track,flush:flush,session:SESSION};
-    window.addEventListener('beforeunload',flush);
+    window.addEventListener('beforeunload',function(){sendSession();});
+    window.addEventListener('pagehide',function(){sendSession();});
     setTimeout(function(){
         track('session_started');
         poll();

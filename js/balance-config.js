@@ -27,8 +27,8 @@ var STARFALL_BALANCE = {
         },
         {
           "spawnInterval": 78,
-          "maxAlive": 5,
-          "minAlive": 3,
+          "maxAlive": 7,
+          "minAlive": 4,
           "speedMult": 0.98,
           "hpMult": 1.02,
           "objective": {
@@ -52,9 +52,10 @@ var STARFALL_BALANCE = {
             "target": 25
           },
           "pool": [
-            "hunter",
-            "bomber",
-            "crystal"
+            "normal",
+            "ghost",
+            "spider",
+            "laser"
           ]
         },
         {
@@ -293,7 +294,7 @@ var STARFALL_BALANCE = {
         "size": 26
       },
       "laser": {
-        "hp": 8,
+        "hp": 15,
         "speed": 1.8,
         "size": 32
       }

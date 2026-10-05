@@ -1081,6 +1081,9 @@ var SF_BG_GRADIENT = null;
 var SF_BG_THEME_KEY = '';
 
 function sfShadow(value) {
+    // v3.1.4: Roguelike glow-off test.
+    // Keep all gameplay/rendering intact, but skip Canvas shadow/glow work in Roguelike.
+    if (typeof currentMode !== 'undefined' && currentMode === 'rogue') return 0;
     return value * SF_RENDER_FACTOR;
 }
 function sfGetBackgroundGradient(theme, key) {

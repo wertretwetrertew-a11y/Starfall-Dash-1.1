@@ -320,7 +320,10 @@ function update() {
     // Механика метеоритов оставлена от старой версии:
     // тот же спавн, количество, траектории, скорость и затухание.
     // Меняется только внешний вид — теперь он берётся из нового спрайта.
-    if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7) {
+        // v3.1.7: убираем общий PNG-метеорит с 1-го этапа Roguelike.
+    // Этап 1 не должен получать глобальный meteor spawn из основного цикла;
+    // специальные метеориты планеты остаются только на своих этапах.
+if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7 && !(currentMode === 'rogue' && typeof roguePlanetState !== 'undefined' && roguePlanetState.active && roguePlanetState.stageIndex === 0)) {
         var meteorAngle = Math.PI * (0.55 + Math.random() * 0.18);
         var meteorSpeed = 3.8 + Math.random() * 1.8;
         var meteorSize = 14 + Math.random() * 5;

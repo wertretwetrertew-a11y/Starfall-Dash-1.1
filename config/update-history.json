@@ -46,6 +46,29 @@
       "changes": [],
       "source": "Bot Lab",
       "commit": "cdda9b28ec4978cf669a3afa36eb5e5c2b0e6da9"
+    },
+    {
+      "version": "3.3.8",
+      "date": "2026-10-05T21:01:20.534Z",
+      "type": "balance",
+      "title": "Обновление баланса через Bot Lab",
+      "summary": "Изменено 12 параметров баланса, включая: этап 1 планеты Арден: objective.kind; этап 2 планеты Арден: objective.kind; этап 3 планеты Арден: objective.kind и другие.",
+      "changes": [
+        "rogue.stages.arden.0.objective.kind",
+        "rogue.stages.arden.1.objective.kind",
+        "rogue.stages.arden.2.objective.kind",
+        "rogue.stages.arden.3.objective.kind",
+        "rogue.stages.nivara.0.objective.kind",
+        "rogue.stages.nivara.1.objective.kind",
+        "rogue.stages.nivara.2.objective.kind",
+        "rogue.stages.nivara.3.objective.kind",
+        "rogue.stages.exor.0.objective.kind",
+        "rogue.stages.exor.1.objective.kind",
+        "rogue.stages.exor.2.objective.kind",
+        "rogue.stages.exor.3.objective.kind"
+      ],
+      "source": "Bot Lab",
+      "commit": "728d81efa805236e17f5675711f338d4241c9c4a"
     }
   ]
 }

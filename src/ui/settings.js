@@ -55,8 +55,9 @@ toggleWeatherBtn.addEventListener('click', function() {
 var orientationButtons = document.querySelectorAll('#settings-modal [data-orientation]');
 
 function getOrientationPreference() {
-    try { return localStorage.getItem('starfallOrientationPreference') || 'auto'; }
-    catch (e) { return 'auto'; }
+    // После КАЖДОГО обновления игры начинаем с вертикального режима.
+    // Пользователь может выбрать горизонтальный режим заново в настройках.
+    return 'portrait';
 }
 
 function setOrientationButtonState(value) {

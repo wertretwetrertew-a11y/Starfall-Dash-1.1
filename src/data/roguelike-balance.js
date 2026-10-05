@@ -48,7 +48,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.04,
           "hpMult": 1.06,
           "objective": {
-            "kind": "time",
+            "kind": "kills",
             "target": 25
           },
           "pool": [
@@ -65,7 +65,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.1,
           "hpMult": 1.12,
           "objective": {
-            "kind": "time",
+            "kind": "strongKills",
             "target": 6
           },
           "pool": [
@@ -84,7 +84,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.08,
           "hpMult": 1.08,
           "objective": {
-            "kind": "time",
+            "kind": "distance",
             "target": 15000
           },
           "pool": [
@@ -99,7 +99,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.12,
           "hpMult": 1.12,
           "objective": {
-            "kind": "time",
+            "kind": "kills",
             "target": 30
           },
           "pool": [
@@ -131,7 +131,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.2,
           "hpMult": 1.2,
           "objective": {
-            "kind": "time",
+            "kind": "strongKills",
             "target": 7
           },
           "pool": [
@@ -149,7 +149,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.22,
           "hpMult": 1.2,
           "objective": {
-            "kind": "time",
+            "kind": "distance",
             "target": 18000
           },
           "pool": [
@@ -165,7 +165,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.26,
           "hpMult": 1.24,
           "objective": {
-            "kind": "time",
+            "kind": "kills",
             "target": 35
           },
           "pool": [
@@ -181,7 +181,7 @@ var STARFALL_BALANCE = {
           "speedMult": 1.3,
           "hpMult": 1.3,
           "objective": {
-            "kind": "time",
+            "kind": "strongKills",
             "target": 7
           },
           "pool": [

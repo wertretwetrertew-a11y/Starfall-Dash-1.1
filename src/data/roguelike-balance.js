@@ -21,8 +21,7 @@ var STARFALL_BALANCE = {
             "target": 3
           },
           "pool": [
-            "barrier",
-            "magnet_enemy"
+            "miniboss"
           ]
         },
         {

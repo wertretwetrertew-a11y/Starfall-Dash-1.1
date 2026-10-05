@@ -41,16 +41,22 @@ function joyStart(e) {
     if (e.pointerType !== 'touch' && e.pointerType !== 'pen' && window.matchMedia && !window.matchMedia('(pointer: coarse)').matches) return;
 
     var target = e.target;
-    if (target && target.closest && target.closest('#action-buttons, #btn-pause, #hud, #joystick-zone, button, input, select, textarea, a')) return;
+    var onJoystick = !!(target && target.closest && target.closest('#joystick-zone'));
+    if (target && target.closest && target.closest('#action-buttons, #btn-pause, #hud, button, input, select, textarea, a') && !onJoystick) return;
     if (e.cancelable) e.preventDefault();
 
     joyPointerId = e.pointerId;
-    joyStartX = e.clientX;
-    joyStartY = e.clientY;
+    if (onJoystick && joyZone) {
+        var rect = joyZone.getBoundingClientRect();
+        joyStartX = rect.left + rect.width / 2;
+        joyStartY = rect.top + rect.height / 2;
+        joyZone.classList.add('active');
+    } else {
+        joyStartX = e.clientX;
+        joyStartY = e.clientY;
+        joyZone.classList.remove('active');
+    }
     joyActive = true;
-
-    // Никакого видимого джойстика: точка касания только задаёт направление.
-    if (joyZone) joyZone.classList.remove('active');
 
     if (gameWrap && gameWrap.setPointerCapture && e.pointerId != null) {
         try { gameWrap.setPointerCapture(e.pointerId); } catch (_) {}
@@ -74,6 +80,11 @@ function joyMove(e) {
     var strength = Math.min(1, (usable - JOY_DEAD_ZONE) / (JOY_MAX - JOY_DEAD_ZONE));
     joyVector.x = (dx / dist) * strength;
     joyVector.y = (dy / dist) * strength;
+
+    if (joyKnob && joyZone && joyZone.classList.contains('active')) {
+        var knobOffset = Math.min(JOY_MAX, dist);
+        joyKnob.style.transform = 'translate(' + ((dx / dist) * knobOffset) + 'px,' + ((dy / dist) * knobOffset) + 'px)';
+    }
 }
 
 function joyEnd(e) {
@@ -88,7 +99,7 @@ function joyEnd(e) {
     joyVector.y = 0;
 }
 
-/* Floating joystick: the player can touch anywhere on the game field. */
+/* Virtual joystick: fixed lower-left control on touch devices. */
 if (gameWrap) {
     gameWrap.addEventListener('pointerdown', joyStart, { passive: false });
     gameWrap.addEventListener('pointermove', joyMove, { passive: false });

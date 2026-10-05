@@ -207,8 +207,8 @@ var STARFALL_BALANCE = {
     },
     "enemies": {
       "normal": {
-        "hp": 3,
-        "speed": 3.5,
+        "hp": 5,
+        "speed": 2.5,
         "size": 25
       },
       "flyer": {

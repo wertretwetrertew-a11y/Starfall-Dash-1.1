@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
 <title>Starfall Dash 2.6 — Roguelike Evolution</title>
-<link rel="stylesheet" href="css/style.css?v=20261005-v3.0.4-repair-2">
+<link rel="stylesheet" href="css/style.css?v=20261005-v3.0.5-orientation">
 </head>
 <body>
 
@@ -286,7 +286,7 @@
 
         <div class="simple-hint">💡 Совет: экспериментируй с апгрейдами — синергии меняют стиль игры.</div>
 
-        <div class="game-version" aria-label="Версия игры">v3.0.4</div>
+        <div class="game-version" aria-label="Версия игры">v3.0.5</div>
 
         <div class="bottom-row">
             <button class="icon-btn" id="btn-settings" title="Настройки">⚙️</button>
@@ -316,6 +316,14 @@
                 <div class="row-label">Погодные эффекты</div>
                 <div class="row-actions">
                     <button class="modal-btn primary" id="toggle-weather">Вкл</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="row-label">Ориентация экрана</div>
+                <div class="row-actions" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;">
+                    <button class="modal-btn primary orientation-btn" data-orientation="auto">Авто</button>
+                    <button class="modal-btn ghost orientation-btn" data-orientation="portrait">↕ Вертикально</button>
+                    <button class="modal-btn ghost orientation-btn" data-orientation="landscape">↔ Горизонтально</button>
                 </div>
             </div>
             <button class="modal-btn ghost" style="display:block;margin:16px auto 0;width:100%;" id="settings-close">Закрыть</button>

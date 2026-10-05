@@ -16,7 +16,7 @@
           "speedMult": 0.9,
           "hpMult": 1,
           "objective": {
-            "kind": "time",
+            "kind": "coreFragments",
             "target": 3
           },
           "pool": [
@@ -334,5 +334,5 @@
       }
     }
   },
-  "gameVersion": "3.3.8"
+  "gameVersion": "3.3.9"
 }

@@ -53,21 +53,6 @@ CHARACTER_CLASSES = {
 
 /* ---------- RUN BUILD ---------- */
 UPGRADE_POOL = {
-    blood: {
-        id:'blood', name:'Кровь', icon:'🩸', rarity:'common', stacks:true, maxStacks:3,
-        desc:'Полученный урон создаёт заряд. Следующий контакт расходует его и наносит дополнительный урон.',
-        tags:['risk','contact']
-    },
-    impact: {
-        id:'impact', name:'Импакт', icon:'💥', rarity:'common', stacks:true, maxStacks:4,
-        desc:'Сила столкновения зависит от скорости куба.',
-        tags:['contact','movement']
-    },
-    counter: {
-        id:'counter', name:'Контрудар', icon:'⚔️', rarity:'rare', stacks:true, maxStacks:3,
-        desc:'После получения урона открывается короткое окно усиленного следующего контакта.',
-        tags:['risk','contact']
-    },
     poison: {
         id:'poison', name:'Яд', icon:'☠️', rarity:'common', stacks:true, maxStacks:4,
         desc:'Контакт накладывает яд. Яд наносит периодический урон.',
@@ -76,17 +61,7 @@ UPGRADE_POOL = {
     propagation: {
         id:'propagation', name:'Распространение', icon:'🦠', rarity:'rare', stacks:true, maxStacks:3,
         desc:'Отравленный враг при смерти заражает ближайших врагов.',
-        tags:['status','synergy']
-    },
-    overload: {
-        id:'overload', name:'Перегрузка', icon:'⚡', rarity:'rare', stacks:true, maxStacks:3,
-        desc:'Убийства заряжают шкалу. При полном заряде происходит мощный импульс вокруг куба.',
-        tags:['kills','contact']
-    },
-    overheat: {
-        id:'overheat', name:'Перегрев', icon:'🔥', rarity:'rare', stacks:true, maxStacks:3,
-        desc:'Быстрые убийства повышают Heat и усиливают контакт. На критическом Heat игрок получает урон.',
-        tags:['risk','kills']
+        tags:['status','chain']
     },
     singularity: {
         id:'singularity', name:'Сингулярность', icon:'🕳️', rarity:'epic', stacks:true, maxStacks:3,
@@ -98,11 +73,6 @@ UPGRADE_POOL = {
         desc:'После смерти врага остаётся Эхо. Следующий враг, коснувшийся его, получает дополнительный эффект.',
         tags:['chain','kills']
     },
-    phase: {
-        id:'phase', name:'Фаза', icon:'🌌', rarity:'epic', stacks:true, maxStacks:3,
-        desc:'После получения урона куб на короткое время становится неуязвимым. Следующий контакт получает Phase Rift.',
-        tags:['defense','contact']
-    },
     shield: {
         id:'shield', name:'Щит', icon:'🛡', rarity:'common', stacks:true, maxStacks:3,
         desc:'Блокирует один контактный или снарядный удар. Когда щит полностью пробит, следующий полученный урон восстанавливает запас щитов.',
@@ -112,33 +82,6 @@ UPGRADE_POOL = {
         id:'orbit', name:'Орбита', icon:'🪐', rarity:'epic', stacks:true, maxStacks:3,
         desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',
         tags:['contact','area']
-    }
-};
-
-var ROGUE_SYNERGIES = {
-    plague: {
-        needs:['poison','propagation'], name:'ЧУМА', icon:'☣️',
-        desc:'Смерть заражённого врага создаёт усиленную волну заражения.'
-    },
-    kinetic_engine: {
-        needs:['impact','overheat'], name:'КИНЕТИЧЕСКИЙ ДВИГАТЕЛЬ', icon:'🚀',
-        desc:'Высокая скорость ускоряет накопление Heat, а Heat усиливает столкновения.'
-    },
-    blood_revenge: {
-        needs:['blood','counter'], name:'КРОВАВАЯ МЕСТЬ', icon:'🩸',
-        desc:'Получение урона заряжает сразу Blood и Counter.'
-    },
-    phase_break: {
-        needs:['phase','echo'], name:'РАЗРЫВ ФАЗЫ', icon:'🌀',
-        desc:'Контакт после Phase создаёт дополнительный пространственный импульс.'
-    },
-    supernova: {
-        needs:['overload','overheat'], name:'СВЕРХНОВАЯ', icon:'🌟',
-        desc:'Полная перегрузка при высоком Heat создаёт два последовательных импульса.'
-    },
-    gravity_well: {
-        needs:['singularity','overload'], name:'ГРАВИТАЦИОННЫЙ КОЛОДЕЦ', icon:'🌌',
-        desc:'Полный Overload усиливает притяжение всех активных сингулярностей.'
     }
 };
 
@@ -490,20 +433,13 @@ function playerTakeDamage() {
     playSFX('hit');
     resetCombo();
 
-    if (runUpgrades.blood) rogueBloodCharges = Math.min(3, rogueBloodCharges + runUpgrades.blood);
     if (runUpgrades.shield && rogueShieldBroken) {
         rogueShieldBroken = false;
         rogueGrantShields(runUpgrades.shield);
         showToast('🛡 ЩИТ ВОССТАНОВЛЕН!', 'info');
     }
-    if (runUpgrades.counter) rogueCounterTimer = 90;
     if (getClass(selectedClass).skillId === 'impact_core') rogueImpactReady = true;
-    if (runUpgrades.phase) {
-        roguePhaseTimer = 45 + runUpgrades.phase * 15;
-        roguePhaseReady = true;
-    }
-
-    var cls = getClass(selectedClass);
+    var cls = getClass(selectedClass);    var cls = getClass(selectedClass);
     if (cls.skillId === 'blood_rush') {
         rogueBloodCharges = Math.min(3, rogueBloodCharges + getClassSkillLevel(selectedClass));
     }
@@ -554,33 +490,9 @@ function applyUpgrade(upgradeId) {
     updateHUD();
 }
 
-function checkSynergies() {
-    if (currentMode !== 'rogue') return;
-    var s = getSave();
-
-    Object.keys(ROGUE_SYNERGIES).forEach(function(id){
-        var syn = ROGUE_SYNERGIES[id];
-        var active = syn.needs.every(function(n){ return !!runUpgrades[n]; });
-        if (active && !runSynergies[id]) {
-            runSynergies[id] = true;
-            if (s.rogueStats) s.rogueStats.synergiesActivated = (s.rogueStats.synergiesActivated || 0) + 1;
-            showToast(syn.icon + ' СИНЕРГИЯ: ' + syn.name, 'legendary');
-            playSFX('upgrade');
-        }
-    });
-    persist();
-}
-
-function getSynergyHint(id) {
-    var names = [];
-    Object.keys(ROGUE_SYNERGIES).forEach(function(k){
-        var syn = ROGUE_SYNERGIES[k];
-        if (syn.needs.indexOf(id) !== -1) {
-            var other = syn.needs.filter(function(n){return n!==id;});
-            if (other.some(function(n){return runUpgrades[n];})) names.push('→ ' + syn.name);
-        }
-    });
-    return names.join(' • ');
+function pickUpgrade(upgradeId) {
+    applyUpgrade(upgradeId);
+    closeUpgradeModal();
 }
 
 function pickUpgrade(upgradeId) {
@@ -606,10 +518,7 @@ function pickRandomUpgrades(count, exclude) {
                 return UPGRADE_POOL[r] && UPGRADE_POOL[r].tags.indexOf(t)!==-1;
             });
         })) weight += 7;
-        Object.keys(ROGUE_SYNERGIES).forEach(function(k){
-            var syn=ROGUE_SYNERGIES[k];
-            if (syn.needs.indexOf(id)!==-1 && syn.needs.some(function(n){return n!==id && runUpgrades[n];})) weight += 12;
-        });
+
         var rarity={common:60,rare:25,epic:10,legendary:4,mythic:1}[u.rarity]||10;
         weight += rarity/10;
         for(var i=0;i<Math.ceil(weight);i++) weighted.push(id);
@@ -635,16 +544,6 @@ function rogueRegisterKill(enemy) {
     var rapidKill = rogueKillChainTimer > 0;
     rogueKillChainTimer = 90;
 
-    if (runUpgrades.overload) {
-        rogueOverload = Math.min(100, rogueOverload + 12 * runUpgrades.overload);
-    }
-    if (runUpgrades.overheat) {
-        var heatGain = (rapidKill ? 10 : 4) * runUpgrades.overheat;
-        if (runSynergies.kinetic_engine && rogueMovementSpeed >= 4.5) {
-            heatGain += Math.floor(rogueMovementSpeed - 3) * runUpgrades.overheat;
-        }
-        rogueHeat = Math.min(100, rogueHeat + heatGain);
-    }
     if (runUpgrades.singularity) {
         rogueSingularities.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:240,power:runUpgrades.singularity,empoweredTimer:0});
     }
@@ -654,8 +553,8 @@ function rogueRegisterKill(enemy) {
 
     // Propagation is a death-triggered mechanic: poisoned enemies infect nearby enemies.
     if (runUpgrades.propagation && enemy._rogueWasPoisoned) {
-        var spreadRadius = 55 + runUpgrades.propagation * 12 + (runSynergies.plague ? 25 : 0);
-        var spreadTime = 90 + runUpgrades.propagation * 35 + (runSynergies.plague ? 35 : 0);
+        var spreadRadius = 55 + runUpgrades.propagation * 12;
+        var spreadTime = 90 + runUpgrades.propagation * 35;
         var ex0 = enemy.x + enemy.size/2, ey0 = enemy.y + enemy.size/2;
         enemies.forEach(function(other){
             if(other===enemy) return;
@@ -737,13 +636,6 @@ function rogueTickSystems() {
                 enemy.hp=Math.max(0,enemy.hp-echoDamage);
                 enemy.hitFlash=8;
                 addParticles(enemy.x+enemy.size/2,enemy.y+enemy.size/2,'#b388ff',10,8);
-                if(runSynergies.phase_break){
-                    enemies.forEach(function(other){
-                        if(other===enemy) return;
-                        var od=Math.hypot((other.x+other.size/2)-(enemy.x+enemy.size/2),(other.y+other.size/2)-(enemy.y+enemy.size/2));
-                        if(od<45) other.hp=Math.max(0,other.hp-2);
-                    });
-                }
                 rogueEchoes.splice(eci,1);
                 consumed=true;
                 break;
@@ -752,31 +644,6 @@ function rogueTickSystems() {
         if(!consumed) echo.life--;
     }
     rogueEchoes=rogueEchoes.filter(function(e){return e.life>0;});
-
-    // Heat decays slowly.
-    if (frame % 30 === 0 && rogueHeat > 0) rogueHeat = Math.max(0, rogueHeat-1);
-
-    // Overload pulse.
-    if (rogueOverload >= 100) {
-        rogueOverload = 0;
-        if(runSynergies.gravity_well){
-            rogueSingularities.forEach(function(g){ g.empoweredTimer = 120; });
-        }
-        var radius = 80 + (runUpgrades.overload||1)*15;
-        enemies.forEach(function(e){
-            var d=Math.hypot((e.x+e.size/2)-(player.x+player.size/2),(e.y+e.size/2)-(player.y+player.size/2));
-            if(d<radius) e.hp -= 2 + (runUpgrades.overload||1)*2;
-        });
-        addParticles(player.x+player.size/2,player.y+player.size/2,'#fff59d',35,18);
-        screenShake=12;
-        showToast('⚡ ПЕРЕГРУЗКА!', 'epic');
-        if(runSynergies.supernova && rogueHeat>=70){
-            enemies.forEach(function(e){
-                var d=Math.hypot((e.x+e.size/2)-(player.x+player.size/2),(e.y+e.size/2)-(player.y+player.size/2));
-                if(d<radius*1.35) e.hp -= 3;
-            });
-        }
-    }
 
     // Orbiters.
     if (runUpgrades.orbit) {
@@ -797,18 +664,6 @@ function rogueTickSystems() {
         });
     }
 
-    // Heat risk.
-    if(runUpgrades.overheat && rogueHeat>=100 && frame%90===0){
-        rogueHP=Math.max(0,rogueHP-3);
-        player.damageFlash=10;
-        addFloatingText(player.x+player.size/2,player.y-10,'OVERHEAT -3','#ff5722',14);
-        if(rogueHP<=0){
-            gameOver=true;
-            running=false;
-            resetFrameClock();
-            finishRun();
-        }
-    }
 }
 
 /* ---------- CONTACT / CLASS TRIGGERS ---------- */
@@ -866,28 +721,6 @@ function rogueDetectContact() {
             screenShake=Math.max(screenShake,7);
         }
 
-        // Blood and Counter add damage to the same contact.
-        if(runUpgrades.blood && rogueBloodCharges>0){
-            rogueBloodCharges=Math.max(0,rogueBloodCharges-1);
-            hitEnemy.hp=Math.max(0,hitEnemy.hp-runUpgrades.blood*2);
-        }
-        if(runUpgrades.counter && rogueCounterTimer>0){
-            hitEnemy.hp=Math.max(0,hitEnemy.hp-(2+runUpgrades.counter*2));
-            rogueCounterTimer=0;
-        }
-
-        // Phase Rift. Phase Break makes the rift larger and stronger.
-        if(runUpgrades.phase && roguePhaseReady && roguePhaseTimer>0){
-            roguePhaseReady=false;
-            var pr=45+runUpgrades.phase*10+(runSynergies.phase_break?25:0);
-            var phaseDamage=2+runUpgrades.phase+(runSynergies.phase_break?2:0);
-            enemies.forEach(function(e){
-                var d=Math.hypot((e.x+e.size/2)-px,(e.y+e.size/2)-py);
-                if(d<pr) e.hp=Math.max(0,e.hp-phaseDamage);
-            });
-            addParticles(px,py,'#7c4dff',18,10);
-        }
-
         // Poison.
         if(runUpgrades.poison){
             hitEnemy._rogueWasPoisoned=true;
@@ -916,15 +749,6 @@ update = function update() {
         }else{
             playerDamage=Math.max(1,nativeContactDamage());
         }
-
-        if(runUpgrades.impact){
-            playerDamage += Math.floor(runUpgrades.impact * Math.min(3, rogueMovementSpeed/3.5));
-        }
-        if(runUpgrades.overheat){
-            playerDamage += Math.floor(rogueHeat/35) * runUpgrades.overheat;
-        }
-        if(rogueCounterTimer>0) playerDamage += 1 + (runUpgrades.counter||0);
-        if(rogueBloodCharges>0 && runUpgrades.blood) playerDamage += runUpgrades.blood;
 
         if(roguePhaseTimer>0){
             buff.phantom=Math.max(buff.phantom,1);
@@ -1015,7 +839,6 @@ function renderUpgradeCards() {
             card.appendChild(info);
         }
 
-        var hint=getSynergyHint(id);
         if(hint){
             var h=document.createElement('div');
             h.className='upgrade-hint'; h.textContent='⚡ '+hint; card.appendChild(h);
@@ -1066,7 +889,6 @@ finishRun = function finishRun() {
 /* ---------- CLASS-ONLY PERSISTENCE RULE ---------- */
 function clearRogueRunState() {
     runUpgrades={};
-    runSynergies={};
     runRelics=[];
     rogueXP=0;
     rogueXPOrbs=[];

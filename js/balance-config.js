@@ -53,7 +53,7 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "normal",
-            "flyer",
+            "ghost",
             "spider"
           ]
         },
@@ -332,7 +332,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.4"
+  "gameVersion": "3.3.5"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

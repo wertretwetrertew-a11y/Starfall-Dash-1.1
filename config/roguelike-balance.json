@@ -52,7 +52,7 @@
           },
           "pool": [
             "normal",
-            "flyer",
+            "ghost",
             "spider"
           ]
         },
@@ -331,5 +331,5 @@
       }
     }
   },
-  "gameVersion": "3.3.4"
+  "gameVersion": "3.3.5"
 }

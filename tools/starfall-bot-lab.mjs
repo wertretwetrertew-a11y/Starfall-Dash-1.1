@@ -38,7 +38,7 @@ function bumpVersion(v){
 function loadUpdateHistory(){
   try{
     const d=JSON.parse(fs.readFileSync(UPDATE_HISTORY,"utf8"));
-    d.updates=Array.isArray(d.updates)?d.updates:[];
+    d.updates=Array.isArray(d.updates)?d.updates.map(normalizeUpdateEntry):[];
     return d;
   }catch{return {version:1,updates:[]}}
 }
@@ -75,6 +75,45 @@ function summarizeBalanceChanges(before,after){
   return [...new Set(changes)].filter(x=>x!=="gameVersion").slice(0,80);
 }
 
+function summarizeBalanceUpdate(changes,before,after){
+  const labels=[];
+  for(const p of (changes||[])){
+    let m=p.match(/^rogue\.stages\.([^.]+)\.(\d+)\.(.+)$/);
+    if(m){
+      const planet={arden:"Арден",nox:"Нокс",aurelia:"Аурелия"}[m[1]]||m[1];
+      const stage=Number(m[2])+1;
+      const field=m[3];
+      const name={pool:"состав врагов",speedMult:"скорость врагов",hpMult:"здоровье врагов",spawnInterval:"интервал появления",maxAlive:"максимум врагов",minAlive:"минимум врагов",objective:"цель этапа"}[field]||field;
+      labels.push("этап "+stage+" планеты "+planet+": "+name);
+      continue;
+    }
+    m=p.match(/^rogue\.enemies\.([^.]+)\.(.+)$/);
+    if(m){
+      labels.push("враг «"+m[1]+"»: "+m[2]);
+      continue;
+    }
+    m=p.match(/^rogue\.bosses\.([^.]+)\.(.+)$/);
+    if(m){
+      labels.push("босс «"+m[1]+"»: "+m[2]);
+      continue;
+    }
+    if(p.startsWith("rogue.")) labels.push("баланс: "+p.slice(6).replace(/\./g," → "));
+    else labels.push(p.replace(/\./g," → "));
+  }
+  const unique=[...new Set(labels)];
+  if(!unique.length)return "Изменён баланс игры.";
+  if(unique.length===1)return "Изменён "+unique[0]+".";
+  if(unique.length<=3)return "Изменения: "+unique.join("; ")+".";
+  return "Изменено "+unique.length+" параметров баланса, включая: "+unique.slice(0,3).join("; ")+" и другие.";
+}
+function normalizeUpdateEntry(entry){
+  if(!entry.summary){
+    if(Array.isArray(entry.changes)&&entry.changes.length)entry.summary=summarizeBalanceUpdate(entry.changes,null,null);
+    else if(entry.title)entry.summary=entry.title+".";
+    else entry.summary="Обновление игры.";
+  }
+  return entry;
+}
 function loadAnalytics(){
   try{const d=JSON.parse(fs.readFileSync(ANALYTICS,"utf8"));return Array.isArray(d.events)?d.events:[]}catch{return []}
 }
@@ -349,7 +388,9 @@ const server=http.createServer(async(req,res)=>{
             date:new Date().toISOString(),
             type:"balance",
             title:"Обновление баланса через Bot Lab",
+            summary:summarizeBalanceUpdate(changed,before,nextData),
             changes:changed,
+            source:"Bot Lab",
             commit:headSha()
           });
           saveUpdateHistory(history);

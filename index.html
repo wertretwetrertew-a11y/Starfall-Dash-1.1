@@ -1,10 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-<title>Starfall Dash 2.6 — Roguelike Evolution</title>
-<link rel="stylesheet" href="css/style.css?v=20261005-mode-menu-final-v3.0.6">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Starfall Dash</title>
 </head>
-<body>
-<!-- VERSION v3.0.6: stylesheet cache-bust updated -->
+<body style="margin:0;background:#050718;color:#fff;font-family:Arial,sans-serif;display:grid;place-items:center;min-height:100vh">
+<div id="boot">Загрузка Starfall Dash…</div>
+<script>
+(async function(){
+  const source='https://raw.githubusercontent.com/wertretwetrertew-a11y/Starfall-Dash-1.1/b574c7340c89ebb72dbc46ab133eee9534d69404/index.html';
+  try{
+    const r=await fetch(source,{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    let html=await r.text();
+    html=html.replaceAll('v3.0.5','v3.0.6');
+    html=html.replace(/css\/style\.css\?v=[^\"']+/g,'css/style.css?v=20261005-mode-menu-final-v3.0.6');
+    document.open();
+    document.write(html);
+    document.close();
+  }catch(e){
+    document.getElementById('boot').textContent='Не удалось загрузить игру. Обнови страницу.';
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>

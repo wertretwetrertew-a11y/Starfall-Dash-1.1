@@ -15,8 +15,14 @@ function updateHUD() {
             hudLives.textContent = '❤ ×' + Math.max(0, lives);
         }
     }
-    var pct = 1 - (levelTimer / LEVEL_DURATION);
-    hudProgressFill.style.width = (Math.max(0, Math.min(1, pct)) * 100) + '%';
+    // XP HUD: показываем реальный прогресс Roguelike, а не старый таймер уровня.
+    var currentXP = (typeof rogueXP === 'number' && isFinite(rogueXP)) ? Math.max(0, rogueXP) : 0;
+    var nextXP = (typeof rogueXPNext === 'number' && isFinite(rogueXPNext) && rogueXPNext > 0) ? rogueXPNext : 1;
+    var xpPct = Math.max(0, Math.min(1, currentXP / nextXP));
+    hudProgressFill.style.width = (xpPct * 100) + '%';
+    if (typeof hudXpValue !== 'undefined' && hudXpValue) {
+        hudXpValue.textContent = Math.floor(currentXP) + ' / ' + Math.floor(nextXP);
+    }
 
     if (hudMode) {
         hudMode.textContent = MODES[currentMode].name.toUpperCase();

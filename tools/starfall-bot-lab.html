@@ -189,6 +189,7 @@ if($('statsStory')){
   const killerTop=topDeaths[0];
   $('statsStory').innerHTML=
     '<div class="form-grid">'+
+      '<div class="hint-card"><b>🧪 Что именно тестировалось</b><br>Профиль: '+esc(r.meta.profile)+' · забегов: '+r.meta.runs+' · базовый урон: '+r.meta.baseDamage+' · базовое HP: '+r.meta.baseHp+'</div>'+
       '<div class="hint-card"><b>🏆 Результат</b><br>'+wins.length+' из '+r.meta.runs+' забегов завершили игру полностью.</div>'+
       '<div class="hint-card"><b>☠️ Главная причина поражений</b><br>'+(killerTop?esc(enName(killerTop[0]))+' убил игрока '+killerTop[1]+' раз.':'Поражений нет.')+'</div>'+
     '</div>'+

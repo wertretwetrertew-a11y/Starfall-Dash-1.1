@@ -5982,3 +5982,72 @@ body.rogue-hud #hud-top-row #hud-combo.pulse{
   #mode-screen .mode-grid{row-gap:10px !important;}
   #mode-screen .mode-card .mc-icon{width:58px !important;height:58px !important;min-width:58px !important;min-height:58px !important;}
 }
+
+
+/* ==========================================================
+   MOBILE JOYSTICK FINAL — fixed lower-left control
+   ========================================================== */
+@media (pointer: coarse), (max-width: 800px) {
+    body.playing #mobile-controls {
+        display: block;
+        height: 190px;
+        bottom: 0;
+        z-index: 30;
+        pointer-events: none;
+    }
+
+    body.playing #joystick-zone {
+        left: max(18px, env(safe-area-inset-left));
+        bottom: max(18px, env(safe-area-inset-bottom));
+        top: auto;
+        width: 132px;
+        height: 132px;
+        opacity: 1;
+        pointer-events: auto;
+        border: 2px solid rgba(79,195,247,.42);
+        background:
+            radial-gradient(circle, rgba(79,195,247,.16) 0%, rgba(79,195,247,.07) 58%, rgba(79,195,247,.025) 100%);
+        box-shadow: 0 0 24px rgba(79,195,247,.14), inset 0 0 22px rgba(79,195,247,.08);
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body.playing #joystick-zone.active {
+        opacity: 1;
+    }
+
+    body.playing #joystick-knob {
+        width: 58px;
+        height: 58px;
+        margin-left: -29px;
+        margin-top: -29px;
+        box-shadow: 0 0 20px rgba(79,195,247,.72);
+        pointer-events: none;
+    }
+
+    body.playing #action-buttons {
+        right: max(18px, env(safe-area-inset-right));
+        bottom: max(18px, env(safe-area-inset-bottom));
+        pointer-events: auto;
+    }
+
+    body.playing #joystick-zone + #action-buttons {
+        z-index: 31;
+    }
+}
+
+@media (max-width: 380px) {
+    body.playing #joystick-zone {
+        width: 116px;
+        height: 116px;
+    }
+
+    body.playing #joystick-knob {
+        width: 52px;
+        height: 52px;
+        margin-left: -26px;
+        margin-top: -26px;
+    }
+}

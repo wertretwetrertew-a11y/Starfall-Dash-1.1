@@ -71,10 +71,28 @@
     const r=await fetch('/api/update?token='+encodeURIComponent(t),{method:'POST',cache:'no-store'});
     const j=await r.json();
     if(j.updated){
-      if(b)b.textContent='✅ Обновление установлено';
-      const msg='Bot Lab обновлён до '+(j.version||'последней версии')+'. Перезапускаю панель…';
-      if($('gameVersion'))$('gameVersion').textContent=msg;
-      setTimeout(()=>location.reload(),2600);
+      if(b)b.textContent='⟳ Перезапускаю Bot Lab…';
+      if($('gameVersion'))$('gameVersion').textContent='Обновление установлено. Жду перезапуска новой версии…';
+      const targetCommit=String(j.commit||'');
+      const startedAt=Date.now();
+      const waitForNewServer=async()=>{
+        try{
+          const vr=await fetch('/api/version?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});
+          const vj=await vr.json();
+          if(!targetCommit || String(vj.commit||'')===targetCommit){
+            if(b)b.textContent='✅ Bot Lab обновлён';
+            location.replace(location.pathname+'?token='+encodeURIComponent(t)+'&updated='+Date.now());
+            return;
+          }
+        }catch(e){}
+        if(Date.now()-startedAt<20000){
+          setTimeout(waitForNewServer,500);
+          return;
+        }
+        if(b){b.disabled=false;b.textContent='⚠️ Bot Lab не перезапустился'}
+        if($('gameVersion'))$('gameVersion').textContent='Обновление скачано, но Bot Lab не ответил новой версией. Нажми «Проверить и обновить» ещё раз.';
+      };
+      setTimeout(waitForNewServer,900);
     }else{
       if(b){b.disabled=false;b.textContent='✅ Всё актуально'}
       if($('gameVersion'))$('gameVersion').textContent='Игра v'+(j.version||'—')+' · обновлений нет';

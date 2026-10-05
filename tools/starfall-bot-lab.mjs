@@ -12,13 +12,69 @@ const BUGS=path.join(ROOT,"config","bugs.json");
 const IDEAS=path.join(ROOT,"config","ideas.json");
 const ANALYTICS=path.join(ROOT,"config","analytics-events.json");
 const ANALYTICS_SESSIONS=path.join(ROOT,"config","analytics-sessions.json");
+const UPDATE_HISTORY=path.join(ROOT,"config","update-history.json");
 const PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-lab.html"),"utf8");
 const IDEAS_PAGE=fs.readFileSync(path.join(ROOT,"tools","starfall-bot-ideas.html"),"utf8");
 const PORT=Number(process.env.STARFALL_BOT_PORT||4180);
 const TOKEN=randomBytes(18).toString("hex");
 
 function load(){return JSON.parse(fs.readFileSync(CONFIG,"utf8"))}
-function gameVersion(){try{const index=fs.readFileSync(path.join(ROOT,"index.html"),"utf8");const m=index.match(/class=["']game-version["'][^>]*>\s*v?([^<\s]+)\s*</i);return m?m[1]:"неизвестна"}catch(e){return "неизвестна"}}
+function gameVersion(){
+  try{
+    const cfg=load();
+    if(cfg&&cfg.gameVersion)return String(cfg.gameVersion).replace(/^v/i,"");
+  }catch{}
+  try{
+    const index=fs.readFileSync(path.join(ROOT,"index.html"),"utf8");
+    const m=index.match(/class=["']game-version["'][^>]*>\s*v?([^<\s]+)\s*</i);
+    return m?m[1]:"неизвестна";
+  }catch(e){return "неизвестна"}
+}
+function bumpVersion(v){
+  const m=String(v||"0.0.0").replace(/^v/i,"").match(/^(\d+)\.(\d+)\.(\d+)/);
+  if(!m)return "1.0.0";
+  return Number(m[1])+"."+Number(m[2])+"."+(Number(m[3])+1);
+}
+function loadUpdateHistory(){
+  try{
+    const d=JSON.parse(fs.readFileSync(UPDATE_HISTORY,"utf8"));
+    d.updates=Array.isArray(d.updates)?d.updates:[];
+    return d;
+  }catch{return {version:1,updates:[]}}
+}
+function saveUpdateHistory(data){
+  data.updates=Array.isArray(data.updates)?data.updates:[];
+  data.updates=data.updates.slice(-200);
+  fs.writeFileSync(UPDATE_HISTORY,JSON.stringify(data,null,2)+"\n");
+}
+function updateVisibleVersion(v){
+  const indexPath=path.join(ROOT,"index.html");
+  let index=fs.readFileSync(indexPath,"utf8");
+  index=index.replace(/(<div class="game-version"[^>]*>\s*)v?[^<\s]+(\s*<\/div>)/i,"$1v"+v+"$2");
+  index=index.replace(/(src\/data\/roguelike-balance\.js\?v=)[^"']+/,"$1balance-v"+v);
+  fs.writeFileSync(indexPath,index);
+}
+function summarizeBalanceChanges(before,after){
+  const changes=[];
+  const walk=(a,b,p)=>{
+    if(typeof a!==typeof b || Array.isArray(a)!==Array.isArray(b) || (a&&typeof a==="object")!==(b&&typeof b==="object")){
+      changes.push(p||"balance"); return;
+    }
+    if(Array.isArray(a)){
+      if(JSON.stringify(a)!==JSON.stringify(b))changes.push(p||"balance");
+      return;
+    }
+    if(a&&typeof a==="object"){
+      const keys=new Set([...Object.keys(a),...Object.keys(b)]);
+      for(const k of keys)walk(a[k],b[k],p?p+"."+k:k);
+      return;
+    }
+    if(a!==b)changes.push(p||"balance");
+  };
+  walk(before,after,"");
+  return [...new Set(changes)].filter(x=>x!=="gameVersion").slice(0,80);
+}
+
 function loadAnalytics(){
   try{const d=JSON.parse(fs.readFileSync(ANALYTICS,"utf8"));return Array.isArray(d.events)?d.events:[]}catch{return []}
 }
@@ -104,20 +160,16 @@ function save(data){
   fs.writeFileSync(RUNTIME,runtime(data));
   fs.writeFileSync(GAME_RUNTIME,runtime(data));
 }
-function updateBalanceCacheVersion(){
+function updateBalanceCacheVersion(v){
   const indexPath=path.join(ROOT,"index.html");
   let index=fs.readFileSync(indexPath,"utf8");
-  const stamp=new Date().toISOString().replace(/\D/g,"").slice(0,14);
-  const next=index.replace(
-    /(src\/data\/roguelike-balance\.js\?v=)[^"']+/,
-    "$1balance-"+stamp
-  );
-  if(next!==index) fs.writeFileSync(indexPath,next);
-  return "balance-"+stamp;
+  index=index.replace(/(src\/data\/roguelike-balance\.js\?v=)[^"']+/,"$1balance-v"+v);
+  if(index!==fs.readFileSync(indexPath,"utf8"))fs.writeFileSync(indexPath,index);
+  return "balance-v"+v;
 }
 
 function commit(){
-  execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js","src/data/roguelike-balance.js","index.html"],{cwd:ROOT,stdio:"pipe"});
+  execFileSync("git",["add","config/roguelike-balance.json","js/balance-config.js","src/data/roguelike-balance.js","config/update-history.json","index.html"],{cwd:ROOT,stdio:"pipe"});
   return execFileSync("git",["commit","-m","Balance: update Roguelike tuning"],{cwd:ROOT,encoding:"utf8"});
 }
 function ensureRemote(){
@@ -243,14 +295,66 @@ const server=http.createServer(async(req,res)=>{
     if(u.pathname==="/api/analytics/sessions"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const session=JSON.parse(body);if(!session||typeof session.sessionId!=="string")return send(res,400,"application/json",JSON.stringify({error:"sessionId required"}));const sessions=loadSessions().filter(x=>x.sessionId!==session.sessionId);sessions.push(session);saveSessions(sessions);return send(res,200,"application/json",JSON.stringify({success:true,stored:sessions.length}))}
     if(u.pathname==="/api/analytics"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;let batch=JSON.parse(body);if(!Array.isArray(batch))batch=[batch];batch=batch.filter(e=>e&&typeof e.event==="string"&&e.data&&typeof e.data==="object").slice(0,500);const events=loadAnalytics();events.push(...batch);saveAnalytics(events);return send(res,200,"application/json",JSON.stringify({success:true,accepted:batch.length,total:Math.min(events.length,30000)}))}
     if(u.pathname==="/api/analytics"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(analyticsSummary(loadAnalytics())));
-    if(u.pathname==="/api/version"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify({version:gameVersion(),source:"index.html"}));
+    if(u.pathname==="/api/version"&&req.method==="GET"){const v=gameVersion();return send(res,200,"application/json",JSON.stringify({version:v,balanceVersion:v,source:"config/roguelike-balance.json + index.html"}));}
+    if(u.pathname==="/api/updates"&&req.method==="GET"){const h=loadUpdateHistory();return send(res,200,"application/json",JSON.stringify({currentVersion:gameVersion(),updates:h.updates.slice().reverse()}));}
     if(u.pathname==="/api/balance"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(load()));
     if(u.pathname==="/api/bugs"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(loadBugs()));
     if(u.pathname==="/api/bugs"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const data=JSON.parse(body);saveBugs(data);let commitSha=headSha();try{commitBugs();commitSha=headSha()}catch(e){if(!String(e.message).includes("nothing to commit"))throw e}if(data.push){try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,bugs:data.bugs}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Баги сохранены и закоммичены, но push не выполнен: "+e.message,bugs:data.bugs}))}}return send(res,200,"application/json",JSON.stringify({success:true,bugs:data.bugs}))}
     if(u.pathname==="/api/ideas"&&req.method==="GET")return send(res,200,"application/json",JSON.stringify(loadIdeas()));
     if(u.pathname==="/api/ideas"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const data=JSON.parse(body);saveIdeas(data);let commitSha=headSha();try{commitIdeas();commitSha=headSha()}catch(e){if(!String(e.message).includes("nothing to commit"))throw e}try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,ideas:data.ideas}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"Идеи сохранены локально, но push не выполнен: "+e.message,ideas:data.ideas}))}}
     if(u.pathname==="/api/run"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const p=JSON.parse(body);const data=load();return send(res,200,"application/json",JSON.stringify(simulate(data,p)))}
-    if(u.pathname==="/api/save"&&req.method==="POST"){let body="";for await(const chunk of req)body+=chunk;const p=JSON.parse(body);save(p.data);let message="Баланс сохранён.";if(p.push||p.commit){try{const balanceVersion=updateBalanceCacheVersion();commit();message+=" Git commit создан. Версия кэша: "+balanceVersion+"."}catch(e){if(!p.push)message+=" Git commit не создан: "+e.message;else if(!String(e.message).includes("nothing to commit"))throw e}}if(p.push){try{push();const sha=headSha();return send(res,200,"application/json",JSON.stringify({success:true,message:message+" Изменения отправлены в GitHub.",sha,commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,data:p.data}))}catch(e){return send(res,200,"application/json",JSON.stringify({success:false,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:p.data}))}}return send(res,200,"application/json",JSON.stringify({message,data:p.data}))}
+    if(u.pathname==="/api/save"&&req.method==="POST"){
+      let body="";for await(const chunk of req)body+=chunk;
+      const p=JSON.parse(body);
+      const before=load();
+      const nextVersion=bumpVersion(gameVersion());
+      const nextData=p.data&&typeof p.data==="object"?p.data:before;
+      nextData.gameVersion=nextVersion;
+      save(nextData);
+      updateVisibleVersion(nextVersion);
+      const changed=summarizeBalanceChanges(before,nextData);
+      let message="Баланс сохранён. Создана новая версия v"+nextVersion+".";
+      if(p.push||p.commit){
+        try{
+          updateBalanceCacheVersion(nextVersion);
+          commit();
+          const firstSha=headSha();
+          const history=loadUpdateHistory();
+          history.updates.push({
+            version:nextVersion,
+            date:new Date().toISOString(),
+            type:"balance",
+            title:"Обновление баланса через Bot Lab",
+            changes:changed,
+            commit:firstSha
+          });
+          saveUpdateHistory(history);
+          execFileSync("git",["add","config/update-history.json"],{cwd:ROOT,stdio:"pipe"});
+          execFileSync("git",["commit","-m","Bot Lab: record update v"+nextVersion],{cwd:ROOT,encoding:"utf8",stdio:"pipe"});
+          message+=" Изменения закоммичены.";
+        }catch(e){
+          if(!p.push&&!String(e.message).includes("nothing to commit"))message+=" Git commit не создан: "+e.message;
+          else if(p.push&&!String(e.message).includes("nothing to commit"))throw e;
+        }
+      }
+      if(p.push){
+        try{
+          push();
+          const sha=headSha();
+          return send(res,200,"application/json",JSON.stringify({
+            success:true,
+            version:nextVersion,
+            message:message+" Изменения отправлены в GitHub.",
+            sha,
+            commitUrl:"https://github.com/wertretwetrertew-a11y/Starfall-Dash-1.1/commit/"+sha,
+            data:nextData
+          }));
+        }catch(e){
+          return send(res,200,"application/json",JSON.stringify({success:false,version:nextVersion,message:"GitHub не принял push. Локальное сохранение выполнено.\n"+e.message,data:nextData}));
+        }
+      }
+      return send(res,200,"application/json",JSON.stringify({success:true,version:nextVersion,message,data:nextData}));
+    }
     return send(res,404,"application/json",JSON.stringify({error:"Not found"}));
   }catch(e){return send(res,500,"application/json",JSON.stringify({error:e.message}))}
 });

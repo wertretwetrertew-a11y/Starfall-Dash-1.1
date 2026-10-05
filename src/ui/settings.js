@@ -14,6 +14,10 @@ btnSettings.addEventListener('click', function() {
     toggleLevelToastBtn.className = 'modal-btn ' + (s.showLevelToast ? 'primary' : 'ghost');
     toggleWeatherBtn.textContent = s.showWeather ? 'Вкл' : 'Выкл';
     toggleWeatherBtn.className = 'modal-btn ' + (s.showWeather ? 'primary' : 'ghost');
+    document.querySelectorAll('#settings-modal [data-joystick-side]').forEach(function(b) {
+        b.classList.toggle('primary', b.dataset.joystickSide === (s.joystickSide || 'left'));
+        b.classList.toggle('ghost', b.dataset.joystickSide !== (s.joystickSide || 'left'));
+    });
     settingsModal.classList.add('open');
 });
 
@@ -80,3 +84,17 @@ function showToast(text, type) {
 }
 
 // ==========================================================
+
+document.querySelectorAll('#settings-modal [data-joystick-side]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var s = getSave();
+        s.joystickSide = btn.dataset.joystickSide === 'right' ? 'right' : 'left';
+        persist();
+        if (typeof applyJoystickSide === 'function') applyJoystickSide(s.joystickSide);
+        document.querySelectorAll('#settings-modal [data-joystick-side]').forEach(function(b) {
+            b.classList.toggle('primary', b.dataset.joystickSide === s.joystickSide);
+            b.classList.toggle('ghost', b.dataset.joystickSide !== s.joystickSide);
+        });
+        showToast(s.joystickSide === 'right' ? 'Джойстик: справа' : 'Джойстик: слева', 'info');
+    });
+});

@@ -21,8 +21,8 @@ var STARFALL_BALANCE = {
             "target": 3
           },
           "pool": [
-            "normal",
-            "spider"
+            "bomber",
+            "teleporter"
           ]
         },
         {

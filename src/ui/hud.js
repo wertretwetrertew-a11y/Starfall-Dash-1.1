@@ -20,8 +20,9 @@ function updateHUD() {
     var nextXP = (typeof rogueXPNext === 'number' && isFinite(rogueXPNext) && rogueXPNext > 0) ? rogueXPNext : 1;
     var xpPct = Math.max(0, Math.min(1, currentXP / nextXP));
     hudProgressFill.style.width = (xpPct * 100) + '%';
-    if (typeof hudXpValue !== 'undefined' && hudXpValue) {
-        hudXpValue.textContent = Math.floor(currentXP) + ' / ' + Math.floor(nextXP);
+    var hudXpValueEl = document.getElementById('hud-xp-value');
+    if (hudXpValueEl) {
+        hudXpValueEl.textContent = Math.floor(currentXP) + ' / ' + Math.floor(nextXP);
     }
 
     if (hudMode) {

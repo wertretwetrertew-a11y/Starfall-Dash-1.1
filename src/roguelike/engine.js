@@ -53,7 +53,7 @@ CHARACTER_CLASSES = {
 
 /* ---------- RUN BUILD ---------- */
 UPGRADE_POOL = {
- poison:{id:'poison',name:'Яд',icon:'☠️',rarity:'common',stacks:true,maxStacks:4,desc:'Контакт накладывает яд. Яд наносит периодический урон.',tags:['status','contact']},
+ poison:{id:'poison',name:'Яд',icon:'☠️',rarity:'common',stacks:true,maxStacks:3,desc:'Периодически создаёт вокруг героя ядовитую область. Враги внутри получают периодический урон.',tags:['status','area']},
  propagation:{id:'propagation',name:'Распространение',icon:'🦠',rarity:'rare',stacks:true,maxStacks:3,desc:'Отравленный враг при смерти заражает ближайших врагов.',tags:['status','chain']},
  singularity:{id:'singularity',name:'Сингулярность',icon:'🕳️',rarity:'epic',stacks:true,maxStacks:3,desc:'Убийства создают гравитационные точки, притягивающие врагов к месту смерти.',tags:['control','kills']},
  echo:{id:'echo',name:'Эхо',icon:'👻',rarity:'rare',stacks:true,maxStacks:3,desc:'После смерти врага остаётся Эхо. Следующий враг, коснувшийся его, получает дополнительный эффект.',tags:['chain','kills']},
@@ -85,6 +85,9 @@ var rogueMovementSpeed = 0;
 var roguePrevPlayerX = 0;
 var roguePrevPlayerY = 0;
 var rogueKillChainTimer = 0;
+var roguePoisonZoneTimer = 0;
+var roguePoisonZoneActive = false;
+var roguePoisonZoneTick = 0;
 
 var _rogueSaveReady = false;
 var _rogueSaveProfileRef = null;
@@ -279,6 +282,9 @@ reset = function reset() {
     roguePrevPlayerX = player.x;
     roguePrevPlayerY = player.y;
     rogueKillChainTimer = 0;
+    roguePoisonZoneTimer = 0;
+    roguePoisonZoneActive = false;
+    roguePoisonZoneTick = 0;
 
     // lives остаётся техническим флагом совместимости со старым кодом,
     // но больше не является здоровьем Roguelike.
@@ -563,7 +569,51 @@ function rogueTickSystems() {
         if (roguePhaseTimer <= 0) roguePhaseReady = false;
     }
 
-    // Poison
+    // Poison zone: the run-only Poison upgrade creates a timed area that follows the player.
+    if (runUpgrades.poison) {
+        var poisonLevel = Math.max(1, Math.min(3, runUpgrades.poison));
+        var poisonActiveFrames = [0, 180, 270, 360][poisonLevel]; // 3s / 4.5s / 6s
+        var poisonCooldownFrames = [0, 360, 300, 240][poisonLevel]; // 6s / 5s / 4s
+        if (roguePoisonZoneActive) {
+            roguePoisonZoneTimer--;
+            roguePoisonZoneTick++;
+            var zoneCx = player.x + player.size / 2;
+            var zoneCy = player.y + player.size / 2;
+            var zoneRadius = [0, 90, 125, 165][poisonLevel];
+
+            // Apply/refresh poison while an enemy remains inside the moving zone.
+            if (roguePoisonZoneTick >= [0, 60, 45, 30][poisonLevel]) {
+                roguePoisonZoneTick = 0;
+                enemies.forEach(function(e) {
+                    if (!e || e.hp <= 0) return;
+                    var ex = e.x + e.size / 2, ey = e.y + e.size / 2;
+                    var dx = ex - zoneCx, dy = ey - zoneCy;
+                    if (dx * dx + dy * dy <= zoneRadius * zoneRadius) {
+                        e._rogueWasPoisoned = true;
+                        e._poisonTimer = Math.max(e._poisonTimer || 0, [0, 180, 240, 300][poisonLevel]);
+                    }
+                });
+            }
+            if (roguePoisonZoneTimer <= 0) {
+                roguePoisonZoneActive = false;
+                roguePoisonZoneTimer = poisonCooldownFrames;
+                roguePoisonZoneTick = 0;
+            }
+        } else {
+            roguePoisonZoneTimer--;
+            if (roguePoisonZoneTimer <= 0) {
+                roguePoisonZoneActive = true;
+                roguePoisonZoneTimer = poisonActiveFrames;
+                roguePoisonZoneTick = [0, 60, 45, 30][poisonLevel];
+            }
+        }
+    } else {
+        roguePoisonZoneActive = false;
+        roguePoisonZoneTimer = 0;
+        roguePoisonZoneTick = 0;
+    }
+
+    // Poison damage continues after leaving the zone for a short duration.
     enemies.forEach(function(e){
         if (e._poisonTimer > 0) {
             e._poisonTimer--;
@@ -688,11 +738,6 @@ function rogueDetectContact() {
             screenShake=Math.max(screenShake,7);
         }
 
-        // Poison.
-        if(runUpgrades.poison){
-            hitEnemy._rogueWasPoisoned=true;
-            hitEnemy._poisonTimer=Math.max(hitEnemy._poisonTimer||0,90+runUpgrades.poison*45);
-        }
     }
 }
 
@@ -916,6 +961,35 @@ function rogueDrawXPOrbs(){
     ctx.restore();
 }
 
+function rogueDrawPoisonZone(){
+    if(currentMode!=='rogue' || !running || !roguePoisonZoneActive || !runUpgrades.poison) return;
+    var lvl=Math.max(1,Math.min(3,runUpgrades.poison));
+    var radius=[0,90,125,165][lvl];
+    var cx=player.x+player.size/2, cy=player.y+player.size/2;
+    var pulse=1+Math.sin(performance.now()*0.006)*0.045;
+    ctx.save();
+    ctx.globalAlpha=0.13;
+    ctx.fillStyle='#76ff4f';
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius*pulse,0,Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha=0.42;
+    ctx.strokeStyle='#9cff6a';
+    ctx.lineWidth=3;
+    ctx.setLineDash([8,6]);
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius*pulse,0,Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha=0.2;
+    ctx.strokeStyle='#d5ffb8';
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius*0.72*pulse,0,Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+}
+
 function rogueDrawEnemyHealthBars(){
     if(currentMode!=='rogue' || !running || !enemies.length) return;
     ctx.save();
@@ -938,6 +1012,7 @@ function rogueDrawEnemyHealthBars(){
 var _rogueV3OldDraw=draw;
 draw=function(){
     _rogueV3OldDraw();
+    rogueDrawPoisonZone();
     rogueDrawXPOrbs();
     rogueDrawEnemyHealthBars();
 };

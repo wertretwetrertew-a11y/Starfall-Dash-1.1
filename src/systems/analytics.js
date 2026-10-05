@@ -24,6 +24,16 @@
     function profileId(){
         try{return hash(window.currentProfile&&currentProfile.login?currentProfile.login:'guest');}catch(e){return 'p_guest';}
     }
+    function currentGameVersion(){
+        try{
+            if(window.STARFALL_BALANCE&&STARFALL_BALANCE.gameVersion)return String(STARFALL_BALANCE.gameVersion);
+        }catch(e){}
+        try{
+            var el=document.querySelector('.game-version');
+            if(el)return String(el.textContent||'').replace(/^v/i,'').trim();
+        }catch(e){}
+        return 'unknown';
+    }
     function context(extra){
         var o={
             sessionId:SESSION,
@@ -31,7 +41,7 @@
             mode:window.currentMode||null,
             character:window.selectedClass||null,
             level:Number(window.level)||0,
-            gameVersion:'3.3.0',
+            gameVersion:currentGameVersion(),
             ts:new Date().toISOString()
         };
         if(extra) Object.keys(extra).forEach(function(k){o[k]=extra[k];});
@@ -156,7 +166,7 @@
             startedAt:sessionStartedAt,
             endedAt:finalize?now.toISOString():null,
             durationSec:Math.max(0,(now.getTime()-new Date(sessionStartedAt).getTime())/1000),
-            gameVersion:'3.3.0',
+            gameVersion:currentGameVersion(),
             lastMode:window.currentMode||null,
             lastCharacter:window.selectedClass||null,
             eventCount:Object.values(sessionEventCounts).reduce(function(a,b){return a+b},0),

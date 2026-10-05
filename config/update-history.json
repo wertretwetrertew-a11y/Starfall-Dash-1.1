@@ -81,6 +81,19 @@
       ],
       "source": "Bot Lab",
       "commit": "9abd2dbd9b31435c7e5ad5fd90aadda862b4b256"
+    },
+    {
+      "version": "3.3.10",
+      "date": "2026-10-05T21:08:44.978Z",
+      "type": "balance",
+      "title": "Обновление баланса через Bot Lab",
+      "summary": "Изменения: этап 2 планеты Арден: objective.target; этап 3 планеты Арден: objective.target.",
+      "changes": [
+        "rogue.stages.arden.1.objective.target",
+        "rogue.stages.arden.2.objective.target"
+      ],
+      "source": "Bot Lab",
+      "commit": "7ae1efe11e4436b34c5d2e44be8394e344cf714b"
     }
   ]
 }

@@ -55,8 +55,8 @@ small{color:#8298ca}a{color:#8eb4ff}
     const list=j.updates||[];
     $('balanceVersion').textContent='v'+(j.currentVersion||'—');
     $('balanceUpdated').textContent=list.length?new Date(list[0].date).toLocaleString('ru-RU'):'—';
-    $('updateHistory').innerHTML='<h3 style="margin:18px 0 10px">История обновлений</h3>'+
-      (list.length?list.slice(0,20).map(x=>'<div class="bug" style="margin:7px 0"><div class="bug-title">📦 v'+esc(x.version)+' — '+esc(x.title||'Обновление')+'</div><div class="bug-meta"><span class="pill">'+esc(new Date(x.date).toLocaleString('ru-RU'))+'</span>'+(x.commit?'<span class="pill">commit '+esc(String(x.commit).slice(0,7))+'</span>':'')+'</div>'+(Array.isArray(x.changes)&&x.changes.length?'<small>Изменения: '+esc(x.changes.slice(0,8).join(', '))+(x.changes.length>8?'…':'')+'</small>':'')+'</div>').join(''):'<small>История пока пуста.</small>');
+    $('updateHistory').innerHTML='<details class="update-history" style="margin-top:18px"><summary style="cursor:pointer;font-weight:700;padding:10px 0">📜 История обновлений <span style="opacity:.65">('+list.length+')</span></summary><div style="padding-top:8px">'+
+      (list.length?list.slice(0,20).map(x=>'<div class="bug" style="margin:7px 0"><div class="bug-title">📦 v'+esc(x.version)+' — '+esc(x.title||'Обновление')+'</div><div class="bug-meta"><span class="pill">'+esc(new Date(x.date).toLocaleString('ru-RU'))+'</span>'+(x.commit?'<span class="pill">commit '+esc(String(x.commit).slice(0,7))+'</span>':'')+'</div>'+(Array.isArray(x.changes)&&x.changes.length?'<small>Изменения: '+esc(x.changes.slice(0,8).join(', '))+(x.changes.length>8?'…':'')+'</small>':'')+'</div>').join(''):'<small>История пока пуста.</small>')+'</div></details>';
   }catch(e){$('updateHistory').innerHTML='<small>Не удалось загрузить историю обновлений: '+esc(e.message)+'</small>'}
 }const BALANCE_DRAFT_KEY='starfall-bot-lab-balance-draft-v1';
 function cloneData(v){return JSON.parse(JSON.stringify(v))}

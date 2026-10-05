@@ -67,51 +67,68 @@ function setOrientationButtonState(value) {
     });
 }
 
+function applyVisualOrientation(value) {
+    document.body.classList.remove('manual-orientation-landscape', 'manual-orientation-portrait');
+    if (value === 'landscape') {
+        document.body.classList.add('manual-orientation-landscape');
+    } else if (value === 'portrait') {
+        document.body.classList.add('manual-orientation-portrait');
+    }
+}
+
 function requestOrientationLock(value) {
     if (!screen.orientation || !screen.orientation.lock) {
-        showToast(
-            value === 'auto'
-                ? 'Ориентация: авто'
-                : 'Браузер не разрешает принудительный поворот. Переверни телефон вручную.',
-            'info'
-        );
         return Promise.resolve(false);
     }
-
     return screen.orientation.lock(value).then(function() {
-        showToast(value === 'portrait' ? '↕ Вертикальная ориентация' : '↔ Горизонтальная ориентация', 'success');
         return true;
     }).catch(function() {
-        showToast(
-            'Браузер не разрешил принудительный поворот. Переверни телефон вручную.',
-            'info'
-        );
         return false;
     });
 }
 
-function applyOrientationPreference(value) {
+function applyOrientationPreference(value, notify) {
     value = value || 'auto';
-    try {
-        if (value === 'auto') {
-            localStorage.removeItem('starfallOrientationPreference');
-            if (screen.orientation && screen.orientation.unlock) {
-                try { screen.orientation.unlock(); } catch (e) {}
-            }
-            showToast('Ориентация: авто', 'info');
-            return;
-        }
-        localStorage.setItem('starfallOrientationPreference', value);
-    } catch (e) {}
 
-    requestOrientationLock(value);
+    if (value === 'auto') {
+        try { localStorage.removeItem('starfallOrientationPreference'); } catch (e) {}
+        applyVisualOrientation('auto');
+        if (screen.orientation && screen.orientation.unlock) {
+            try { screen.orientation.unlock(); } catch (e) {}
+        }
+        if (notify) showToast('Ориентация: авто', 'info');
+        return;
+    }
+
+    try { localStorage.setItem('starfallOrientationPreference', value); } catch (e) {}
+
+    // iPhone Safari обычно не разрешает screen.orientation.lock().
+    // Поэтому визуальный fallback применяется сразу и работает без API.
+    applyVisualOrientation(value);
+
+    requestOrientationLock(value).then(function(locked) {
+        if (locked) {
+            // Системный поворот уже выполнен — убираем визуальный fallback,
+            // чтобы не повернуть интерфейс дважды.
+            applyVisualOrientation('auto');
+        }
+    });
+
+    if (notify) {
+        showToast(
+            value === 'portrait' ? '↕ Вертикальный режим' : '↔ Горизонтальный режим',
+            'success'
+        );
+    }
 }
+
+applyOrientationPreference(getOrientationPreference(), false);
 
 orientationButtons.forEach(function(btn) {
     btn.addEventListener('click', function() {
         var value = btn.dataset.orientation;
         setOrientationButtonState(value);
-        applyOrientationPreference(value);
+        applyOrientationPreference(value, true);
     });
 });
 

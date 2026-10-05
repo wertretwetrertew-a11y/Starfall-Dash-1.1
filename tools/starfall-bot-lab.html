@@ -64,9 +64,6 @@
 </div>
 <script>const t=new URLSearchParams(location.search).get('token'),$=x=>document.getElementById(x);let data,last;document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-x]').forEach(x=>x.classList.remove('on'));b.classList.add('on');['test','stats','analytics','bal','bugs'].forEach(x=>$(x).style.display=x==b.dataset.x?'block':'none');if(b.dataset.x==='bugs')loadBugs();if(b.dataset.x==='analytics')loadAnalytics();if(b.dataset.x==='bal')loadVersion()});async function checkAndUpdateBotLab(){
   const b=$('updateBotLabBtn');
-  const gameUrl='https://wertretwetrertew-a11y.github.io/Starfall-Dash-1.1/';
-  let gameWin=null;
-  try{gameWin=window.open(gameUrl,'starfallDashGame');}catch{}
   if(b){b.disabled=true;b.textContent='⟳ Проверяю GitHub…'}
   try{
     const r=await fetch('/api/update?token='+encodeURIComponent(t),{method:'POST',cache:'no-store'});
@@ -75,7 +72,6 @@
       if(b)b.textContent='✅ Обновление установлено';
       const msg='Bot Lab обновлён до '+(j.version||'последней версии')+'. Перезапускаю панель…';
       if($('gameVersion'))$('gameVersion').textContent=msg;
-      if(gameWin){try{setTimeout(()=>gameWin.location.reload(),2200)}catch{}}
       setTimeout(()=>location.reload(),2600);
     }else{
       if(b){b.disabled=false;b.textContent='✅ Всё актуально'}

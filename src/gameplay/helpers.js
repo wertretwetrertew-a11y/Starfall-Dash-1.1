@@ -25,6 +25,15 @@ function rectsCollide(a, b) {
 var SF_PARTICLE_COARSE = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 var SF_PARTICLE_CAP = SF_PARTICLE_COARSE ? 140 : 200;
 var SF_PARTICLE_POOL_CAP = SF_PARTICLE_COARSE ? 180 : 260;
+
+// v3.2.1: burst budget. The old pool prevented allocations, but many
+// addParticles() calls in one simulation tick could still create a large
+// amount of work. Limit new particles per tick while preserving large,
+// important bursts (boss deaths/explosions).
+var SF_PARTICLE_FRAME_BUDGET = SF_PARTICLE_COARSE ? 34 : 56;
+var SF_PARTICLE_CRITICAL_BUDGET = SF_PARTICLE_COARSE ? 48 : 72;
+var SF_PARTICLE_BUDGET_FRAME = -1;
+var SF_PARTICLE_BUDGET_USED = 0;
 var SF_PARTICLE_POOL = [];
 
 function sfAcquireParticle() {
@@ -35,13 +44,38 @@ function sfReleaseParticle(p) {
     if (SF_PARTICLE_POOL.length < SF_PARTICLE_POOL_CAP) SF_PARTICLE_POOL.push(p);
 }
 
+function sfParticleBudgetCount(requested) {
+    if (requested <= 0) return 0;
+
+    // frame is the simulation tick counter, so the budget resets once per
+    // update tick rather than once per render frame.
+    if (SF_PARTICLE_BUDGET_FRAME !== frame) {
+        SF_PARTICLE_BUDGET_FRAME = frame;
+        SF_PARTICLE_BUDGET_USED = 0;
+    }
+
+    // Large bursts are treated as visually important and get a larger
+    // allowance, but are still bounded.
+    var budget = requested >= 30 ? SF_PARTICLE_CRITICAL_BUDGET : SF_PARTICLE_FRAME_BUDGET;
+    var remaining = budget - SF_PARTICLE_BUDGET_USED;
+    if (remaining <= 0) return 0;
+
+    var allowed = Math.min(requested, remaining);
+    SF_PARTICLE_BUDGET_USED += allowed;
+    return allowed;
+}
+
 function addParticles(x, y, color, count, spread) {
     count = count || 12;
     spread = spread || 6;
-    if (particles.length >= SF_PARTICLE_CAP) return;
+
+    count = sfParticleBudgetCount(count);
+    if (count <= 0 || particles.length >= SF_PARTICLE_CAP) return;
+
     if (particles.length > SF_PARTICLE_CAP - 25) count = Math.min(count, 5);
     var room = SF_PARTICLE_CAP - particles.length;
     count = Math.min(count, room);
+
     for (var i = 0; i < count; i++) {
         var p = sfAcquireParticle();
         p.x = x; p.y = y;

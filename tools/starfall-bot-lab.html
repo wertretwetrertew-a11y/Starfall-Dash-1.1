@@ -265,6 +265,31 @@ function renderEditor(){
 }
 
 
+function readInputValue(el){
+  return el.dataset.t ? el.value.split(',').map(s=>s.trim()).filter(Boolean) : Number(el.value);
+}
+function collect(){
+  document.querySelectorAll('[data-p]').forEach(e=>{
+    const path=e.dataset.p;
+    const a=path.split('.');
+    let x=data;
+    for(let i=0;i<a.length-1;i++)x=x[a[i]];
+    x[a[a.length-1]]=readInputValue(e);
+  });
+  document.querySelectorAll('[data-stage-pool]').forEach(e=>{
+    const a=e.dataset.stagePool.split('.');
+    const s=data.rogue.stages[a[0]][Number(a[1])];
+    s.pool=[...document.querySelectorAll('[data-stage-pool="'+e.dataset.stagePool+'"]:checked')].map(x=>x.value);
+  });
+  // Если один параметр показан в нескольких местах, синхронизируем все его поля.
+  document.querySelectorAll('[data-p]').forEach(e=>{
+    document.querySelectorAll('[data-p="'+e.dataset.p.replace(/"/g,'\\\"')+'"]').forEach(other=>{
+      if(other!==e)other.value=e.value;
+    });
+  });
+}
+
+
 async function save(push){
   collect();
   if(!push){

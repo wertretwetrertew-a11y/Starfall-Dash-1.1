@@ -20,7 +20,8 @@
             "target": 3
           },
           "pool": [
-            "miniboss"
+            "normal",
+            "spider"
           ]
         },
         {

@@ -21,7 +21,8 @@ var STARFALL_BALANCE = {
             "target": 3
           },
           "pool": [
-            "miniboss"
+            "normal",
+            "spider"
           ]
         },
         {

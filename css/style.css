@@ -5287,6 +5287,15 @@ body.rogue-hud #game{
     z-index:1;
 }
 
+/* iPhone portrait playfield sizing — keep the original vertical game proportions. */
+@media (max-width:800px){
+    body.rogue-hud #game{
+        width:100vw !important;
+        height:auto !important;
+        aspect-ratio:360 / 780 !important;
+    }
+}
+
 /* The HUD remains an overlay above the game world. */
 body.rogue-hud #hud{
     z-index:20 !important;
@@ -6357,4 +6366,4 @@ html,body,#game-wrap{width:100%;height:100%;min-width:0;min-height:0;}
 
 
 
-/* v3.0.9 — orientation-specific media rule removed. */
+/* v3.1.0 — restore mobile portrait playfield sizing without orientation controls. */

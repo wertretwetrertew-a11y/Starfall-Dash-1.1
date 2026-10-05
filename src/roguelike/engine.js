@@ -524,19 +524,8 @@ function rogueRegisterKill(enemy) {
         rogueEchoes.push({x:enemy.x+enemy.size/2,y:enemy.y+enemy.size/2,life:180,power:runUpgrades.echo});
     }
 
-    // Propagation is a death-triggered mechanic: poisoned enemies infect nearby enemies.
-    if (runUpgrades.propagation && enemy._rogueWasPoisoned) {
-        var spreadRadius = 55 + runUpgrades.propagation * 12;
-        var spreadTime = 90 + runUpgrades.propagation * 35;
-        var ex0 = enemy.x + enemy.size/2, ey0 = enemy.y + enemy.size/2;
-        enemies.forEach(function(other){
-            if(other===enemy) return;
-            var d = Math.hypot((other.x+other.size/2)-ex0,(other.y+other.size/2)-ey0);
-            if(d < spreadRadius){
-                other._poisonTimer = Math.max(other._poisonTimer || 0, spreadTime);
-            }
-        });
-    }
+    // Propagation is no longer death-triggered.
+    // A debuff spreads while its persistent source area is active.
 }
 function rogueGrantShields(stacks) {
     stacks = Math.max(0, Number(stacks) || 0);
@@ -621,9 +610,42 @@ function rogueTickSystems() {
             if (poisonDamageTick > 0 && frame % poisonDamageTick === 0) {
                 e.hp -= Math.max(1, runUpgrades.poison || 1);
                 e.hitFlash = 4;
+
+                // First poison damage turns this enemy into a permanent propagation source.
+                // The source area follows the enemy until it dies.
+                if (runUpgrades.propagation && !e._rogueSpreadSource) {
+                    e._rogueSpreadSource = 'poison';
+                    e._rogueSpreadLevel = Math.max(1, Math.min(3, runUpgrades.poison || 1));
+                }
             }
         }
     });
+
+    // Propagation: a debuffed enemy becomes a permanent moving source after its
+    // first debuff hit. Any other enemy entering that source area receives the
+    // same debuff and can become a new source after its own first damage tick.
+    if (runUpgrades.poison && runUpgrades.propagation) {
+        var propagationPoisonLevel = Math.max(1, Math.min(3, runUpgrades.poison));
+        var propagationRadius = [0, 90, 125, 165][propagationPoisonLevel];
+        var propagationPoisonDuration = [0, 180, 240, 300][propagationPoisonLevel];
+
+        enemies.forEach(function(source){
+            if (!source || source.hp <= 0 || source._rogueSpreadSource !== 'poison') return;
+            var sx = source.x + source.size / 2;
+            var sy = source.y + source.size / 2;
+
+            enemies.forEach(function(other){
+                if (!other || other === source || other.hp <= 0) return;
+                var ox = other.x + other.size / 2;
+                var oy = other.y + other.size / 2;
+                var dx = ox - sx, dy = oy - sy;
+                if (dx * dx + dy * dy <= propagationRadius * propagationRadius) {
+                    other._rogueWasPoisoned = true;
+                    other._poisonTimer = Math.max(other._poisonTimer || 0, propagationPoisonDuration);
+                }
+            });
+        });
+    }
 
     // Singularity
     rogueSingularities.forEach(function(g){
@@ -991,6 +1013,33 @@ function rogueDrawPoisonZone(){
     ctx.restore();
 }
 
+function rogueDrawPropagationZones(){
+    if(currentMode!=='rogue' || !running || !runUpgrades.poison || !runUpgrades.propagation) return;
+    var lvl=Math.max(1,Math.min(3,runUpgrades.poison));
+    var radius=[0,90,125,165][lvl];
+    var now=performance.now();
+    ctx.save();
+    enemies.forEach(function(e){
+        if(!e || e.hp<=0 || e._rogueSpreadSource!=='poison') return;
+        var cx=e.x+e.size/2, cy=e.y+e.size/2;
+        var pulse=1+Math.sin(now*0.006+cx*0.01+cy*0.01)*0.025;
+        ctx.globalAlpha=0.09;
+        ctx.fillStyle='#76ff4f';
+        ctx.beginPath();
+        ctx.arc(cx,cy,radius*pulse,0,Math.PI*2);
+        ctx.fill();
+        ctx.globalAlpha=0.32;
+        ctx.strokeStyle='#9cff6a';
+        ctx.lineWidth=2;
+        ctx.setLineDash([7,5]);
+        ctx.beginPath();
+        ctx.arc(cx,cy,radius*pulse,0,Math.PI*2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+    });
+    ctx.restore();
+}
+
 function rogueDrawEnemyHealthBars(){
     if(currentMode!=='rogue' || !running || !enemies.length) return;
     ctx.save();
@@ -1014,6 +1063,7 @@ var _rogueV3OldDraw=draw;
 draw=function(){
     _rogueV3OldDraw();
     rogueDrawPoisonZone();
+    rogueDrawPropagationZones();
     rogueDrawXPOrbs();
     rogueDrawEnemyHealthBars();
 };

@@ -12,8 +12,8 @@ var STARFALL_BALANCE = {
       "arden": [
         {
           "spawnInterval": 82,
-          "maxAlive": 7,
-          "minAlive": 4,
+          "maxAlive": 5,
+          "minAlive": 3,
           "speedMult": 0.9,
           "hpMult": 1,
           "objective": {
@@ -21,14 +21,13 @@ var STARFALL_BALANCE = {
             "target": 3
           },
           "pool": [
-            "normal",
             "spider"
           ]
         },
         {
           "spawnInterval": 78,
-          "maxAlive": 7,
-          "minAlive": 4,
+          "maxAlive": 5,
+          "minAlive": 3,
           "speedMult": 0.98,
           "hpMult": 1.02,
           "objective": {
@@ -37,13 +36,12 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "normal",
-            "ghost",
             "spider"
           ]
         },
         {
           "spawnInterval": 72,
-          "maxAlive": 7,
+          "maxAlive": 6,
           "minAlive": 4,
           "speedMult": 1.04,
           "hpMult": 1.06,
@@ -53,7 +51,6 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "normal",
-            "flyer",
             "ghost",
             "spider"
           ]
@@ -70,7 +67,6 @@ var STARFALL_BALANCE = {
           },
           "pool": [
             "normal",
-            "flyer",
             "ghost",
             "spider"
           ]
@@ -335,7 +331,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.10"
+  "gameVersion": "3.3.11"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

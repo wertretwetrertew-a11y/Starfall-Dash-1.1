@@ -11,8 +11,8 @@
       "arden": [
         {
           "spawnInterval": 82,
-          "maxAlive": 7,
-          "minAlive": 4,
+          "maxAlive": 5,
+          "minAlive": 3,
           "speedMult": 0.9,
           "hpMult": 1,
           "objective": {
@@ -20,14 +20,13 @@
             "target": 3
           },
           "pool": [
-            "normal",
             "spider"
           ]
         },
         {
           "spawnInterval": 78,
-          "maxAlive": 7,
-          "minAlive": 4,
+          "maxAlive": 5,
+          "minAlive": 3,
           "speedMult": 0.98,
           "hpMult": 1.02,
           "objective": {
@@ -36,13 +35,12 @@
           },
           "pool": [
             "normal",
-            "ghost",
             "spider"
           ]
         },
         {
           "spawnInterval": 72,
-          "maxAlive": 7,
+          "maxAlive": 6,
           "minAlive": 4,
           "speedMult": 1.04,
           "hpMult": 1.06,
@@ -52,7 +50,6 @@
           },
           "pool": [
             "normal",
-            "flyer",
             "ghost",
             "spider"
           ]
@@ -69,7 +66,6 @@
           },
           "pool": [
             "normal",
-            "flyer",
             "ghost",
             "spider"
           ]
@@ -334,5 +330,5 @@
       }
     }
   },
-  "gameVersion": "3.3.10"
+  "gameVersion": "3.3.11"
 }

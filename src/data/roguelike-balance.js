@@ -21,7 +21,7 @@ var STARFALL_BALANCE = {
             "target": 3
           },
           "pool": [
-            "spider"
+            "normal"
           ]
         },
         {
@@ -331,7 +331,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.11"
+  "gameVersion": "3.3.12"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

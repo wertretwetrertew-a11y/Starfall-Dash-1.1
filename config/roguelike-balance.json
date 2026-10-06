@@ -20,7 +20,7 @@
             "target": 3
           },
           "pool": [
-            "spider"
+            "normal"
           ]
         },
         {
@@ -330,5 +330,5 @@
       }
     }
   },
-  "gameVersion": "3.3.11"
+  "gameVersion": "3.3.12"
 }

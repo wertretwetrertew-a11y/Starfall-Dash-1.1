@@ -1,0 +1,576 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Starfall Dash — Bot Lab</title><style>
+:root{--bg:#030817;--panel:#071532;--panel2:#0a1b40;--panel3:#0d2350;--line:#2457bb;--line2:#3474ef;--text:#f2f6ff;--muted:#8fa6d8;--violet:#6f4cff;--violet2:#9a6cff;--cyan:#39ddff;--good:#25efb1;--danger:#ff557b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font:14px Inter,system-ui,-apple-system,Segoe UI,sans-serif}body{background:radial-gradient(circle at 78% 15%,rgba(67,94,255,.18),transparent 25%),radial-gradient(circle at 18% 90%,rgba(119,55,255,.13),transparent 25%),linear-gradient(180deg,#020613,#06112c 60%,#020611);overflow-x:hidden}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:110px 110px}.app{max-width:1520px;margin:auto;padding:18px 24px 26px}.topbar{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid #183873;padding-bottom:14px;margin-bottom:16px}.brand{display:flex;align-items:center;gap:13px;min-width:250px}.brand-icon{width:58px;height:58px;border-radius:17px;display:grid;place-items:center;font-size:32px;background:linear-gradient(145deg,#16347a,#0a1739);border:1px solid #3b72ed;box-shadow:0 0 28px rgba(71,105,255,.38)}.brand h1{margin:0;font-size:27px;line-height:1.05}.brand h1 span{display:block;color:#9d6cff;font-size:17px;letter-spacing:2px;margin-top:4px}.crumbs{color:#7f9cdb;font-size:13px;flex:1}.top-status{display:flex;align-items:center;gap:9px}.status,.top-chip{padding:9px 13px;border:1px solid #2457bb;border-radius:13px;background:rgba(7,19,48,.84);white-space:nowrap}.status{display:flex;gap:9px;align-items:center}.dot{width:9px;height:9px;border-radius:50%;background:var(--good);box-shadow:0 0 12px var(--good)}.layout{display:grid;grid-template-columns:230px minmax(0,1fr) 260px;gap:18px;align-items:start}.sidebar,.rightbar,.workspace{min-width:0}.side-card,.right-card,.panel{background:linear-gradient(145deg,rgba(9,27,65,.92),rgba(4,13,34,.94));border:1px solid #2457bb;border-radius:16px;box-shadow:0 16px 45px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.04)}.side-card{padding:10px}.nav-btn{width:100%;border:0;background:transparent;color:#b8c9f1;padding:13px 14px;border-radius:12px;display:flex;align-items:center;gap:12px;font-size:15px;font-weight:800;text-align:left;cursor:pointer}.nav-btn:hover{background:#0b2451;color:#fff}.nav-btn.on{background:linear-gradient(135deg,#6f45ff,#4e66ff);color:#fff;box-shadow:0 0 22px rgba(101,73,255,.34)}.nav-icon{width:26px;text-align:center;font-size:18px}.nav-count{margin-left:auto;background:#254fd6;border-radius:10px;padding:3px 8px;font-size:11px}.side-art{height:210px;margin-top:12px;display:grid;place-items:center;text-align:center;padding:18px;color:#8ea8df;background:radial-gradient(circle at 50% 40%,rgba(77,80,255,.28),transparent 38%);border-top:1px solid #17366e}.planet-art{font-size:65px;filter:drop-shadow(0 0 20px #5e55ff);margin-bottom:8px}.right-card{padding:17px;margin-bottom:14px}.version-box{display:flex;align-items:center;gap:13px}.cube{width:55px;height:55px;border-radius:16px;display:grid;place-items:center;font-size:28px;background:linear-gradient(145deg,#6d3fff,#245fd9);box-shadow:0 0 28px rgba(101,66,255,.4)}.right-card h3{margin:0 0 6px}.version-big{font-size:27px;font-weight:900}.goodline{color:var(--good);font-size:12px;margin-top:8px}.quick{display:grid;gap:8px;margin-top:13px}.quick button,.action-btn{border:1px solid #2556ad;background:#071b42;color:#d7e4ff;border-radius:11px;padding:11px 12px;text-align:left;font-weight:750;cursor:pointer}.quick button:hover,.action-btn:hover{border-color:#5e85ff;background:#0b2452}.workspace section{display:none}.workspace section.active{display:block}.hero-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.hero-title h2{margin:0;font-size:24px}.hero-title p{margin:5px 0 0;color:var(--muted)}.hero-icon{width:43px;height:43px;border-radius:12px;background:linear-gradient(135deg,#7044ff,#4f75ff);display:grid;place-items:center;font-size:22px}.title-left{display:flex;align-items:center;gap:12px}.panel{padding:17px;margin-bottom:14px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.panel-head h3{margin:0;font-size:16px}.panel-head small{color:var(--muted)}.balance-version{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}.sync-badge{color:var(--good);border:1px solid #1c9879;border-radius:10px;padding:6px 10px;font-size:11px}.version-pill{font-size:20px;font-weight:900;background:linear-gradient(135deg,#6f49ff,#566cff);padding:9px 15px;border-radius:12px;box-shadow:0 0 20px rgba(102,72,255,.35)}.history-summary{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #183568;padding-top:12px;margin-top:13px}.history-list .bug{margin:8px 0}.actions{display:flex;gap:10px;flex-wrap:wrap}.primary{border:1px solid #a38aff!important;background:linear-gradient(135deg,#7044ff,#5268ff)!important;color:#fff!important;box-shadow:0 0 20px rgba(101,70,255,.28)}button{font-family:inherit}.actions button{padding:11px 15px;border-radius:11px;font-weight:800;cursor:pointer}.balance-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}.balance-nav-btn{border:1px solid #2457bb;background:#071a40;color:#aec5f5;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer}.balance-nav-btn.active{background:linear-gradient(135deg,#7044ff,#4f6dff);color:#fff;border-color:#a98cff}.hidden{display:none!important}.balance-split{display:grid;grid-template-columns:310px minmax(0,1fr);gap:12px;min-height:560px}.entity-list,.entity-editor{background:rgba(4,15,38,.55);border:1px solid #173d83;border-radius:13px;overflow:hidden}.list-tools{display:flex;gap:7px;padding:10px;border-bottom:1px solid #173d83}.list-tools input{flex:1}.enemy-row{width:100%;border:0;border-bottom:1px solid #132f65;background:transparent;color:#dbe7ff;padding:10px;display:grid;grid-template-columns:35px 1fr 18px;gap:9px;align-items:center;text-align:left;cursor:pointer}.enemy-row:hover{background:#0b2452}.enemy-row.active{background:linear-gradient(90deg,#193e9c,#172d72);box-shadow:inset 3px 0 #8b63ff}.enemy-avatar{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#102d66;font-size:17px}.enemy-row small,.planet-title small,.stage-row small,.boss-card small,.modifier-card small{display:block;color:#829bd0;font-size:11px;margin-top:3px}.chev{color:#7fa0e5;font-size:21px}.entity-editor{padding:19px}.editor-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.eyebrow{font-size:10px;letter-spacing:1.5px;color:#8b6cff}.editor-head h2{margin:4px 0;font-size:22px}.editor-head p{color:var(--muted);margin:0}.entity-badge{border:1px solid #315fbf;border-radius:10px;padding:7px 10px;color:#bcd1ff}.subtabs{display:flex;gap:7px;margin:18px 0 14px}.subtab{border:1px solid #244f9f;background:#081a3e;color:#9fb7eb;border-radius:9px;padding:8px 12px}.subtab.active{background:#6944f5;color:#fff}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.field{display:flex;flex-direction:column;gap:6px}.field span{color:#91a8d9;font-size:11px;font-weight:800}.field input,.field select,.field textarea,.list-tools input{width:100%;border:1px solid #294d95;border-radius:9px;background:#040d22;color:#f3f7ff;padding:10px 11px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#6e86ff;box-shadow:0 0 0 2px rgba(102,88,255,.13)}.hint-card{margin-top:14px;padding:11px 13px;border:1px solid #1d427f;background:#081a3c;color:#9eb5e7;border-radius:10px}.editor-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:16px}.editor-actions button{padding:10px 13px;border-radius:10px;cursor:pointer}.secondary{border:1px solid #2b56a5;background:#081a3e;color:#bcd0f4}.planet-card{border:1px solid #204b9b;border-radius:13px;background:#07183a;margin-bottom:11px;overflow:hidden}.planet-title{display:flex;justify-content:space-between;align-items:center;padding:14px 15px}.planet-title>div{display:flex;align-items:center;gap:10px}.planet-orb{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#183878;color:#a98aff}.stage-row{border-top:1px solid #16366f}.stage-row summary{list-style:none;display:grid;grid-template-columns:35px 1fr 20px;align-items:center;gap:10px;padding:12px 15px;cursor:pointer}.stage-row summary::-webkit-details-marker{display:none}.stage-row[open] .stage-arrow{transform:rotate(180deg)}.stage-num{width:28px;height:28px;border-radius:8px;background:#183b7b;display:grid;place-items:center;color:#b8d0ff;font-weight:900}.stage-body{padding:0 15px 15px;border-top:1px solid #102e63}.pool-title{font-size:12px;color:#92a9db;font-weight:800;margin:13px 0 8px}.pool-grid{display:flex;flex-wrap:wrap;gap:6px}.pool-chip{border:1px solid #234b96;border-radius:8px;padding:6px 8px;background:#081a3c;color:#bcd0f3;font-size:11px}.pool-chip:has(input:checked){border-color:#785cff;background:#201759;color:#fff}.pool-chip input{margin-right:5px}.boss-card{display:grid;grid-template-columns:48px 1fr;gap:12px;border:1px solid #214d9c;border-radius:13px;padding:13px;margin-bottom:10px;background:#071a3d}.boss-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:#1b2c67;font-size:24px}.boss-main>b{font-size:16px}.compact-settings{display:grid;grid-template-columns:48px 1fr;gap:12px;border:1px solid #214d9c;border-radius:13px;padding:16px}.compact-settings .form-grid{grid-column:1/-1}.settings-icon{width:44px;height:44px;border-radius:12px;background:#183b7b;display:grid;place-items:center;font-size:22px}.compact-settings h3{margin:2px 0 5px}.compact-settings p{margin:0;color:var(--muted)}.modifier-grid,.overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.modifier-card,.overview-card{border:1px solid #214d9c;border-radius:13px;padding:14px;background:#071a3d}.modifier-card>b,.overview-card>b{display:block;font-size:16px}.modifier-card small,.overview-card small{margin-bottom:10px}.overview-card strong{display:block;margin-top:10px}.mini-bars{height:70px;display:flex;align-items:end;gap:7px;margin-top:12px}.mini-bars i{flex:1;background:linear-gradient(180deg,#8b61ff,#315fe5);border-radius:5px 5px 2px 2px}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{border:1px solid #204b97;background:#071a3d;border-radius:12px;padding:12px;color:#91a8d8}.metric b{display:block;color:#fff;font-size:19px;margin-top:5px}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:9px;border-bottom:1px solid #16356b;text-align:left}.table th{color:#8fa9dc;font-size:11px}.bug{border:1px solid #204b97;background:#071a3d;border-radius:11px;padding:12px}.bug-title{font-weight:850}.bug-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.pill{display:inline-block;border:1px solid #2a57a8;border-radius:8px;padding:4px 7px;color:#bcd0f4;font-size:11px}.bug-content{margin-top:10px;color:#b7c9ec}.bug-actions{display:flex;gap:7px;flex-wrap:wrap}.bug-actions button{border:1px solid #2b56a5;background:#091d43;color:#cbd9f6;padding:7px 9px;border-radius:8px;cursor:pointer}.filter-row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.footer-note{margin-top:14px;text-align:center;color:#718bc2;font-size:11px}@media(max-width:1150px){.layout{grid-template-columns:190px minmax(0,1fr)}.rightbar{display:none}.metric-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:800px){.app{padding:10px}.topbar{align-items:flex-start}.crumbs{display:none}.top-status .top-chip{display:none}.layout{display:block}.sidebar{margin-bottom:10px}.side-card{display:flex;overflow:auto}.nav-btn{min-width:120px;justify-content:center}.side-art{display:none}.balance-split{grid-template-columns:1fr}.entity-list{max-height:310px;overflow:auto}.modifier-grid,.overview-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:repeat(2,1fr)}.balance-version{grid-template-columns:1fr}.filter-row{grid-template-columns:1fr 1fr}}
+</style></head><body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="brand-icon">🤖</div><div><h1>Starfall Dash <span>BOT LAB</span></h1></div></div>
+  <div class="crumbs">Лаборатория бота　›　Управление игрой　›　Баланс</div>
+  <div class="top-status"><div class="status"><i class="dot"></i><b id="gameVersion">Игра v—</b></div><div class="top-chip"><i class="dot"></i> Bot Lab онлайн</div><button class="top-chip" type="button">⚙</button><button class="top-chip" type="button">☾</button></div>
+</header>
+<div class="layout">
+<aside class="sidebar"><div class="side-card">
+  <button class="nav-btn" data-x="test"><span class="nav-icon">⌂</span>Главная</button>
+  <button class="nav-btn on" data-x="bal"><span class="nav-icon">⚗</span>Баланс <span class="nav-count" id="navVersion">v3.3.5</span></button>
+  <button class="nav-btn" data-x="analytics"><span class="nav-icon">▥</span>Аналитика</button>
+  <button class="nav-btn" data-x="stats"><span class="nav-icon">▤</span>Статистика</button>
+  <button class="nav-btn" data-x="bugs"><span class="nav-icon">☣</span>Баги <span class="nav-count">2</span></button>
+  <button class="nav-btn" type="button" onclick="location.href='/ideas?token='+encodeURIComponent(t)"><span class="nav-icon">♧</span>Идеи</button>
+  <div class="side-art"><div><div class="planet-art">🪐</div><b>Управляй игрой<br>создавай будущее</b><div style="margin-top:10px">🚀</div></div></div>
+</div></aside>
+<main class="workspace">
+<section id="test" class="active">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">⚗</div><div><h2>Главная</h2><p>Быстрый доступ к тестированию и инструментам Bot Lab</p></div></div></div>
+  <div class="panel"><div class="panel-head"><div><h3>Быстрый тест баланса</h3><small>Симулятор использует текущий баланс игры.</small></div></div><div class="form-grid"><label class="field"><span>Профиль</span><select id="p"><option value="average">Обычный</option><option value="novice">Новичок</option><option value="optimal">Оптимальный</option></select></label><label class="field"><span>Количество прогонов</span><input id="n" type="number" value="100"></label><label class="field"><span>Базовый урон</span><input id="d" type="number" value="1"></label><label class="field"><span>Базовое HP</span><input id="hp" type="number" value="3"></label></div><div class="actions" style="margin-top:12px"><button id="go" class="primary">▶ Запустить тест</button><button id="all">▦ Сравнить профили</button></div><div id="msg" style="margin-top:10px;color:#8fa9dc"></div></div>
+  <div class="panel"><div class="panel-head"><h3>Последний результат</h3></div><div id="sum" class="metric-grid"></div></div>
+</section>
+<section id="stats">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">▤</div><div><h2>Статистика теста</h2><p>Не только цифры: кто кого победил, где погиб игрок, как прошёл каждый этап и какие улучшения были выбраны.</p></div></div></div>
+  <div class="panel"><div id="statsSum" class="metric-grid"></div></div>
+  <div class="panel"><h3>Что произошло в тесте</h3><div id="statsStory"></div></div>
+  <div class="panel"><h3>Каждый забег</h3><div id="statsRuns"></div></div>
+  <div class="panel"><h3>Этапы</h3><div class="table-wrap"><table class="table" id="st"></table></div></div>
+  <div class="panel"><h3>Враги — кто кого победил</h3><div class="table-wrap"><table class="table" id="en"></table></div></div>
+  <div class="panel"><h3>Боссы</h3><div class="table-wrap"><table class="table" id="bo"></table></div></div>
+  <div class="panel"><h3>Улучшения</h3><div id="up"></div></div>
+</section>
+<section id="analytics">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">▥</div><div><h2>Аналитика игры</h2><p>Реальные игровые сессии, забеги и результаты игроков.</p></div></div><div class="actions"><button id="analyticsRefresh">↻ Обновить</button><button id="analyticsClear">Очистить</button></div></div>
+  <div id="analyticsMsg" class="footer-note"></div><div id="analyticsSum" class="metric-grid"></div>
+  <div class="panel"><h3>Сессии</h3><div class="table-wrap"><table class="table" id="analyticsSessions"></table></div></div>
+  <div class="panel"><div class="form-grid"><div><h3>Режимы</h3><div id="analyticsModes"></div></div><div><h3>Персонажи</h3><div id="analyticsCharacters"></div></div><div><h3>Этапы</h3><div id="analyticsStages"></div></div><div><h3>Улучшения</h3><div id="analyticsUpgrades"></div></div></div><h3 style="margin-top:18px">Причины смерти</h3><div id="analyticsDeaths"></div></div>
+</section>
+<section id="bal">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">⚗</div><div><h2>Баланс игры</h2><p>Настройка врагов, этапов, планет и механик игры</p></div></div></div>
+  <div class="panel">
+    <div class="balance-version"><div><b>📦 Версия баланса</b> <span class="sync-badge">● Синхронизирована с игрой</span><div style="margin-top:8px;color:#829bd0;font-size:12px">Последнее обновление: <span id="balanceUpdated">—</span></div></div><div class="version-pill" id="balanceVersion">v—</div><button class="action-btn" onclick="document.getElementById('historyPanel').scrollIntoView({behavior:'smooth'})">История обновлений <span id="updateHistoryCount">(0)</span>　›</button></div>
+  </div>
+  <div class="panel"><div class="actions"><button id="gh" class="primary">☁️ Сохранить в GitHub</button><button id="loc">💾 Сохранить черновик</button></div><div id="bs" style="margin-top:10px;color:#91a8d8"></div></div>
+  <div id="editor"></div>
+  <div class="panel" id="historyPanel"><div class="panel-head"><h3>📜 История обновлений</h3><span id="updateHistoryCountBottom">(0)</span></div><div id="updateHistory" class="history-list"></div></div>
+</section>
+<section id="bugs">
+  <div class="hero-title"><div class="title-left"><div class="hero-icon">☣</div><div><h2>Баги</h2><p>Отслеживание проблем игры и их исправлений.</p></div></div><div class="actions"><button id="refreshBugs">↻ Обновить</button><button id="toggleAddBug">➕ Добавить новый баг</button></div></div>
+  <div class="panel"><div class="filter-row"><label class="field"><span>Статус</span><select id="bugFilterStatus"><option value="all">Все</option><option value="open">Не исправлен</option><option value="fixed">Исправлен</option></select></label><label class="field"><span>Приоритет</span><select id="bugFilterPriority"><option value="all">Все</option><option value="critical">Критический</option><option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option></select></label><label class="field"><span>Версия</span><select id="bugFilterVersion"><option value="all">Все версии</option></select></label><div style="align-self:end;color:#829bd0;padding:10px 0" id="bugFilterSummary">Показано: —</div></div></div>
+  <div class="panel" id="addBugForm" style="display:none"><div class="form-grid"><label class="field"><span>Название</span><input id="bugTitle"></label><label class="field"><span>Приоритет</span><select id="bugPriority"><option value="high">Высокий</option><option value="medium">Средний</option><option value="low">Низкий</option><option value="critical">Критический</option></select></label></div><label class="field" style="margin-top:10px"><span>Описание</span><textarea id="bugDescription"></textarea></label><button id="addBug" class="primary" style="margin-top:10px">Добавить</button></div>
+  <div id="bugList"></div><div id="bugMsg" class="footer-note"></div><div class="actions" style="margin-top:10px"><button id="saveBugs" class="primary">☁️ Сохранить баги в GitHub</button></div>
+</section>
+</main>
+<aside class="rightbar">
+  <div class="right-card"><div class="version-box"><div class="cube">◇</div><div><small style="color:#8ea8df">Текущая версия игры</small><div class="version-big" id="rightVersion">v3.3.5</div></div></div><div class="goodline">● Синхронизирована с Bot Lab</div></div>
+  <div class="right-card"><h3>🎮 Быстрый доступ</h3><div class="quick"><button onclick="window.open('https://wertretwetrertew-a11y.github.io/Starfall-Dash-1.1/','_blank')">🔗 Открыть игру　↗</button><button onclick="document.querySelector('[data-x=bal]').click()">↻ Обновить баланс</button><button onclick="document.querySelector('[data-x=analytics]').click()">▥ Просмотр аналитики</button><button id="updateBotLabBtn" onclick="checkAndUpdateBotLab()">⟳ Проверить и обновить</button></div></div>
+  <div class="right-card" style="text-align:center"><div style="font-size:56px">🪐</div><b>Каждое обновление<br>делает игру лучше</b><div style="margin-top:12px">🚀</div></div>
+</aside>
+</div>
+<div class="footer-note">Starfall Dash Bot Lab · Баланс, аналитика, баги и тестирование в одном рабочем пространстве</div>
+</div>
+<script>const t=new URLSearchParams(location.search).get('token'),$=x=>document.getElementById(x);let data,last;document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-x]').forEach(x=>x.classList.remove('on'));b.classList.add('on');['test','stats','analytics','bal','bugs'].forEach(x=>$(x).style.display=x==b.dataset.x?'block':'none');if(b.dataset.x==='bugs')loadBugs();if(b.dataset.x==='analytics')loadAnalytics();if(b.dataset.x==='bal')loadVersion()});async function checkAndUpdateBotLab(){
+  const b=$('updateBotLabBtn');
+  if(b){b.disabled=true;b.textContent='⟳ Проверяю GitHub…'}
+  try{
+    const r=await fetch('/api/update?token='+encodeURIComponent(t),{method:'POST',cache:'no-store'});
+    const j=await r.json();
+    if(j.updated){
+      if(b)b.textContent='⟳ Перезапускаю Bot Lab…';
+      if($('gameVersion'))$('gameVersion').textContent='Обновление установлено. Жду перезапуска новой версии…';
+      const targetCommit=String(j.commit||'');
+      const startedAt=Date.now();
+      const waitForNewServer=async()=>{
+        try{
+          const vr=await fetch('/api/version?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});
+          const vj=await vr.json();
+          if(!targetCommit || String(vj.commit||'')===targetCommit){
+            if(b)b.textContent='✅ Bot Lab обновлён';
+            location.replace(location.pathname+'?token='+encodeURIComponent(t)+'&updated='+Date.now());
+            return;
+          }
+        }catch(e){}
+        if(Date.now()-startedAt<20000){
+          setTimeout(waitForNewServer,500);
+          return;
+        }
+        if(b){b.disabled=false;b.textContent='⚠️ Bot Lab не перезапустился'}
+        if($('gameVersion'))$('gameVersion').textContent='Обновление скачано, но Bot Lab не ответил новой версией. Нажми «Проверить и обновить» ещё раз.';
+      };
+      setTimeout(waitForNewServer,900);
+    }else{
+      if(b){b.disabled=false;b.textContent='✅ Всё актуально'}
+      if($('gameVersion'))$('gameVersion').textContent='Игра v'+(j.version||'—')+' · обновлений нет';
+      setTimeout(()=>{if(b){b.disabled=false;b.textContent='⟳ Проверить и обновить'}},2500);
+    }
+  }catch(e){
+    if(b){b.disabled=false;b.textContent='⚠️ Ошибка обновления'}
+    if($('gameVersion'))$('gameVersion').textContent='Ошибка проверки: '+e.message;
+    setTimeout(()=>{if(b)b.textContent='⟳ Проверить и обновить'},3000);
+  }
+}
+async function loadVersion(){
+  try{
+    const r=await fetch('/api/version?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});
+    const j=await r.json();
+    $('gameVersion').textContent='Игра v'+j.version;
+    $('balanceVersion').textContent='v'+j.version;
+    if($('rightVersion'))$('rightVersion').textContent='v'+j.version;
+    if($('navVersion'))$('navVersion').textContent='v'+j.version;
+  }catch(e){
+    $('gameVersion').textContent='Версия недоступна';
+    $('balanceVersion').textContent='—';
+  }
+  try{
+    const r=await fetch('/api/updates?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});
+    const j=await r.json();
+    const list=j.updates||[];
+    $('balanceVersion').textContent='v'+(j.currentVersion||'—');
+    $('balanceUpdated').textContent=list.length?new Date(list[0].date).toLocaleString('ru-RU'):'—';
+    $('updateHistoryCount').textContent='('+list.length+')';
+    if($('updateHistoryCountBottom'))$('updateHistoryCountBottom').textContent='('+list.length+')';
+    $('updateHistory').innerHTML=list.length?list.slice(0,20).map(x=>'<div class="bug" style="margin:7px 0"><div class="bug-title">📦 v'+esc(x.version)+' — '+esc(x.title||'Обновление')+'</div><div class="bug-meta"><span class="pill">'+esc(new Date(x.date).toLocaleString('ru-RU'))+'</span>'+(x.commit?'<span class="pill">commit '+esc(String(x.commit).slice(0,7))+'</span>':'')+'</div>'+(x.summary?'<div style="margin-top:6px;color:#d7e2ff;font-size:12px">📝 '+esc(x.summary)+'</div>':'')+(Array.isArray(x.changes)&&x.changes.length?'<small style="opacity:.62">Технически: '+esc(x.changes.slice(0,8).join(', '))+(x.changes.length>8?'…':'')+'</small>':'')+'</div>').join(''):'<small>История пока пуста.</small>';
+  }catch(e){$('updateHistory').innerHTML='<small>Не удалось загрузить историю обновлений: '+esc(e.message)+'</small>'}
+}const BALANCE_DRAFT_KEY='starfall-bot-lab-balance-draft-v1';
+function cloneData(v){return JSON.parse(JSON.stringify(v))}
+function saveDraft(showMessage=true){
+  try{
+    collect();
+    localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}));
+    if(showMessage){$('bs').className='good';$('bs').textContent='✅ Черновик сохранён в этом браузере. Его можно потом отправить в GitHub.'}
+    return true;
+  }catch(e){
+    if(showMessage){$('bs').className='';$('bs').textContent='❌ Не удалось сохранить черновик: '+e.message}
+    return false;
+  }
+}
+function clearDraft(){try{localStorage.removeItem(BALANCE_DRAFT_KEY)}catch{}}
+function restoreDraft(base){
+  try{
+    const raw=localStorage.getItem(BALANCE_DRAFT_KEY);
+    if(!raw)return base;
+    const draft=JSON.parse(raw);
+    if(!draft||!draft.data)return base;
+    data=draft.data;
+    $('bs').className='good';
+    $('bs').textContent='📝 Восстановлен локальный черновик от '+new Date(draft.savedAt||Date.now()).toLocaleString('ru-RU')+'. Нажми «Сохранить в GitHub», когда всё будет готово.';
+    return data;
+  }catch(e){clearDraft();return base}
+}
+async function load(){
+  const base=await(await fetch('/api/balance?token='+encodeURIComponent(t))).json();
+  data=restoreDraft(base);
+  renderEditor();
+}
+let bugData={version:1,nextId:1,bugs:[]};
+const bugPriority={critical:'🔴 Критический',high:'🟠 Высокий',medium:'🟡 Средний',low:'🟢 Низкий'};
+const bugStatus={open:'❌ Не исправлен',fixed:'✅ Исправлен'};
+async function loadBugs(){try{let r=await fetch('/api/bugs?token='+encodeURIComponent(t)+'&ts='+Date.now(),{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);let fresh=await r.json();bugData={version:fresh.version||1,nextId:fresh.nextId||1,bugs:Array.isArray(fresh.bugs)?fresh.bugs:[]};renderBugVersionFilter();renderBugs()}catch(e){$('bugMsg').textContent='❌ Не удалось загрузить список багов: '+e.message}}
+function versionParts(v){return String(v||'').replace(/^v/i,'').split('.').map(x=>{let n=Number(x);return Number.isFinite(n)?n:0})}
+function versionSort(a,b){let A=versionParts(a),B=versionParts(b);for(let i=0;i<3;i++){if((A[i]||0)!==(B[i]||0))return (B[i]||0)-(A[i]||0)}return String(b).localeCompare(String(a))}
+function renderBugVersionFilter(){let el=$('bugFilterVersion');if(!el)return;const current=el.value||'all';const versions=[...new Set(bugData.bugs.filter(b=>b.version).map(b=>String(b.version)))].sort(versionSort);el.innerHTML='<option value="all">Все версии</option>'+versions.map(v=>'<option value="'+esc(v)+'">v'+esc(v)+'</option>').join('');el.value=versions.includes(current)?current:'all'}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function renderBugs(){
+ bugData.bugs.sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))||Number(b.id)-Number(a.id));
+ const fs=$('bugFilterStatus')?.value||'all',fp=$('bugFilterPriority')?.value||'all',fv=$('bugFilterVersion')?.value||'all';
+ const filtered=bugData.bugs.filter(b=>(fs==='all'||b.status===fs)&&(fp==='all'||b.priority===fp)&&(fv==='all'||String(b.version||'')===fv));
+ $('bugFilterSummary').textContent='Показано: '+filtered.length+' из '+bugData.bugs.length;
+ $('bugList').innerHTML=filtered.length?filtered.map(b=>'<div class="bug '+esc(b.priority)+' bug-collapsed" data-bug-card="'+b.id+'"><button class="bug-toggle" type="button" data-bug-toggle="'+b.id+'"><span class="bug-toggle-title">#'+b.id+' — '+esc(b.title)+'</span><span class="bug-toggle-icon">▸</span></button><div class="bug-content" data-bug-content="'+b.id+'"><div class="bug-meta"><span class="pill">'+bugPriority[b.priority]+'</span><span class="pill">'+bugStatus[b.status]+'</span><span class="pill">'+(b.version?('📦 v'+esc(b.version)):'📦 Версия не указана')+'</span><span class="pill">'+esc(b.createdAt)+'</span></div><div class="bug-view"><div>'+esc(b.description)+'</div><div class="bug-actions" style="margin-top:12px"><button type="button" data-bug-edit="'+b.id+'">✏️ Редактировать</button></div></div><div class="bug-edit" style="display:none"><div class="grid"><label class="field"><span>Название</span><input data-bug-title="'+b.id+'" value="'+esc(b.title)+'"></label><label class="field"><span>Приоритет</span><select data-bug-priority="'+b.id+'">'+Object.keys(bugPriority).map(x=>'<option value="'+x+'" '+(x===b.priority?'selected':'')+'>'+bugPriority[x]+'</option>').join('')+'</select></label></div><label class="field" style="margin-top:10px"><span>Описание</span><textarea data-bug-description="'+b.id+'">'+esc(b.description)+'</textarea></label><label class="field" style="margin-top:10px"><span>Статус</span><select data-bug-status="'+b.id+'">'+Object.keys(bugStatus).map(x=>'<option value="'+x+'" '+(x===b.status?'selected':'')+'>'+bugStatus[x]+'</option>').join('')+'</select></label><label class="field" style="margin-top:10px"><span>Версия исправления</span><input data-bug-version="'+b.id+'" value="'+esc(b.version||'')+'" placeholder="Например, 1.1.0"></label><div style="margin-top:12px"><button class="primary" type="button" data-bug-save-edit="'+b.id+'">💾 Сохранить изменения</button><button type="button" data-bug-cancel-edit="'+b.id+'" style="margin-left:8px">Отмена</button></div></div>'+(b.fixedAt?'<small>Исправлен: '+esc(b.fixedAt)+(b.commit?' · '+esc(b.commit.slice(0,7)):'')+'</small>':'')+'</div></div>').join(''):'<div class="card">По выбранным фильтрам багов нет.</div>';
+ document.querySelectorAll('[data-bug-toggle]').forEach(e=>e.onclick=()=>{let card=document.querySelector('[data-bug-card="'+e.dataset.bugToggle+'"]');if(!card)return;let open=card.classList.toggle('bug-open');e.querySelector('.bug-toggle-icon').textContent=open?'▾':'▸'});
+ document.querySelectorAll('[data-bug-edit]').forEach(e=>e.onclick=()=>{let card=document.querySelector('[data-bug-card="'+e.dataset.bugEdit+'"]');if(card){card.querySelector('.bug-view').style.display='none';card.querySelector('.bug-edit').style.display='block'}});
+ document.querySelectorAll('[data-bug-cancel-edit]').forEach(e=>e.onclick=()=>renderBugs());
+ document.querySelectorAll('[data-bug-save-edit]').forEach(e=>e.onclick=()=>{let b=bugData.bugs.find(x=>x.id==e.dataset.bugSaveEdit);if(!b)return;const title=document.querySelector('[data-bug-title="'+b.id+'"]').value.trim();if(!title){alert('Введите название бага.');return}b.title=title;b.description=document.querySelector('[data-bug-description="'+b.id+'"]').value.trim();b.priority=document.querySelector('[data-bug-priority="'+b.id+'"]').value;b.status=document.querySelector('[data-bug-status="'+b.id+'"]').value==='fixed'?'fixed':'open';b.fixedAt=b.status==='fixed'?(b.fixedAt||new Date().toISOString().slice(0,10)):null;b.version=b.status==='fixed'?(document.querySelector('[data-bug-version="'+b.id+'"]').value.trim()||null):null;renderBugVersionFilter();renderBugs();$('bugMsg').textContent='Изменения сохранены локально. Нажми «Сохранить в GitHub», чтобы отправить их.'});
+}
+$('refreshBugs').onclick=loadBugs;
+$('bugFilterStatus').onchange=renderBugs;
+$('bugFilterPriority').onchange=renderBugs;
+$('bugFilterVersion').onchange=renderBugs;
+$('toggleAddBug').onclick=()=>{let f=$('addBugForm'),open=f.style.display!=='none';f.style.display=open?'none':'block';$('toggleAddBug').textContent=open?'➕ Добавить новый баг':'✖ Скрыть форму'};
+$('addBug').onclick=()=>{let title=$('bugTitle').value.trim();if(!title){$('bugMsg').textContent='Введите название бага.';return}bugData.bugs.unshift({id:bugData.nextId++,title,priority:$('bugPriority').value,status:'open',createdAt:new Date().toISOString().slice(0,10),fixedAt:null,commit:null,description:$('bugDescription').value.trim()});$('bugTitle').value='';$('bugDescription').value='';renderBugs();$('bugMsg').textContent='Баг добавлен. Не забудь сохранить.'};
+$('saveBugs').onclick=async()=>{let b=$('saveBugs');b.disabled=true;b.textContent='⏳ Сохраняем в GitHub…';$('bugMsg').textContent='';try{let r=await fetch('/api/bugs?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...bugData,push:true})}),j=await r.json();if(j.success){sessionStorage.setItem('botLabTab','bugs');$('bugMsg').innerHTML='✅ Баги реально сохранены в GitHub. Commit: '+j.sha.slice(0,7)+'<br><small>Страница обновится автоматически…</small>';if(j.bugs){bugData.bugs=j.bugs;renderBugs()}setTimeout(()=>location.reload(),900)}else{$('bugMsg').textContent=j.message||'Ошибка сохранения';b.disabled=false;b.textContent='☁️ Сохранить в GitHub'}}catch(e){$('bugMsg').textContent='❌ Ошибка: '+e.message;b.disabled=false;b.textContent='☁️ Сохранить в GitHub'}};
+async function loadAnalytics(){try{const r=await fetch('/api/analytics?token='+encodeURIComponent(t));const a=await r.json();renderAnalytics(a)}catch(e){$('analyticsMsg').textContent='❌ Не удалось загрузить аналитику: '+e.message}}
+async function loadAnalyticsSessions(){try{const r=await fetch('/api/analytics/sessions?token='+encodeURIComponent(t));const j=await r.json();const s=j.sessions||[];$('analyticsSessions').innerHTML='<tr><th>Дата</th><th>Сессия</th><th>Длительность</th><th>Забеги</th><th>Режим</th><th>Версия</th></tr>'+(s.length?s.map(x=>'<tr><td>'+esc(new Date(x.startedAt||Date.now()).toLocaleString('ru-RU'))+'</td><td><code>'+esc(String(x.sessionId||'').slice(-10))+'</code></td><td>'+fmt(x.durationSec||0)+'</td><td><details><summary>'+((x.runs||[]).length)+' заб.</summary>'+((x.runs||[]).map((r,i)=>'<div style="padding:6px 0;border-bottom:1px solid #1d315c"><b>#'+(i+1)+'</b> '+esc(r.result||'—')+' · '+esc(r.mode||'—')+' · ур. '+Number(r.level||0)+' · '+fmt(r.runTime||0)+' · ☠ '+Number(r.kills||0)+(r.deathReason?' · '+esc(r.deathReason):'')+'</div>').join('')||'Нет забегов')+'</details></td><td>'+esc(x.lastMode||'—')+'</td><td>'+esc(x.gameVersion||'—')+'</td></tr>').join(''):'<tr><td colspan="6">Пока нет сохранённых сессий</td></tr>')}catch(e){$('analyticsSessions').innerHTML='<tr><td colspan="6">❌ '+esc(e.message)+'</td></tr>'}}
+function rows(title,arr){const names={rogue:'Рогалик',survival:'Выживание',classic:'Классика',normal:'Обычный',unknown:'Неизвестно',novice:'Новичок',average:'Обычный',optimal:'Оптимальный'};return '<tr><th>'+title+'</th><th>Количество</th></tr>'+((arr&&arr.length)?arr.map(x=>'<tr><td>'+esc(names[x[0]]||x[0])+'</td><td>'+x[1]+'</td></tr>').join(''):'<tr><td colspan="2">Пока нет данных</td></tr>')}
+function renderAnalytics(a){
+ $('analyticsSum').innerHTML=metric('События',a.events)+metric('Игровые сеансы',a.sessions)+metric('Забеги',a.runs)+metric('Завершённые забеги',a.completed)+metric('Завершённые смертью',a.deaths)+metric('Доля завершённых',((a.completionRate||0)*100).toFixed(1)+'%')+metric('Средняя длительность',fmt(a.avgRunTime||0))+metric('Средний достигнутый уровень',(a.avgLevel||0).toFixed(1))+metric('Убитые враги',a.totalKills||0)+metric('Опыт',a.totalXP||0)+metric('Золото',a.totalGold||0)+metric('Боссы (победы / встречи)',((a.bossWins||0)+' / '+(a.bosses||0)));
+ $('analyticsModes').innerHTML=rows('Режим игры',a.byMode);
+ $('analyticsCharacters').innerHTML=rows('Персонаж',a.byCharacter);
+ $('analyticsStages').innerHTML=rows('Этап',a.byStage);
+ $('analyticsUpgrades').innerHTML=rows('Улучшение',a.byUpgrade);
+ $('analyticsDeaths').innerHTML=rows('Причина',a.byDeath);
+ $('analyticsMsg').textContent='Последнее обновление: '+new Date(a.updatedAt||Date.now()).toLocaleString('ru-RU');
+}
+$('analyticsRefresh').onclick=loadAnalytics;
+$('analyticsClear').onclick=async()=>{if(!confirm('Удалить локальную игровую аналитику?'))return;try{let r=await fetch('/api/analytics?token='+encodeURIComponent(t),{method:'DELETE'});let j=await r.json();$('analyticsMsg').textContent=j.success?'✅ Аналитика очищена.':'❌ Не удалось очистить';loadAnalytics()}catch(e){$('analyticsMsg').textContent='❌ '+e.message}};
+loadAnalyticsSessions();
+function metric(a,b){return '<div class="metric">'+a+'<b>'+b+'</b></div>'}function pct(a,b){return b?(a/b*100).toFixed(1):0}function fmt(x){x=+x||0;return Math.floor(x/60)+':'+String(Math.floor(x%60)).padStart(2,'0')}async function run(profile){$('msg').textContent='⏳ Тест...';let r=await fetch('/api/run?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile,runs:+$('n').value,baseDamage:+$('d').value,baseHp:+$('hp').value,seed:20260929})});last=await r.json();$('msg').textContent='✅ Готово';render(last);document.querySelector('[data-x="stats"]').click()}$('go').onclick=()=>run($('p').value);$('all').onclick=async()=>{let z=[];for(let p of ['novice','average','optimal']){let r=await fetch('/api/run?token='+encodeURIComponent(t),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({profile:p,runs:+$('n').value,baseDamage:+$('d').value,baseHp:+$('hp').value,seed:20260929})});z.push(await r.json())}$('msg').innerHTML=z.map(x=>x.meta.profile+': <b>'+pct(x.summary.completed,x.summary.started)+'%</b>').join(' · ');last=z[1];render(last);document.querySelector('[data-x="stats"]').click()};function render(r){const enName=k=>(typeof enemyNames!=='undefined'&&enemyNames[k])||k;$('sum').innerHTML=metric('Полное прохождение',pct(r.summary.completed,r.summary.started)+'%')+metric('Смерти',r.summary.deaths)+metric('Этапы',r.summary.stagesCompleted)+metric('Боссы (победы / встречи)',r.summary.bossesDefeated+'/'+r.summary.bossesAttempted)+metric('Время',fmt(r.summary.avgSurvivalSeconds))+metric('Убитые враги',r.summary.avgKills.toFixed(1))+metric('Урон',r.summary.avgDamageTaken.toFixed(1));if($('statsSum'))$('statsSum').innerHTML=$('sum').innerHTML;$('st').innerHTML='<tr><th>Планета</th><th>Этап</th><th>Попытки</th><th>Прошли</th><th>%</th></tr>'+r.stages.map(s=>'<tr><td>'+s.planet+'</td><td>'+s.stage+'</td><td>'+s.attempts+'</td><td>'+s.completed+'</td><td>'+pct(s.completed,s.attempts)+'%</td></tr>').join('');$('en').innerHTML='<tr><th>Враг</th><th>Убит игроком</th><th>Убил игрока</th><th>Получил урона</th></tr>'+Object.entries(r.enemies).map(([k,e])=>'<tr><td>'+esc(enName(k))+'</td><td>'+e.killed+'</td><td class="'+(e.deaths?'bad':'')+'">'+e.deaths+'</td><td>'+e.damageTaken.toFixed(1)+'</td></tr>').join('');$('bo').innerHTML='<tr><th>Босс</th><th>Попытки</th><th>Победы</th><th>Смерти</th></tr>'+Object.entries(r.bosses).map(([k,e])=>'<tr><td>'+k+'</td><td>'+e.attempted+'</td><td>'+e.defeated+'</td><td>'+e.deaths+'</td></tr>').join('');$('up').innerHTML=Object.values(r.upgrades).sort((a,b)=>b.picked-a.picked).map(e=>'<span class="pill">'+e.label+': '+e.picked+'</span>').join('');
+if($('statsStory')){
+  const d=r.runDetails||[], deaths=d.filter(x=>x.result==='death'), wins=d.filter(x=>x.result==='completed');
+  const topKills=Object.entries(r.enemies||{}).filter(([,x])=>x.killed>0).sort((a,b)=>b[1].killed-a[1].killed).slice(0,5);
+  const topDeaths=Object.entries(r.enemies||{}).filter(([,x])=>x.deaths>0).sort((a,b)=>b[1].deaths-a[1].deaths);
+  const killerTop=topDeaths[0];
+  $('statsStory').innerHTML=
+    '<div class="form-grid">'+
+      '<div class="hint-card"><b>🧪 Что именно тестировалось</b><br>Профиль: '+esc(r.meta.profile)+' · забегов: '+r.meta.runs+' · базовый урон: '+r.meta.baseDamage+' · базовое HP: '+r.meta.baseHp+'</div>'+
+      '<div class="hint-card"><b>🏆 Результат</b><br>'+wins.length+' из '+r.meta.runs+' забегов завершили игру полностью.</div>'+
+      '<div class="hint-card"><b>☠️ Главная причина поражений</b><br>'+(killerTop?esc(enName(killerTop[0]))+' убил игрока '+killerTop[1]+' раз.':'Поражений нет.')+'</div>'+
+    '</div>'+
+    '<div style="margin-top:12px"><b>⚔️ Кто кого убил</b><div style="margin-top:7px">'+
+      (topKills.length?topKills.map(([k,e])=>'<span class="pill">Игрок → '+esc(enName(k))+': '+e.killed+'</span>').join(''):'Пока нет убийств.')+
+      (topDeaths.length?topDeaths.map(([k,e])=>'<span class="pill bad"> '+esc(enName(k))+' → Игрок: '+e.deaths+'</span>').join(''):'')+
+    '</div></div>';
+}
+if($('statsRuns')){
+  const runs=r.runDetails||[];
+  $('statsRuns').innerHTML=runs.length?
+    runs.map(x=>{
+      const status=x.result==='completed'?'🏆 Пройдено':'☠️ Поражение';
+      const death=x.death?'<div style="margin-top:7px;color:#ff8d9d"><b>Кто убил:</b> '+esc(enName(x.death.by))+' · '+esc(x.death.reason)+'</div>':'';
+      const kills=Object.entries(x.killsByEnemy||{}).sort((a,b)=>b[1]-a[1]).map(([k,v])=>esc(enName(k))+' ×'+v).join(', ')||'нет убийств';
+      const stages=x.stages.map(st=>{
+        const ek=Object.entries(st.enemiesKilled||{}).map(([k,v])=>esc(enName(k))+' ×'+v).join(', ')||'нет убийств';
+        return '<div style="padding:8px 0;border-bottom:1px solid #1d315c"><b>Планета '+esc(st.planet)+' · этап '+st.stage+'</b> — '+esc(st.status==='death'?'погиб':'пройден')+' · '+fmt(st.seconds)+' · урон '+Number(st.damageTaken||0).toFixed(1)+'<br><small>Убито: '+ek+'</small></div>';
+      }).join('');
+      const ups=x.upgrades.length?x.upgrades.map(esc).join(' → '):'нет';
+      return '<details style="border:1px solid #1d315c;border-radius:12px;padding:9px 12px;margin:7px 0"><summary><b>#'+x.run+'</b> · '+status+' · '+fmt(x.durationSec)+' · '+x.kills+' убийств · уровень '+x.level+'</summary>'+
+        '<div style="padding-top:9px"><b>Маршрут:</b><div>'+stages+'</div><div style="margin-top:8px"><b>Кого убил игрок:</b> '+kills+'</div><div style="margin-top:6px"><b>Улучшения:</b> '+ups+'</div>'+death+'</div></details>';
+    }).join('')
+    :'<div class="footer-note">После запуска теста здесь появится подробный разбор каждого забега.</div>';
+}
+}
+function inp(p,l,v){return '<label class="field"><span>'+l+'</span><input data-p="'+p+'" value="'+v+'" type="number"></label>'}function tx(p,l,v){let value=Array.isArray(v)?v.join(', '):(v??'');return '<label class="field"><span>'+l+'</span><input data-p="'+p+'" data-t="1" value="'+String(value).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'" type="text"></label>'}const enemyNames={normal:'Обычный',flyer:'Летун',zigzag:'Зигзаг',ghost:'Призрак',hunter:'Охотник',snake:'Змея',bomber:'Бомбардировщик',splitter:'Разделитель',spider:'Паук',ice:'Лёд',star:'Звезда',miniboss:'Мини-босс',crystal:'Кристалл',barrier:'Барьер',teleporter:'Телепортёр',magnet_enemy:'Магнит',doppel:'Двойник',laser:'Лазер'};function enhanceCollapsibles(){document.querySelectorAll('.card').forEach(card=>{const h=card.querySelector(':scope > h2');if(!h||h.dataset.collapseReady)return;h.dataset.collapseReady='1';card.classList.add('collapsible');h.onclick=()=>card.classList.toggle('collapsed')})}
+
+function bindStageEnemyEditors(){
+  document.querySelectorAll('.enemy-picker').forEach(picker=>{
+    if(picker.dataset.editorReady)return;
+    picker.dataset.editorReady='1';
+    const labels=[...picker.querySelectorAll('label')];
+    labels.forEach(label=>{
+      const cb=label.querySelector('input[data-stage-pool]');
+      if(!cb)return;
+      const row=document.createElement('div');
+      row.className='enemy-stage-quick';
+      const editor=document.createElement('div');
+      editor.className='enemy-stage-editor';
+      label.parentElement.insertBefore(row,label);
+      row.appendChild(label);
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='enemy-edit-btn';
+      btn.textContent='⚙️';
+      btn.title='Изменить показатели';
+      btn.setAttribute('aria-label','Изменить показатели');
+      row.appendChild(btn);
+      row.parentElement.insertBefore(editor,row.nextSibling);
+      btn.onclick=(ev)=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        const key=cb.value;
+        const e=data.rogue.enemies[key];
+        const wasOpen=editor.classList.contains('open');
+        document.querySelectorAll('.enemy-stage-editor.open').forEach(x=>x.classList.remove('open'));
+        if(wasOpen)return;
+        editor.classList.add('open');
+        if(!editor.dataset.rendered){
+          editor.innerHTML='<h3>👾 '+esc(enemyNames[key]||key)+'</h3><div class="grid">'+
+            inp('rogue.enemies.'+key+'.hp','HP',e.hp)+
+            inp('rogue.enemies.'+key+'.speed','Скорость',e.speed)+
+            inp('rogue.enemies.'+key+'.size','Размер',e.size)+
+            '</div><p style="margin:9px 0 0"><small>Изменения остаются в текущем черновике. Галочка слева определяет, появляется ли этот враг на данном этапе.</small></p>';
+          editor.dataset.rendered='1';
+        }
+      };
+    });
+  });
+}
+
+function renderEditor(){
+  const enemyNames={normal:'Обычный',flyer:'Летун',zigzag:'Зигзаг',ghost:'Призрак',hunter:'Охотник',snake:'Змея',bomber:'Бомбардировщик',splitter:'Разделитель',spider:'Паук',ice:'Лёд',star:'Звезда',miniboss:'Мини-босс',crystal:'Кристалл',barrier:'Барьер',teleporter:'Телепортёр',magnet_enemy:'Магнит',doppel:'Двойник',laser:'Лазер'};
+  const objectiveNames={coreFragments:'Осколки ядра',time:'Выжить по времени',kills:'Убить врагов',strongKills:'Сильные убийства',distance:'Пройти дистанцию'};
+  const planetNames={arden:'ARDEN',nivara:'NIVARA',exor:'EXOR'};
+  const escLocal=esc;
+  let selected=window.__balanceEnemy||Object.keys(data.rogue.enemies)[0]||'normal';
+  window.__balanceEnemy=selected;
+  const enemy=e=>data.rogue.enemies[e]||{hp:1,speed:1,size:24};
+  const enemyButtons=Object.keys(data.rogue.enemies).map(k=>{
+    const e=enemy(k), active=k===selected;
+    return '<button type="button" class="enemy-row '+(active?'active':'')+'" data-enemy-select="'+escLocal(k)+'"><span class="enemy-avatar">'+(k==='miniboss'?'👹':k==='laser'?'🔴':k==='crystal'?'💎':k==='spider'?'🕷️':k==='ghost'?'👻':k==='bomber'?'💣':k==='hunter'?'🎯':'◆')+'</span><span><b>'+escLocal(enemyNames[k]||k)+'</b><small>HP '+e.hp+' · скорость '+e.speed+'</small></span><span class="chev">›</span></button>';
+  }).join('');
+  const e=enemy(selected);
+  const enemyEditor='<div class="editor-head"><div><span class="eyebrow">ВРАГ</span><h2>'+(enemyNames[selected]||selected)+'</h2><p>Параметры применяются ко всем этапам, где выбран этот враг.</p></div><span class="entity-badge">👾 '+escLocal(selected)+'</span></div>'+
+    '<div class="subtabs"><button class="subtab active">Основные</button><button class="subtab">Поведение</button><button class="subtab">Награды</button></div>'+
+    '<div class="form-grid">'+inp('rogue.enemies.'+selected+'.hp','Здоровье (HP)',e.hp)+inp('rogue.enemies.'+selected+'.speed','Скорость',e.speed)+inp('rogue.enemies.'+selected+'.size','Размер',e.size)+'</div>'+
+    '<div class="hint-card">💡 Изменения попадут в новый баланс только после «Сохранить в GitHub». Черновик сохраняется автоматически.</div>'+
+    '<div class="editor-actions"><button type="button" class="secondary" onclick="renderEditor()">↻ Сбросить вид</button><button type="button" class="primary" onclick="save(true)">💾 Сохранить изменения</button></div>';
+
+  let stages='';
+  for(const [pl,ss] of Object.entries(data.rogue.stages)){
+    stages+='<div class="planet-card"><div class="planet-title"><div><span class="planet-orb">◈</span><b>'+planetNames[pl]+'</b><small>'+ss.length+' этапа · настройка состава и сложности</small></div><span>›</span></div>';
+    ss.forEach((s,i)=>{
+      const pool=Array.isArray(s.pool)?s.pool:[];
+      stages+='<details class="stage-row" '+(i===0?'':'')+'><summary><span class="stage-num">'+(i+1)+'</span><span><b>Этап '+(i+1)+'</b><small>'+escLocal(objectiveNames[s.objective?.kind]||s.objective?.kind||'Цель')+' · '+Number(s.objective?.target||0)+'</small></span><span class="stage-arrow">⌄</span></summary><div class="stage-body"><div class="form-grid">'+
+        inp('rogue.stages.'+pl+'.'+i+'.spawnInterval','Интервал спавна',s.spawnInterval)+
+        inp('rogue.stages.'+pl+'.'+i+'.maxAlive','Максимум врагов',s.maxAlive)+
+        inp('rogue.stages.'+pl+'.'+i+'.minAlive','Минимум врагов',s.minAlive)+
+        inp('rogue.stages.'+pl+'.'+i+'.speedMult','Скорость ×',s.speedMult)+
+        inp('rogue.stages.'+pl+'.'+i+'.hpMult','HP ×',s.hpMult)+
+        inp('rogue.stages.'+pl+'.'+i+'.objective.target','Цель',s.objective?.target||0)+
+        '</div><label class="field"><span>Тип цели</span><select data-p="rogue.stages.'+pl+'.'+i+'.objective.kind" data-s="1">'+Object.keys(objectiveNames).map(k=>'<option value="'+k+'" '+(k===(s.objective?.kind||'time')?'selected':'')+'>'+objectiveNames[k]+'</option>').join('')+'</select></label><div class="pool-title">Враги этапа</div><div class="pool-grid">'+
+        Object.keys(data.rogue.enemies).map(k=>'<label class="pool-chip"><input type="checkbox" data-stage-pool="'+pl+'.'+i+'" value="'+k+'" '+(pool.includes(k)?'checked':'')+'><span>'+escLocal(enemyNames[k]||k)+'</span></label>').join('')+
+        '</div></div></details>';
+    });
+    stages+='</div>';
+  }
+  let bosses='';
+  for(const [k,b] of Object.entries(data.rogue.bosses)){
+    bosses+='<div class="boss-card"><div class="boss-icon">👹</div><div class="boss-main"><b>'+escLocal(k)+'</b><small>Босс планеты · победа / встреча</small><div class="form-grid">'+inp('rogue.bosses.'+k+'.hp','HP',b.hp)+inp('rogue.bosses.'+k+'.size','Размер',b.size)+inp('rogue.bosses.'+k+'.rewardGold','Награда: золото',b.rewardGold)+inp('rogue.bosses.'+k+'.rewardCrystals','Награда: кристаллы',b.rewardCrystals)+'</div></div></div>';
+  }
+  const spawn='<div class="compact-settings"><div class="settings-icon">⚙</div><div><h3>Система спавна</h3><p>Глобальные ограничения давления врагов.</p></div><div class="form-grid">'+inp('rogue.spawn.minIntervalFrames','Минимальный интервал',data.rogue.spawn.minIntervalFrames)+inp('rogue.spawn.pressureIntervalFrames','Интервал давления',data.rogue.spawn.pressureIntervalFrames)+inp('rogue.spawn.pressureMaxPerTick','Макс. за тик',data.rogue.spawn.pressureMaxPerTick)+'</div></div>';
+  const mods='<div class="modifier-grid">'+Object.entries(data.rogue.modifiers||{}).map(([k,v])=>'<div class="modifier-card"><b>'+escLocal(k)+'</b><small>Модификатор сложности</small><div class="form-grid">'+inp('rogue.modifiers.'+k+'.hpMult','HP ×',v.hpMult)+inp('rogue.modifiers.'+k+'.speedMult','Скорость ×',v.speedMult)+'</div></div>').join('')+'</div>';
+
+  $('editor').innerHTML='<div class="balance-nav"><button class="balance-nav-btn active" data-balance-view="enemies">👾 Враги</button><button class="balance-nav-btn" data-balance-view="stages">▦ Этапы</button><button class="balance-nav-btn" data-balance-view="planets">◈ Планеты</button><button class="balance-nav-btn" data-balance-view="bosses">👹 Боссы</button><button class="balance-nav-btn" data-balance-view="spawn">⚙ Спавн</button><button class="balance-nav-btn" data-balance-view="mods">✦ Модификаторы</button></div>'+
+    '<div class="balance-view" data-balance-panel="enemies"><div class="balance-split"><div class="entity-list"><div class="list-tools"><input id="enemySearch" placeholder="Поиск врага…"><button type="button" id="enemyReset">↻</button></div>'+enemyButtons+'</div><div class="entity-editor">'+enemyEditor+'</div></div></div>'+
+    '<div class="balance-view hidden" data-balance-panel="stages">'+stages+'</div>'+
+    '<div class="balance-view hidden" data-balance-panel="planets"><div class="overview-grid">'+Object.entries(data.rogue.stages).map(([pl,ss])=>'<div class="overview-card"><span class="planet-orb">◈</span><b>'+planetNames[pl]+'</b><strong>'+ss.length+' этапа</strong><small>от '+Number(ss[0]?.speedMult||1).toFixed(2)+'× до '+Number(ss[ss.length-1]?.speedMult||1).toFixed(2)+'× скорости</small><div class="mini-bars">'+ss.map(s=>'<i style="height:'+Math.max(20,Math.min(100,Number(s.hpMult||1)*55))+'%"></i>').join('')+'</div></div>').join('')+'</div><div class="hint-card">Планеты объединяют этапы. Все реальные параметры этапов редактируются во вкладке «Этапы».</div></div>'+
+    '<div class="balance-view hidden" data-balance-panel="bosses">'+bosses+'</div>'+
+    '<div class="balance-view hidden" data-balance-panel="spawn">'+spawn+'</div>'+
+    '<div class="balance-view hidden" data-balance-panel="mods">'+mods+'</div>';
+
+  document.querySelectorAll('[data-balance-view]').forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll('[data-balance-view]').forEach(x=>x.classList.toggle('active',x===btn));
+    document.querySelectorAll('[data-balance-panel]').forEach(x=>x.classList.toggle('hidden',x.dataset.balancePanel!==btn.dataset.balanceView));
+  });
+  document.querySelectorAll('[data-enemy-select]').forEach(btn=>btn.onclick=()=>{window.__balanceEnemy=btn.dataset.enemySelect;renderEditor()});
+  const search=$('enemySearch');
+  if(search)search.oninput=()=>document.querySelectorAll('.enemy-row').forEach(row=>row.style.display=row.textContent.toLowerCase().includes(search.value.toLowerCase())?'grid':'none');
+  const reset=$('enemyReset'); if(reset)reset.onclick=()=>{if(search)search.value='';document.querySelectorAll('.enemy-row').forEach(row=>row.style.display='grid')};
+}
+
+
+function readInputValue(el){
+  if(el.dataset.t) return el.value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(el.dataset.s) return String(el.value);
+  return Number(el.value);
+}
+function collect(){
+  document.querySelectorAll('[data-p]').forEach(e=>{
+    const path=e.dataset.p;
+    const a=path.split('.');
+    let x=data;
+    for(let i=0;i<a.length-1;i++)x=x[a[i]];
+    x[a[a.length-1]]=readInputValue(e);
+  });
+  document.querySelectorAll('[data-stage-pool]').forEach(e=>{
+    const a=e.dataset.stagePool.split('.');
+    const s=data.rogue.stages[a[0]][Number(a[1])];
+    s.pool=[...document.querySelectorAll('[data-stage-pool="'+e.dataset.stagePool+'"]:checked')].map(x=>x.value);
+  });
+  // Если один параметр показан в нескольких местах, синхронизируем все его поля.
+  document.querySelectorAll('[data-p]').forEach(e=>{
+    document.querySelectorAll('[data-p="'+e.dataset.p.replace(/"/g,'\\\"')+'"]').forEach(other=>{
+      if(other!==e)other.value=e.value;
+    });
+  });
+}
+
+
+async function save(push){
+  collect();
+  if(!push){
+    saveDraft(true);
+    return;
+  }
+  const b=$('gh');
+  b.disabled=true;
+  b.textContent='⏳ Сохраняем в GitHub…';
+  $('bs').textContent='';
+  try{
+    const r=await fetch('/api/save?token='+encodeURIComponent(t),{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({data,commit:true,push:true})
+    });
+    const j=await r.json();
+    if(j.success){
+      clearDraft();
+      $('bs').className='good';
+      $('bs').innerHTML='✅ Версия <b>v'+esc(j.version||'—')+'</b> создана и реально сохранена в GitHub. Commit: '+esc(String(j.sha||'').slice(0,7))+' · <a target="_blank" href="'+esc(j.commitUrl||'#')+'">Открыть commit</a><br><small>Эта же версия теперь используется игрой и отображается в Bot Lab.</small>';
+      loadVersion();
+      load();
+    }else{
+      $('bs').innerHTML=j.message||j.error||'Ошибка сохранения';
+    }
+  }catch(e){
+    $('bs').textContent='❌ Ошибка: '+e.message;
+  }finally{
+    b.disabled=false;
+    b.textContent='☁️ Сохранить в GitHub';
+  }
+}
+$('gh').onclick=()=>save(true);
+$('loc').onclick=()=>save(false);
+document.getElementById('editor').addEventListener('input',e=>{
+  if(e.target&&e.target.matches('[data-p]')){try{syncFieldFromInput(e.target)}catch{}}
+});
+document.getElementById('editor').addEventListener('change',e=>{
+  try{collect();localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}
+});
+function syncFieldFromInput(el){
+  const path=el.dataset.p;if(!path)return;
+  const a=path.split('.');let x=data;
+  for(let i=0;i<a.length-1;i++)x=x[a[i]];
+  x[a[a.length-1]]=readInputValue(el);
+  try{localStorage.setItem(BALANCE_DRAFT_KEY,JSON.stringify({savedAt:Date.now(),data:data}))}catch{}
+}
+
+loadVersion();
+load().then(()=>{
+  let tab=sessionStorage.getItem('botLabTab');
+  if(tab){sessionStorage.removeItem('botLabTab');document.querySelector('[data-x="'+tab+'"]')?.click()}
+})</script>function mulberry32(seed){
+  let a=seed>>>0;
+  return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=(t+Math.imul(t^t>>>7,61|t))^t;return ((t^t>>>14)>>>0)/4294967296}
+}
+const HAZARD={
+  normal:.9, flyer:1.0, zigzag:1.15, ghost:.9, hunter:1.2, snake:1.25,
+  bomber:1.45, splitter:1.0, spider:1.3, ice:1.1, star:1.2, miniboss:1.8,
+  crystal:.55, barrier:1.05, teleporter:1.25, magnet_enemy:1.3, doppel:1.1, laser:1.55
+};
+const PROFILE={
+  novice:{label:"Новичок",contact:.34,objective:.86,damage:.88,move:.92,upgradeBias:["shield","speed","damage","regen","dodge"]},
+  average:{label:"Обычный",contact:.20,objective:1,damage:1,move:1,upgradeBias:["damage","dodge","speed","crit","shield","thorns","magnet","regen"]},
+  optimal:{label:"Оптимальный",contact:.09,objective:1.08,damage:1.12,move:1.08,upgradeBias:["damage","crit","dodge","speed","thorns","vampire","chain","pierce","time_slow","glass_cannon","berserk"]}
+};
+const UPGRADE_INFO={
+  damage:{label:"Урон",score:10},crit:{label:"Крит",score:8},dodge:{label:"Уклонение",score:8},
+  speed:{label:"Скорость",score:7},shield:{label:"Щит",score:7},thorns:{label:"Шипы",score:6},
+  regen:{label:"Регенерация",score:5},vampire:{label:"Вампир",score:5},chain:{label:"Цепная молния",score:6},
+  pierce:{label:"Пробитие",score:4},time_slow:{label:"Замедление",score:5},glass_cannon:{label:"Стеклянная пушка",score:6},
+  berserk:{label:"Берсерк",score:5},magnet:{label:"Магнит",score:3},luck:{label:"Удача",score:3},greed:{label:"Жадность",score:2}
+};
+
+function simulate(balance,opts){
+  const profile=PROFILE[opts.profile]||PROFILE.average;
+  const runs=Math.max(1,Math.min(10000,Number(opts.runs)||100));
+  const baseDamage=Math.max(0,Number(opts.baseDamage)||1);
+  const baseHp=Math.max(1,Number(opts.baseHp)||3);
+  const rng=mulberry32(Number(opts.seed)||20260929);
+  const planets=Object.entries(balance.rogue.stages);
+  const result={
+    meta:{runs,profile:profile.label,seed:Number(opts.seed)||20260929,baseDamage,baseHp,model:"Balance Simulator v1"},
+    summary:{started:runs,completed:0,planetCompleted:0,stagesCompleted:0,deaths:0,avgSurvivalSeconds:0,avgKills:0,avgGold:0,avgCrystals:0,avgLevels:0,avgUpgrades:0,avgDamageTaken:0,bossesDefeated:0,bossesAttempted:0},
+    stages:[], enemies:{}, bosses:{}, upgrades:{},
+    runDetails:[], detailsMeta:{totalRuns:runs,storedRuns:0,limit:200}
+  };
+  for(const [planet,stages] of planets) for(let si=0;si<stages.length;si++) result.stages.push({planet,stage:si+1,attempts:0,completed:0,deaths:0,avgSeconds:0,avgKills:0,avgDamageTaken:0});
+  for(const k of Object.keys(balance.rogue.enemies)) result.enemies[k]={spawned:0,killed:0,damageTaken:0,deaths:0};
+  for(const k of Object.keys(balance.rogue.bosses)) result.bosses[k]={attempted:0,defeated:0,deaths:0,avgFightSeconds:0};
+  for(const k of Object.keys(UPGRADE_INFO)) result.upgrades[k]={picked:0,label:UPGRADE_INFO[k].label};
+
+  let totalSurvival=0,totalKills=0,totalGold=0,totalCrystals=0,totalLevels=0,totalUpgrades=0,totalDamage=0;
+  for(let run=0;run<runs;run++){
+    let hp=baseHp,shields=0,damage=baseDamage*profile.damage,speed=profile.move;
+    let crit=0,dodge=0,thorns=0,regen=0,vampire=0,chain=0,slow=1;
+    let gold=0,crystals=0,kills=0,levels=1,upgrades=0,damageTaken=0,elapsed=0,alive=true,upgradeCursor=0;
+    const runDetail={run:run+1,result:"in_progress",durationSec:0,level:1,kills:0,gold:0,crystals:0,damageTaken:0,upgrades:[],stages:[],killsByEnemy:{},death:null,bosses:[]};
+    const pickUpgrade=()=>{
+      const bias=profile.upgradeBias;
+      const pool=Object.keys(UPGRADE_INFO).slice().sort((a,b)=>{const ai=bias.indexOf(a),bi=bias.indexOf(b);return (bi<0?99:bi)-(ai<0?99:ai)||rng()-.5});
+      const id=pool[(upgradeCursor+Math.floor(rng()*Math.min(4,pool.length)))%pool.length];upgradeCursor++;upgrades++;result.upgrades[id].picked++;
+      runDetail.upgrades.push(UPGRADE_INFO[id]?.label||id);
+      if(id==="damage")damage+=1;if(id==="crit")crit=Math.min(.75,crit+.15);if(id==="dodge")dodge=Math.min(.75,dodge+.15);if(id==="speed")speed*=1.06;if(id==="shield")shields++;if(id==="thorns")thorns+=2;if(id==="regen")regen+=.35;if(id==="vampire")vampire+=.05;if(id==="chain")chain++;if(id==="time_slow")slow*=.9;if(id==="glass_cannon"){damage+=3;hp-=1}if(id==="berserk")damage*=1.04;
+    };
+    outer:
+    for(let pi=0;pi<planets.length&&alive;pi++){
+      const [planet,stages]=planets[pi];
+      for(let si=0;si<stages.length&&alive;si++){
+        const s=stages[si],row=result.stages[pi*4+si];row.attempts++;
+        const pool=s.pool.filter(k=>balance.rogue.enemies[k]),spawnRate=60/Math.max(20,s.spawnInterval);
+        const avgHp=pool.reduce((a,k)=>a+balance.rogue.enemies[k].hp,0)/Math.max(1,pool.length);
+        const avgThreat=pool.reduce((a,k)=>a+(HAZARD[k]||1),0)/Math.max(1,pool.length);
+        const dps=(damage*8*(1+crit*.6)+thorns*2+chain*.35)*profile.damage,killRate=Math.max(.05,Math.min(spawnRate*1.8,dps/Math.max(1,avgHp)*.72));
+        let targetTime;const kind=s.objective?.kind||"time",target=Number(s.objective?.target)||90;
+        if(kind==="time")targetTime=target;else if(kind==="kills")targetTime=target/Math.max(.05,killRate*profile.objective);else if(kind==="strongKills")targetTime=target/Math.max(.04,killRate*.45*profile.objective);else if(kind==="coreFragments")targetTime=target/Math.max(.04,killRate*.18*profile.objective);else if(kind==="distance")targetTime=target/(7*60*speed);else targetTime=60;
+        targetTime=Math.max(8,Math.min(240,targetTime));
+        const pressure=Math.max(1,(s.maxAlive||5)/5),incomingPerSec=spawnRate*avgThreat*pressure*profile.contact*(1-dodge*.65)*(1+(s.speedMult-1)*.5)*slow;
+        const expectedHits=incomingPerSec*targetTime,effectiveHp=hp+shields+regen*targetTime/3+vampire*kills,randomHits=expectedHits*(.72+.56*rng()),lethal=randomHits>=effectiveHp,stageDamage=Math.max(0,randomHits);
+        damageTaken+=stageDamage;elapsed+=targetTime;
+        const stageKills=Math.max(0,Math.floor(killRate*targetTime*(.82+.3*rng())));kills+=stageKills;gold+=Math.floor(stageKills*(2+levels*.4));if(stageKills>=8)levels+=Math.floor(stageKills/8);
+        const stageDetail={planet,stage:si+1,objective:kind,target,seconds:targetTime,kills:stageKills,damageTaken:stageDamage,status:"passed",enemiesKilled:{}};
+        for(let n=0;n<stageKills;n++){const k=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[k].killed++;stageDetail.enemiesKilled[k]=(stageDetail.enemiesKilled[k]||0)+1;runDetail.killsByEnemy[k]=(runDetail.killsByEnemy[k]||0)+1;if(rng()<.18)crystals++}
+        runDetail.stages.push(stageDetail);
+        for(const k of pool)result.enemies[k].spawned+=Math.max(0,Math.floor(spawnRate*targetTime/pool.length));
+        if(stageDamage>0)for(const k of pool)result.enemies[k].damageTaken+=stageDamage/pool.length;
+        while(upgrades<Math.floor(kills/8))pickUpgrade();
+        if(lethal){alive=false;row.deaths++;result.summary.deaths++;const dk=pool[Math.floor(rng()*pool.length)]||"normal";result.enemies[dk].deaths++;const lastStage=runDetail.stages[runDetail.stages.length-1];if(lastStage)lastStage.status="death";runDetail.death={by:dk,stage:si+1,planet,reason:"Враг нанёс смертельный урон",message:"Игрок погиб на этапе "+(si+1)+" планеты "+planet+" от врага «"+dk+"»."};runDetail.result="death";totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;break outer}
+        hp=Math.min(baseHp+shields,Math.max(1,hp-stageDamage*.55+regen*targetTime/4+vampire*stageKills));row.completed++;row.avgSeconds+=targetTime;row.avgKills+=stageKills;row.avgDamageTaken+=stageDamage;result.summary.stagesCompleted++;
+      }
+      if(alive){
+        result.summary.planetCompleted++;const bossKey=pi===0?"dragon":pi===1?"titan":"devourer",b=balance.rogue.bosses[bossKey];
+        if(b){result.summary.bossesAttempted++;result.bosses[bossKey].attempted++;const bossDps=Math.max(.1,(2+damage)*8*(1+crit*.6)*.42),fight=Math.max(1,b.hp/bossDps),bossHits=fight*(.06+profile.contact*.35)*(1-dodge*.55),bossEffectiveHp=hp+shields+regen*fight/3+vampire*kills;runDetail.bosses.push({boss:bossKey,seconds:fight,status:"defeated"});result.bosses[bossKey].avgFightSeconds+=fight;
+          if(bossHits>=bossEffectiveHp){alive=false;runDetail.bosses[runDetail.bosses.length-1].status="death";result.bosses[bossKey].deaths++;result.summary.deaths++;runDetail.death={by:bossKey,stage:si+1,planet,reason:"Босс нанёс смертельный урон",message:"Игрок погиб в бою с боссом «"+bossKey+"»."};runDetail.result="death";elapsed+=fight;totalSurvival+=elapsed;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken+bossHits;break outer}
+          elapsed+=fight;result.bosses[bossKey].defeated++;result.summary.bossesDefeated++;gold+=b.rewardGold||0;crystals+=b.rewardCrystals||0;hp=Math.min(baseHp+shields,Math.max(1,hp-bossHits*.6+regen*fight/3));
+        }
+      }
+    }
+    if(alive){result.summary.completed++;runDetail.result="completed";}totalSurvival+=alive?elapsed:0;totalKills+=kills;totalGold+=gold;totalCrystals+=crystals;totalLevels+=levels;totalUpgrades+=upgrades;totalDamage+=damageTaken;
+    runDetail.durationSec=elapsed;runDetail.level=levels;runDetail.kills=kills;runDetail.gold=gold;runDetail.crystals=crystals;runDetail.damageTaken=damageTaken;result.runDetails.length<200&&result.runDetails.push(runDetail);
+  }
+  const denom=runs||1;result.summary.avgSurvivalSeconds=totalSurvival/denom;result.summary.avgKills=totalKills/denom;result.summary.avgGold=totalGold/denom;result.summary.avgCrystals=totalCrystals/denom;result.summary.avgLevels=totalLevels/denom;result.summary.avgUpgrades=totalUpgrades/denom;result.summary.avgDamageTaken=totalDamage/denom;
+  for(const r of result.stages)if(r.completed){r.avgSeconds/=r.completed;r.avgKills/=r.completed;r.avgDamageTaken/=r.completed}
+  for(const k of Object.keys(result.bosses))if(result.bosses[k].defeated)result.bosses[k].avgFightSeconds/=result.bosses[k].defeated;
+  result.detailsMeta.storedRuns=result.runDetails.length;
+  return result;
+}
+
+<script>
+(function(){
+const BASE='../';
+const K={balance:'starfall.botlab.balance',bugs:'starfall.botlab.bugs',ideas:'starfall.botlab.ideas',analytics:'starfall.botlab.analytics',sessions:'starfall.botlab.sessions',updates:'starfall.botlab.updates'};
+const rawFetch=window.fetch.bind(window);
+function jsonResponse(data){return Promise.resolve(new Response(JSON.stringify(data),{status:200,headers:{'Content-Type':'application/json'}}));}
+function read(k,f){try{const x=localStorage.getItem(k);return x?JSON.parse(x):f}catch{return f}}
+function write(k,v){localStorage.setItem(k,JSON.stringify(v));}
+let localBalance=read(K.balance,null);
+async function ensureBalance(){
+ if(localBalance)return localBalance;
+ localBalance=await rawFetch(BASE+'config/roguelike-balance.json?botlab='+Date.now()).then(r=>r.json());
+ write(K.balance,localBalance); return localBalance;
+}
+function initialBugs(){return {version:1,nextId:1,bugs:[]}}
+function initialIdeas(){return {version:1,nextId:1,ideas:[]}}
+function summary(events){
+ const count={},modes={},chars={},stages={},up={},deaths={}; let runs=0,completed=0,dead=0,totalTime=0,totalLevel=0,levelN=0,totalKills=0,totalXP=0,totalGold=0;
+ for(const e of events){count[e.event]=(count[e.event]||0)+1;const d=e.data||{};
+  if(e.event==='run_started'){runs++;modes[d.mode]=(modes[d.mode]||0)+1;chars[d.character]=(chars[d.character]||0)+1}
+  if(e.event==='run_finished'){d.result==='completed'?completed++:dead++;totalTime+=+d.runTime||0;totalLevel+=+d.level||0;levelN++;totalKills+=+d.kills||0;if(d.deathReason)deaths[d.deathReason]=(deaths[d.deathReason]||0)+1}
+  if(e.event==='xp_collected')totalXP+=+d.amount||0;if(e.event==='gold_earned')totalGold+=+d.amount||0;
+  if(e.event==='stage_started'||e.event==='stage_completed'){const k='P'+(d.planet||'?')+' / Э'+(d.stage||'?');stages[k]=(stages[k]||0)+1}
+  if(e.event==='upgrade_selected'){up[d.upgradeId||'unknown']=(up[d.upgradeId||'unknown']||0)+1}
+ }
+ const top=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,20);
+ const sessions=read(K.sessions,[]);
+ return {events:events.length,sessions:sessions.length,runs,completed,deaths,completionRate:runs?completed/runs:0,avgRunTime:levelN?totalTime/levelN:0,avgLevel:levelN?totalLevel/levelN:0,totalKills,totalXP,totalGold,bosses:0,bossWins:0,counts:count,byMode:top(modes),byStage:top(stages),byCharacter:top(chars),byUpgrade:top(up),byDeath:top(deaths),updatedAt:new Date().toISOString()};
+}
+window.fetch=async function(input,init){
+ const url=typeof input==='string'?input:input.url, method=(init&&init.method||'GET').toUpperCase();
+ const path=new URL(url,location.href).pathname;
+ if(path.startsWith('/api/')){
+  if(path==='/api/balance'&&method==='GET')return jsonResponse(await ensureBalance());
+  if(path==='/api/version'&&method==='GET'){const b=await ensureBalance();return jsonResponse({version:String(b.gameVersion||'3.3.10'),balanceVersion:String(b.gameVersion||'3.3.10'),commit:'web-local',source:'GitHub Pages'});}
+  if(path==='/api/updates'&&method==='GET')return jsonResponse({currentVersion:String((await ensureBalance()).gameVersion||'3.3.10'),updates:read(K.updates,[]).slice().reverse()});
+  if(path==='/api/bugs'&&method==='GET')return jsonResponse(read(K.bugs,initialBugs()));
+  if(path==='/api/ideas'&&method==='GET')return jsonResponse(read(K.ideas,initialIdeas()));
+  if(path==='/api/analytics'&&method==='GET')return jsonResponse(summary(read(K.analytics,[])));
+  if(path==='/api/analytics/sessions'&&method==='GET'){const s=read(K.sessions,[]);return jsonResponse({sessions:s.slice().reverse().slice(0,500),total:s.length});}
+  if(path==='/api/analytics'&&method==='DELETE'){write(K.analytics,[]);write(K.sessions,[]);return jsonResponse({success:true});}
+  if(path==='/api/update'&&method==='POST'){localBalance=await ensureBalance();return jsonResponse({success:true,updated:false,version:String(localBalance.gameVersion||'3.3.10'),reason:'web-static'});}
+  if(path==='/api/run'&&method==='POST'){const p=JSON.parse(init.body||'{}');return jsonResponse(simulate(await ensureBalance(),p));}
+  if(path==='/api/analytics'&&method==='POST'){let batch=JSON.parse(init.body||'[]');if(!Array.isArray(batch))batch=[batch];const e=read(K.analytics,[]);e.push(...batch);write(K.analytics,e.slice(-30000));return jsonResponse({success:true,accepted:batch.length,total:e.length});}
+  if(path==='/api/analytics/sessions'&&method==='POST'){const x=JSON.parse(init.body||'{}'),s=read(K.sessions,[]).filter(v=>v.sessionId!==x.sessionId);s.push(x);write(K.sessions,s.slice(-10000));return jsonResponse({success:true,stored:s.length});}
+  if(path==='/api/bugs'&&method==='POST'){const x=JSON.parse(init.body||'{}');write(K.bugs,x);return jsonResponse({success:true,bugs:x.bugs||[]});}
+  if(path==='/api/ideas'&&method==='POST'){const x=JSON.parse(init.body||'{}');write(K.ideas,x);return jsonResponse({success:true,ideas:x.ideas||[]});}
+  if(path==='/api/save'&&method==='POST'){
+    const x=JSON.parse(init.body||'{}');localBalance=x.data||localBalance;const old=read(K.updates,[]);const v=String(localBalance.gameVersion||'3.3.10');old.push({version:v,date:new Date().toISOString(),type:'balance',title:'Обновление баланса через веб Bot Lab',summary:'Изменения сохранены в браузере.',changes:[],source:'Web Bot Lab'});write(K.updates,old.slice(-200));write(K.balance,localBalance);
+    return jsonResponse({success:true,version:v,message:'Баланс сохранён в веб-версии Bot Lab на этом устройстве.',sha:'web-local',commitUrl:null,data:localBalance});
+  }
+ }
+ return rawFetch(input,init);
+};
+})();
+</script></body></html>

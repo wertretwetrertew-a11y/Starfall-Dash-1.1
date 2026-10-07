@@ -54,11 +54,11 @@ CHARACTER_CLASSES = {
 /* ---------- RUN BUILD ---------- */
 UPGRADE_POOL = {
  poison:{id:'poison',name:'Яд',icon:'☠️',rarity:'common',stacks:true,maxStacks:3,desc:'Периодически создаёт вокруг героя ядовитую область. Враги внутри получают периодический урон.',tags:['status','area']},
- propagation:{id:'propagation',name:'Распространение',icon:'🦠',rarity:'rare',stacks:true,maxStacks:3,desc:'Распространяет эффекты, которые поддерживают цепное распространение: яд и молнию — независимо друг от друга.',tags:['status','chain']},
+ propagation:{id:'propagation',name:'Распространение',icon:'🦠',rarity:'common',stacks:true,maxStacks:3,desc:'Распространяет эффекты, которые поддерживают цепное распространение: яд и молнию — независимо друг от друга.',tags:['status','chain']},
  shield:{id:'shield',name:'Щит',icon:'🛡',rarity:'common',stacks:true,maxStacks:3,desc:'Блокирует один контактный или снарядный удар. Когда щит полностью пробит, следующий полученный урон восстанавливает запас щитов.',tags:['defense']},
- orbit:{id:'orbit',name:'Орбита',icon:'🪐',rarity:'epic',stacks:true,maxStacks:3,desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',tags:['contact','area']},
- lightning:{id:'lightning',name:'Молния',icon:'⚡',rarity:'epic',stacks:true,maxStacks:3,desc:'Автоматически бьёт ближайшего врага и цепляется к следующим целям. С каждым прыжком урон уменьшается.',tags:['auto','chain']},
- vampirism:{id:'vampirism',name:'Вампиризм',icon:'🩸',rarity:'rare',stacks:true,maxStacks:3,desc:'Возвращает часть фактически нанесённого врагам урона. Максимум лечения от Вампиризма — 100 HP в секунду.',tags:['sustain','damage']}
+ orbit:{id:'orbit',name:'Орбита',icon:'🪐',rarity:'common',stacks:true,maxStacks:3,desc:'Энергетический объект вращается вокруг куба и наносит контактный урон врагам.',tags:['contact','area']},
+ lightning:{id:'lightning',name:'Молния',icon:'⚡',rarity:'common',stacks:true,maxStacks:3,desc:'Автоматически бьёт ближайшего врага и цепляется к следующим целям. С каждым прыжком урон уменьшается.',tags:['auto','chain']},
+ vampirism:{id:'vampirism',name:'Вампиризм',icon:'🩸',rarity:'common',stacks:true,maxStacks:3,desc:'Возвращает часть фактически нанесённого врагам урона. Максимум лечения от Вампиризма — 100 HP в секунду.',tags:['sustain','damage']}
 };
 
 /* ---------- RUN STATE ---------- */
@@ -518,19 +518,12 @@ function pickRandomUpgrades(count, exclude) {
         return exclude.indexOf(id)===-1 && (!u.stacks || (runUpgrades[id]||0)<(u.maxStacks||99));
     });
 
-    // Bias towards compatible pieces, but never force a build.
+    // Временные навыки пока имеют одинаковую редкость и одинаковый шанс.
+    // Никаких скрытых бонусов за совместимость или редкость: каждый доступный
+    // навык имеет одинаковый вес в выборе.
     var weighted=[];
     available.forEach(function(id){
-        var u=UPGRADE_POOL[id], weight=10;
-        if (u.tags.some(function(t){
-            return Object.keys(runUpgrades).some(function(r){
-                return UPGRADE_POOL[r] && UPGRADE_POOL[r].tags.indexOf(t)!==-1;
-            });
-        })) weight += 7;
-
-        var rarity={common:60,rare:25,epic:10,legendary:4,mythic:1}[u.rarity]||10;
-        weight += rarity/10;
-        for(var i=0;i<Math.ceil(weight);i++) weighted.push(id);
+        weighted.push(id);
     });
 
     var picks=[];

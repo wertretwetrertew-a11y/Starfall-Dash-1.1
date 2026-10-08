@@ -203,7 +203,7 @@
     },
     "enemies": {
       "normal": {
-        "hp": 12,
+        "hp": 20,
         "speed": 2.5,
         "size": 25
       },
@@ -328,5 +328,5 @@
       }
     }
   },
-  "gameVersion": "3.3.15"
+  "gameVersion": "3.3.16"
 }

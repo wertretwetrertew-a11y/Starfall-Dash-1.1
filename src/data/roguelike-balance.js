@@ -204,7 +204,7 @@ var STARFALL_BALANCE = {
     },
     "enemies": {
       "normal": {
-        "hp": 12,
+        "hp": 20,
         "speed": 2.5,
         "size": 25
       },
@@ -329,7 +329,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.13"
+  "gameVersion": "3.3.16"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

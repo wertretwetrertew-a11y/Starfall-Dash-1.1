@@ -56,18 +56,16 @@
         },
         {
           "spawnInterval": 68,
-          "maxAlive": 8,
-          "minAlive": 5,
-          "speedMult": 1.1,
+          "maxAlive": 2,
+          "minAlive": 1,
+          "speedMult": 0.8,
           "hpMult": 1.12,
           "objective": {
             "kind": "strongKills",
             "target": 6
           },
           "pool": [
-            "normal",
-            "ghost",
-            "spider"
+            "laser"
           ]
         }
       ],
@@ -297,10 +295,10 @@
     },
     "bosses": {
       "dragon": {
-        "hp": 25,
+        "hp": 35,
         "size": 80,
-        "rewardGold": 500,
-        "rewardCrystals": 5
+        "rewardGold": 1500,
+        "rewardCrystals": 10
       },
       "titan": {
         "hp": 40,
@@ -330,5 +328,5 @@
       }
     }
   },
-  "gameVersion": "3.3.12"
+  "gameVersion": "3.3.13"
 }

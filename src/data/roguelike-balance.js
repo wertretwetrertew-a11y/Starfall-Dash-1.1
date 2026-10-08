@@ -57,18 +57,16 @@ var STARFALL_BALANCE = {
         },
         {
           "spawnInterval": 68,
-          "maxAlive": 8,
-          "minAlive": 5,
-          "speedMult": 1.1,
+          "maxAlive": 2,
+          "minAlive": 1,
+          "speedMult": 0.8,
           "hpMult": 1.12,
           "objective": {
             "kind": "strongKills",
             "target": 6
           },
           "pool": [
-            "normal",
-            "ghost",
-            "spider"
+            "laser"
           ]
         }
       ],
@@ -298,10 +296,10 @@ var STARFALL_BALANCE = {
     },
     "bosses": {
       "dragon": {
-        "hp": 25,
+        "hp": 35,
         "size": 80,
-        "rewardGold": 500,
-        "rewardCrystals": 5
+        "rewardGold": 1500,
+        "rewardCrystals": 10
       },
       "titan": {
         "hp": 40,
@@ -331,7 +329,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.12"
+  "gameVersion": "3.3.13"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

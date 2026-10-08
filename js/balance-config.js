@@ -329,7 +329,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.17"
+  "gameVersion": "3.3.18"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

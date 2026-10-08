@@ -258,7 +258,7 @@
         "size": 26
       },
       "miniboss": {
-        "hp": 12,
+        "hp": 25,
         "speed": 2,
         "size": 44
       },
@@ -328,5 +328,5 @@
       }
     }
   },
-  "gameVersion": "3.3.16"
+  "gameVersion": "3.3.17"
 }

@@ -259,7 +259,7 @@ var STARFALL_BALANCE = {
         "size": 26
       },
       "miniboss": {
-        "hp": 12,
+        "hp": 25,
         "speed": 2,
         "size": 44
       },
@@ -329,7 +329,7 @@ var STARFALL_BALANCE = {
       }
     }
   },
-  "gameVersion": "3.3.16"
+  "gameVersion": "3.3.17"
 };
 function sfBalance(){return (typeof STARFALL_BALANCE==='object'&&STARFALL_BALANCE)?STARFALL_BALANCE:null;}
 function sfRogueBalance(){var b=sfBalance();return b&&b.rogue?b.rogue:null;}

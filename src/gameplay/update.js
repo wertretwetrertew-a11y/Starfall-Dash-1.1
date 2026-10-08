@@ -717,26 +717,52 @@ if (bossState === 'none' && frame % 90 === 0 && Math.random() < 0.7 && !(current
             e.x += (mirrorX - e.size / 2 - e.x) * 0.05;
             e.y += (player.y - e.y) * 0.02 + 0.15;
         } else if (et.shape === 'laser') {
+            // Лазерный враг: держится в верхней части поля и ведёт прицел на игрока.
+            // Цикл: ожидание -> зарядка с телеграфом -> выстрел -> перезарядка.
             e.laserTimer--;
+            e.y += e.speed * 0.5;
+            e.y = Math.max(55, Math.min(canvas.height * 0.42, e.y));
+            e.x += (px - e.size / 2 - e.x) * 0.035;
+            e.x = Math.max(8, Math.min(canvas.width - e.size - 8, e.x));
+
             if (!e.laserCharging && e.laserTimer <= 0) {
                 e.laserCharging = true;
-                e.laserTimer = et.laserDuration || 30;
-            } else if (e.laserCharging && e.laserTimer <= 0) {
-                e.laserCharging = false;
                 e.laserTimer = et.chargeTime || 60;
+                e.laserTargetX = px;
+                e.laserTargetY = py;
+            } else if (e.laserCharging) {
+                // Во время зарядки луч постепенно доводится до текущего положения игрока.
+                // Последний момент фиксируется как точка выстрела.
+                e.laserTargetX += (px - e.laserTargetX) * 0.08;
+                e.laserTargetY += (py - e.laserTargetY) * 0.08;
+                if (e.laserTimer <= 0) {
+                    e.laserCharging = false;
+                    e.laserFiring = et.laserDuration || 30;
+                    e.laserTimer = et.chargeTime || 60;
+                    e.laserShotX = e.laserTargetX;
+                    e.laserShotY = e.laserTargetY;
+                }
             }
-            e.y += e.speed * 0.5;
+
+            if (e.laserFiring > 0) {
+                e.laserFiring--;
+                // Проверяем попадание по тонкому сегменту от врага до зафиксированной цели.
+                if (buff.phantom <= 0 && player.damageFlash <= 0) {
+                    var lfx = e.x + e.size / 2, lfy = e.y + e.size / 2;
+                    var ltx = e.laserShotX, lty = e.laserShotY;
+                    var ldx = ltx - lfx, ldy = lty - lfy;
+                    var llen2 = ldx * ldx + ldy * ldy || 1;
+                    var proj = ((px - lfx) * ldx + (py - lfy) * ldy) / llen2;
+                    proj = Math.max(0, Math.min(1, proj));
+                    var nearX = lfx + ldx * proj, nearY = lfy + ldy * proj;
+                    if (Math.hypot(px - nearX, py - nearY) <= player.size * 0.55 + 4) {
+                        playerTakeDamage();
+                    }
+                }
+            }
         } else {
             e.y += e.speed;
             e.x += Math.sin(e.wobble) * 1.0;
-        }
-
-        // Лазер
-        if (et.shape === 'laser' && e.laserCharging && buff.phantom <= 0) {
-            var lx = e.x + e.size / 2;
-            if (Math.abs(px - lx) < 5 && py < e.y + e.size) {
-                if (player.damageFlash <= 0) playerTakeDamage();
-            }
         }
 
         // Урон от игрока (фантом)
@@ -1209,22 +1235,6 @@ function drawPlayer() {
     ctx.roundRect(0, 0, player.size, player.size, 8);
     ctx.fill();
 
-    // Предупреждение лазера: сначала игрок видит линию, потом получает урон.
-    if (t.shape === 'laser' && e.laserCharging) {
-        ctx.save();
-        var lcx = e.x + e.size / 2;
-        ctx.globalAlpha = 0.22 + 0.18 * Math.sin(performance.now() / 70);
-        ctx.strokeStyle = '#ff1744';
-        ctx.lineWidth = 3;
-        ctx.shadowColor = '#ff1744';
-        ctx.shadowBlur = sfShadow(16);
-        ctx.beginPath();
-        ctx.moveTo(lcx, 0);
-        ctx.lineTo(lcx, e.y + e.size);
-        ctx.stroke();
-        ctx.restore();
-    }
-
     // Глаза
     ctx.shadowBlur = sfShadow(0);
     var eyeY = player.size * 0.38;
@@ -1603,6 +1613,36 @@ function drawMonster(e) {
         ctx.arc(cx - 4, cy - 1, 1.2, 0, Math.PI * 2);
         ctx.arc(cx + 4, cy - 1, 1.2, 0, Math.PI * 2);
         ctx.fill();
+    }
+
+    // Лазер: заметный телеграф во время зарядки и яркий луч во время выстрела.
+    if (t.shape === 'laser') {
+        var laserTx = e.laserCharging ? e.laserTargetX : e.laserShotX;
+        var laserTy = e.laserCharging ? e.laserTargetY : e.laserShotY;
+        if (Number.isFinite(laserTx) && Number.isFinite(laserTy)) {
+            var laserAlpha = e.laserCharging
+                ? 0.28 + 0.28 * Math.sin(performance.now() / 70)
+                : 0.95;
+            ctx.save();
+            ctx.globalAlpha = laserAlpha;
+            ctx.strokeStyle = '#ff1744';
+            ctx.shadowColor = '#ff1744';
+            ctx.shadowBlur = sfShadow(e.laserCharging ? 10 : 22);
+            ctx.lineWidth = e.laserCharging ? 2 : 7;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(laserTx, laserTy);
+            ctx.stroke();
+            if (e.laserCharging) {
+                ctx.strokeStyle = 'rgba(255,255,255,.9)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(laserTx, laserTy);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
     }
     ctx.restore();
 }

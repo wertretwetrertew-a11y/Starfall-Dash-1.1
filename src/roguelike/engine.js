@@ -592,13 +592,14 @@ function rogueTriggerLightning() {
     used[candidates[0]._rogueId || (candidates[0]._rogueId='e'+Math.random())] = true;
 
     var spreadLevel = runUpgrades.propagation ? Math.max(1,Math.min(3,runUpgrades.propagation)) : 0;
-    var spreadRadius = spreadLevel ? [0,90,125,165][spreadLevel] : 0;
-    var normalJumpRadius = 135;
-    var maxTargets = level; // without Spread: I=1, II=2, III=3 targets
-    var unlimited = !!spreadLevel;
+    var spreadRadius = spreadLevel ? [0,180,220,260][spreadLevel] : 0;
+    var normalJumpRadius = 220;
 
-    while (chain.length < candidates.length) {
-        if (!unlimited && chain.length >= maxTargets) break;
+    // Lightning is a real chain at every level, not a single-target hit.
+    // Level controls the base number of jumps; Propagation extends the chain.
+    var maxTargets = [0,2,3,4][level] + (spreadLevel ? spreadLevel : 0);
+
+    while (chain.length < candidates.length && chain.length < maxTargets) {
         var source = chain[chain.length - 1];
         var sx=source.x+source.size/2, sy=source.y+source.size/2;
         var best=null, bestD=Infinity;
@@ -608,7 +609,7 @@ function rogueTriggerLightning() {
             var key=target._rogueId || (target._rogueId='e'+Math.random());
             if (used[key]) return;
             var d=Math.hypot((target.x+target.size/2)-sx,(target.y+target.size/2)-sy);
-            var limit = unlimited ? spreadRadius : normalJumpRadius;
+            var limit = spreadLevel ? spreadRadius : normalJumpRadius;
             if (d <= limit && d < bestD) {
                 best=target;
                 bestD=d;

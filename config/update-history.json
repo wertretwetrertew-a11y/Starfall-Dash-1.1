@@ -184,6 +184,18 @@
       ],
       "source": "Bot Lab",
       "commit": "0e23a7bd99bf1daa071ae4e91d066c03146d2df1"
+    },
+    {
+      "version": "3.3.17",
+      "date": "2026-10-08T16:38:55.892Z",
+      "type": "balance",
+      "title": "Обновление баланса через Bot Lab",
+      "summary": "Изменён враг «miniboss»: hp.",
+      "changes": [
+        "rogue.enemies.miniboss.hp"
+      ],
+      "source": "Bot Lab",
+      "commit": "2ff7862b6ef37349a2e5ae05c2f8bb58f0dcb5bb"
     }
   ]
 }

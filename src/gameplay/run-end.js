@@ -61,6 +61,32 @@ function finishRun() {
     }
 
     if (currentMode === 'rogue') {
+        /*
+         * Смерть в рогалике не сохраняет текущий этап как чекпоинт.
+         * После проигрыша следующая попытка на этой же планете всегда
+         * начинается с этапа 1. Саму открытую планету сохраняем.
+         *
+         * Важно: прогресс планеты (ядро/классы/награды) не сбрасывается.
+         */
+        if (typeof roguePlanetState !== 'undefined' && roguePlanetState.active &&
+            typeof getSave === 'function') {
+            var deathProgress = getSave();
+            deathProgress.rogueProgress = {
+                planetIndex: Math.max(0, Number(roguePlanetState.planetIndex) || 0),
+                stageIndex: 0,
+                bossUnlocked: false
+            };
+            persist();
+
+            roguePlanetState.stageIndex = 0;
+            roguePlanetState.stageStarted = false;
+            roguePlanetState.bossUnlocked = false;
+            roguePlanetState.bossActive = false;
+            roguePlanetState.bossHandled = false;
+        }
+    }
+
+    if (currentMode === 'rogue') {
         var shardsEarned = Math.floor(level * 2);
         s.starShards = (s.starShards || 0) + shardsEarned;
         setTimeout(function() {

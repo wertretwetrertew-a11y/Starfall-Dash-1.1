@@ -172,6 +172,18 @@
         "rogue.enemies.normal.hp"
       ],
       "summary": "HP обычных мобов увеличено с 8 до 12 (+50%). Исправление добавлено в список багов Bot Lab."
+    },
+    {
+      "version": "3.3.16",
+      "date": "2026-10-08T16:37:13.699Z",
+      "type": "balance",
+      "title": "Обновление баланса через Bot Lab",
+      "summary": "Изменён враг «normal»: hp.",
+      "changes": [
+        "rogue.enemies.normal.hp"
+      ],
+      "source": "Bot Lab",
+      "commit": "0e23a7bd99bf1daa071ae4e91d066c03146d2df1"
     }
   ]
 }

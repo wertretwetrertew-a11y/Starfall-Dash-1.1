@@ -132,6 +132,26 @@
       ],
       "source": "Bot Lab",
       "commit": "191fd1d455e0a41b3b3cdfeda07f3056dccfb658"
+    },
+    {
+      "version": "3.3.13",
+      "date": "2026-10-08T16:04:22.862Z",
+      "type": "balance",
+      "title": "Обновление баланса через Bot Lab",
+      "summary": "Изменено 9 параметров баланса, включая: этап 4 планеты Арден: максимум врагов; этап 4 планеты Арден: минимум врагов; этап 4 планеты Арден: скорость врагов и другие.",
+      "changes": [
+        "rogue.stages.arden.3.maxAlive",
+        "rogue.stages.arden.3.minAlive",
+        "rogue.stages.arden.3.speedMult",
+        "rogue.stages.arden.3.pool.0",
+        "rogue.stages.arden.3.pool.1",
+        "rogue.stages.arden.3.pool.2",
+        "rogue.bosses.dragon.hp",
+        "rogue.bosses.dragon.rewardGold",
+        "rogue.bosses.dragon.rewardCrystals"
+      ],
+      "source": "Bot Lab",
+      "commit": "180aff4b19433f9c3c98e9dc98ce9c2222757af2"
     }
   ]
 }

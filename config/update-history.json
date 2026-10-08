@@ -162,6 +162,16 @@
       "changes": [
         "roguelike.lightning.chain"
       ]
+    },
+    {
+      "version": "3.3.15",
+      "date": "2026-10-08T16:35:00.000Z",
+      "type": "balance",
+      "title": "Увеличено HP обычных мобов",
+      "changes": [
+        "rogue.enemies.normal.hp"
+      ],
+      "summary": "HP обычных мобов увеличено с 8 до 12 (+50%). Исправление добавлено в список багов Bot Lab."
     }
   ]
 }
